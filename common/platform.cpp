@@ -55,6 +55,7 @@ const PlatformDescription g_platforms[] = {
 	{ "ios", "ios", "ios", "Apple iOS", kPlatformIOS },
 	{ "os2", "os2", "os2", "OS/2", kPlatformOS2 },
 	{ "beos", "beos", "beos", "BeOS", kPlatformBeOS },
+	{ "saturn", "saturn", "saturn", "Sega Saturn", kPlatformSaturn },
 
 	{ nullptr, nullptr, nullptr, "Default", kPlatformUnknown }
 };

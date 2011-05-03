@@ -60,6 +60,7 @@ enum Platform {
 	kPlatformIOS,
 	kPlatformOS2,
 	kPlatformBeOS,
+	kPlatformSaturn,
 
 	kPlatformUnknown = -1
 };
