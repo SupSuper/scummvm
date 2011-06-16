@@ -24,9 +24,12 @@
  */
 
 #include "common/macresman.h"
-#include "common/ne_exe.h"
+#include "common/textconsole.h"
+#include "common/winexe_ne.h"
 
 #include "graphics/cursorman.h"
+#include "graphics/maccursor.h"
+#include "graphics/wincursor.h"
 
 #include "darkseed2/cursors.h"
 #include "darkseed2/imageconverter.h"
@@ -172,28 +175,33 @@ bool CursorsWindows::load() {
 	if (!resources.loadFromEXE(_exeName))
 		return false;
 
-	// Convert cursor resources to usable cursors
-	const Common::Array<Common::NECursorGroup> &cursorGroups = resources.getCursors();
-	Common::Array<Common::NECursorGroup>::const_iterator cursorGroup;
-	for (cursorGroup = cursorGroups.begin(); cursorGroup != cursorGroups.end(); ++cursorGroup) {
-		if (cursorGroup->cursors.empty())
+	// Convert cursor resources to our cursors
+	Common::Array<Common::WinResourceID> cursorGroups = resources.getIDList(Common::kNEGroupCursor);
+
+	for (uint i = 0; i < cursorGroups.size(); i++) {
+		::Graphics::WinCursorGroup *cursorGroup = ::Graphics::WinCursorGroup::createCursorGroup(resources, cursorGroups[i]);
+
+		if (!cursorGroup)
 			continue;
 
-		const Common::NECursor *neCursor = cursorGroup->cursors[0];
 		Cursor cursor;
-
-		if (!loadFromResource(cursor, *neCursor))
+		if (!loadFromResource(cursor, *cursorGroup->cursors[0].cursor)) {
+			delete cursorGroup;
 			return false;
+		}
 
-		cursor.name = cursorGroup->id.toString();
+		delete cursorGroup;
+
+		cursor.name = cursorGroups[i].toString();
 
 		_cursors.setVal(cursor.name, cursor);
+
 	}
 
 	return true;
 }
 
-bool CursorsWindows::loadFromResource(Cursor &cursor, const Common::NECursor &resource) {
+bool CursorsWindows::loadFromResource(Cursor &cursor, const ::Graphics::WinCursor &resource) {
 	// Copy properties
 	cursor.width    = resource.getWidth();
 	cursor.height   = resource.getHeight();
@@ -206,15 +214,15 @@ bool CursorsWindows::loadFromResource(Cursor &cursor, const Common::NECursor &re
 	const byte *srcPalette = resource.getPalette();
 
 	for (int j = 0; j < 256; j++) {
-		palette.get()[j * 3 + 0] = srcPalette[j * 4 + 0];
-		palette.get()[j * 3 + 1] = srcPalette[j * 4 + 1];
-		palette.get()[j * 3 + 2] = srcPalette[j * 4 + 2];
+		palette.get()[j * 3 + 0] = srcPalette[j * 3 + 0];
+		palette.get()[j * 3 + 1] = srcPalette[j * 3 + 1];
+		palette.get()[j * 3 + 2] = srcPalette[j * 3 + 2];
 	}
 
 	// Ensure the key color is transparent
-	palette.get()[0] = 0;
-	palette.get()[1] = 0;
-	palette.get()[2] = 255;
+	palette.get()[resource.getKeyColor() * 3 + 0] = 0;
+	palette.get()[resource.getKeyColor() * 3 + 1] = 0;
+	palette.get()[resource.getKeyColor() * 3 + 2] = 255;
 
 	cursor.sprite = new Sprite;
 	cursor.sprite->create(cursor.width, cursor.height);
@@ -264,52 +272,57 @@ CursorsMac::CursorsMac(Common::MacResManager &exeResFork) : _exeResFork(&exeResF
 }
 
 bool CursorsMac::load() {
-	Common::MacResIDArray idArray = _exeResFork->getResIDArray(MKID_BE('crsr'));
+	Common::MacResIDArray idArray = _exeResFork->getResIDArray(MKTAG('c', 'r', 's', 'r'));
 
 	for (uint32 i = 0; i < idArray.size(); i++) {
 		Cursor cursor;
 
-		cursor.name = _exeResFork->getResName(MKID_BE('crsr'), idArray[i]);
+		cursor.name = _exeResFork->getResName(MKTAG('c', 'r', 's', 'r'), idArray[i]);
 
 		if (cursor.name.empty())
 			continue;
 
-		Common::SeekableReadStream *stream = _exeResFork->getResource(MKID_BE('crsr'), idArray[i]);
-		uint32 streamSize = stream->size();
-		byte *data = new byte[streamSize];
-		stream->read(data, streamSize);
-		delete stream;
+		Common::SeekableReadStream *stream = _exeResFork->getResource(MKTAG('c', 'r', 's', 'r'), idArray[i]);
+		::Graphics::MacCursor *macCursor = new ::Graphics::MacCursor();
 
-		byte *cursorData, *rawPalette;
-		int keyColor, palSize;
-
-		Common::MacResManager::convertCrsrCursor(data, streamSize, &cursorData, &cursor.width, &cursor.height, &cursor.hotspotX, &cursor.hotspotY, &keyColor, true, &rawPalette, &palSize);
-
-		Palette palette;
-
-		palette.resize(MAX<int>(palSize, keyColor + 1));
-
-		for (int j = 0; j < palSize; j++) {
-			palette.get()[j * 3 + 0] = rawPalette[j * 4 + 0];
-			palette.get()[j * 3 + 1] = rawPalette[j * 4 + 1];
-			palette.get()[j * 3 + 2] = rawPalette[j * 4 + 2];
+		if (!macCursor->readFromStream(*stream)) {
+			warning("Failed to load Mac cursor '%s'", cursor.name.c_str());
+			delete macCursor;
+			delete stream;
+			continue;
 		}
 
-		// Ensure the keyColor is transparent
-		palette.get()[keyColor * 3 + 0] = 0;
-		palette.get()[keyColor * 3 + 1] = 0;
-		palette.get()[keyColor * 3 + 2] = 255;
+		// Copy properties
+		cursor.width    = macCursor->getWidth();
+		cursor.height   = macCursor->getHeight();
+		cursor.hotspotX = macCursor->getHotspotX();
+		cursor.hotspotY = macCursor->getHotspotY();
 
-		delete[] rawPalette;
+		Palette palette;
+		palette.resize(256);
 
-		cursor.sprite = new Sprite();
+		const byte *srcPalette = macCursor->getPalette();
+
+		for (int j = 0; j < 256; j++) {
+			palette.get()[j * 3 + 0] = srcPalette[j * 3 + 0];
+			palette.get()[j * 3 + 1] = srcPalette[j * 3 + 1];
+			palette.get()[j * 3 + 2] = srcPalette[j * 3 + 2];
+		}
+
+		// Ensure the key color is transparent
+		palette.get()[macCursor->getKeyColor() * 3 + 0] = 0;
+		palette.get()[macCursor->getKeyColor() * 3 + 1] = 0;
+		palette.get()[macCursor->getKeyColor() * 3 + 2] = 255;
+
+		cursor.sprite = new Sprite;
 		cursor.sprite->create(cursor.width, cursor.height);
 		cursor.sprite->setPalette(palette);
-		cursor.sprite->copyFrom(cursorData);
-
-		delete[] cursorData;
+		cursor.sprite->copyFrom(macCursor->getSurface());
 
 		_cursors[cursor.name] = cursor;
+
+		delete macCursor;
+		delete stream;
 	}
 
 	return true;
