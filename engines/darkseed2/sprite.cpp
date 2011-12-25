@@ -24,10 +24,14 @@
  */
 
 #include "common/serializer.h"
+#include "common/system.h"
+#include "common/textconsole.h"
 
-#include "graphics/surface.h"
-#include "graphics/fontman.h"
 #include "graphics/font.h"
+#include "graphics/fontman.h"
+#include "graphics/pict.h"
+#include "graphics/pixelformat.h"
+#include "graphics/surface.h"
 
 #include "darkseed2/sprite.h"
 #include "darkseed2/imageconverter.h"
@@ -175,8 +179,8 @@ void Sprite::create(int32 width, int32 height) {
 
 	discard();
 
-	_surfacePaletted.create(width, height, 1);
-	_surfaceTrueColor.create(width, height, 2);
+	_surfacePaletted.create(width, height, ::Graphics::PixelFormat::createFormatCLUT8());
+	_surfaceTrueColor.create(width, height, g_system->getScreenFormat());
 
 	_transparencyMap = new uint8[width * height];
 
@@ -245,7 +249,7 @@ void Sprite::updateTransparencyMap() {
 	uint32 colorTransp = ImgConv.convertColor(0, _palette);
 
 	for (int32 y = 0; y < _surfaceTrueColor.h; y++) {
-		for (int32 x = 0; x < _surfaceTrueColor.w; x++, map++, img += _surfaceTrueColor.bytesPerPixel) {
+		for (int32 x = 0; x < _surfaceTrueColor.w; x++, map++, img += _surfaceTrueColor.format.bytesPerPixel) {
 			const uint32 p = ImgConv.readColor(img);
 
 			if ((*map == 1) && (p != colorTransp))
@@ -277,6 +281,9 @@ bool Sprite::loadFromBoxImage(Resources &resources, const Common::String &image,
 
 	case kImageType256:
 		return loadFrom256(resources, image, width, height);
+
+	case kImageTypePICT:
+		return loadFromPICT(resources, image);
 
 	default:
 		return false;
@@ -428,7 +435,7 @@ bool Sprite::loadFromRGB(Common::SeekableReadStream &rgb) {
 		for (int32 x = 0; x < width; x++) {
 			ImgConv.writeColor(img, readColor555(rgb, transp));
 
-			img += _surfaceTrueColor.bytesPerPixel;
+			img += _surfaceTrueColor.format.bytesPerPixel;
 			transp++;
 		}
 		rgb.skip(linePad);
@@ -440,7 +447,7 @@ bool Sprite::loadFromRGB(Common::SeekableReadStream &rgb) {
 bool Sprite::loadFromBDP(Common::SeekableReadStream &bdp) {
 	bdp.seek(0);
 
-	if (bdp.size() != (320*240*2))
+	if (bdp.size() != (320 * 240 * 2))
 		return false;
 
 	create(320, 240);
@@ -450,7 +457,7 @@ bool Sprite::loadFromBDP(Common::SeekableReadStream &bdp) {
 		for (int32 x = 0; x < 240; x++) {
 			ImgConv.writeColor(img, readColor555(bdp));
 
-			img += _surfaceTrueColor.bytesPerPixel;
+			img += _surfaceTrueColor.format.bytesPerPixel;
 		}
 	}
 
@@ -500,7 +507,7 @@ bool Sprite::loadFromSaturnCursor(Common::SeekableReadStream &cursor) {
 
 			ImgConv.writeColor(img, c);
 
-			img += _surfaceTrueColor.bytesPerPixel;
+			img += _surfaceTrueColor.format.bytesPerPixel;
 		}
 	}
 
@@ -669,6 +676,43 @@ bool Sprite::loadFromMacRoomImage(Resources &resources, const Common::String &im
 	return true;
 }
 
+bool Sprite::loadFromPICT(Resources &resources, const Common::String &image) {
+	if (!resources.hasResource(image))
+		return false;
+
+	Common::SeekableReadStream *stream = resources.getResource(image);
+
+	::Graphics::PictDecoder pict(ImgConv.getPixelFormat());
+
+	byte palette[256 * 3];
+	::Graphics::Surface *output = pict.decodeImage(stream, palette);
+	delete stream;
+
+	if (!output) {
+		warning("Failed to decode PICT image");
+		return false;
+	}
+
+	if (output->format.bytesPerPixel != 1) {
+		output->free();
+		delete output;
+		warning("Only 8bpp PICT images supported");
+		return false;
+	}
+
+	create(output->w, output->h);
+	_surfacePaletted.copyFrom(*output);
+	_palette.copyFrom(palette, 256);
+
+	output->free();
+	delete output;
+
+	createTransparencyMap();
+	convertToTrueColor();
+
+	return true;
+}
+
 bool Sprite::loadFromSaturnCursor(Resources &resources, const Common::String &cursor) {
 	Common::String cursorFile = Resources::addExtension(cursor, "CUR");
 	if (!resources.hasResource(cursorFile))
@@ -717,7 +761,7 @@ void Sprite::flipHorizontally() {
 		byte  *dataPalStart    = dataPal;
 		byte  *dataPalEnd      = dataPal    + width - 1;
 		byte  *dataTrueStart   = dataTrue;
-		byte  *dataTrueEnd     = dataTrue   + _surfaceTrueColor.pitch - _surfaceTrueColor.bytesPerPixel;
+		byte  *dataTrueEnd     = dataTrue   + _surfaceTrueColor.pitch - _surfaceTrueColor.format.bytesPerPixel;
 		uint8 *dataTranspStart = dataTransp;
 		uint8 *dataTranspEnd   = dataTransp + width - 1;
 
@@ -727,8 +771,8 @@ void Sprite::flipHorizontally() {
 			dataPalEnd--;
 
 			ImgConv.swapColor(dataTrueStart, dataTrueEnd);
-			dataTrueStart += _surfaceTrueColor.bytesPerPixel;
-			dataTrueEnd   -= _surfaceTrueColor.bytesPerPixel;
+			dataTrueStart += _surfaceTrueColor.format.bytesPerPixel;
+			dataTrueEnd   -= _surfaceTrueColor.format.bytesPerPixel;
 
 			SWAP(*dataTranspStart, *dataTranspEnd);
 			dataTranspStart++;
@@ -839,16 +883,16 @@ void Sprite::blit(const Sprite &from, const Common::Rect &area, int32 x, int32 y
 		const uint8 *srcRowT = srcT;
 		      uint8 *dstRowT = dstT;
 
-		for (int32 j = 0; j < w; j++, dstRow += _surfaceTrueColor.bytesPerPixel, dstRowT++) {
+		for (int32 j = 0; j < w; j++, dstRow += _surfaceTrueColor.format.bytesPerPixel, dstRowT++) {
 			if (!transp || (*srcRowT == 0)) {
 				// Ignore transparency or source is solid => copy
-				memcpy(dstRow, srcRow, _surfaceTrueColor.bytesPerPixel);
+				memcpy(dstRow, srcRow, _surfaceTrueColor.format.bytesPerPixel);
 				*dstRowT = *srcRowT;
 			} else if (*srcRowT == 2) {
 				// Half-transparent
 				if (*dstRowT == 1)
 					// But destination is transparent => propagate
-					memcpy(dstRow, srcRow, _surfaceTrueColor.bytesPerPixel);
+					memcpy(dstRow, srcRow, _surfaceTrueColor.format.bytesPerPixel);
 				else
 					// Destination is solid => mix
 					ImgConv.mixTrueColor(dstRow, srcRow);
@@ -859,7 +903,7 @@ void Sprite::blit(const Sprite &from, const Common::Rect &area, int32 x, int32 y
 			// Advance source data
 			posW += from._scaleInverse;
 			while (posW >= ((frac_t) FRAC_ONE)) {
-				srcRow += from._surfaceTrueColor.bytesPerPixel;
+				srcRow += from._surfaceTrueColor.format.bytesPerPixel;
 				srcRowT++;
 				posW -= FRAC_ONE;
 			}
@@ -886,15 +930,15 @@ void Sprite::blit(const Sprite &from, int32 x, int32 y, bool transp) {
 
 void Sprite::fillImage(byte cP, uint32 cT) {
 	memset(_surfacePaletted.pixels, cP,
-			_surfacePaletted.w * _surfacePaletted.h * _surfacePaletted.bytesPerPixel);
+			_surfacePaletted.w * _surfacePaletted.h * _surfacePaletted.format.bytesPerPixel);
 
 	byte *trueColor = (byte *) _surfaceTrueColor.pixels;
 	for (int32 y = 0; y < _surfaceTrueColor.h; y++) {
 		for (int32 x = 0; x < _surfaceTrueColor.w; x++) {
-			if (_surfaceTrueColor.bytesPerPixel == 2)
+			if (_surfaceTrueColor.format.bytesPerPixel == 2)
 				ImgConv.writeColor(trueColor, cT);
 
-			trueColor += _surfaceTrueColor.bytesPerPixel;
+			trueColor += _surfaceTrueColor.format.bytesPerPixel;
 		}
 	}
 }
