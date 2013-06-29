@@ -170,6 +170,8 @@ bool SegaFILMDecoder::loadStream(Common::SeekableReadStream *stream) {
 		_mixer->playStream(_soundType, &_audioStreamHandle, _audioStream);
 	}
 
+	_curFrame = -1;
+
 	return true;
 }
 
@@ -219,9 +221,6 @@ const ::Graphics::Surface *SegaFILMDecoder::decodeNextFrame() {
 			_curFrame++;
 			_sampleTablePosition++;
 
-			if (_curFrame == 0)
-				_startTime = g_system->getMillis();
-
 			return surface;
 		}
 	}
@@ -260,8 +259,6 @@ uint32 SegaFILMDecoder::getTime() const {
 void SegaFILMDecoder::close() {
 	if (!_stream)
 		return;
-
-	reset();
 
 	if (_audioStream) {
 		if (_mixer->isSoundHandleActive(_audioStreamHandle))
