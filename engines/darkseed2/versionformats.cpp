@@ -74,7 +74,7 @@ void VersionFormats::setGameVersion(GameVersion gameVersion) {
 
 		_hotspotScale = 1;
 
-		_speakerSeparator = new TextLine((const byte *) ":\n", 2);
+		_speakerSeparator = new TextLine((const byte *)":\n", 2);
 		break;
 
 	case kGameVersionSaturn:
@@ -88,7 +88,7 @@ void VersionFormats::setGameVersion(GameVersion gameVersion) {
 
 		_hotspotScale = 2;
 
-		_speakerSeparator = new TextLine((const byte *) "\n", 1);
+		_speakerSeparator = new TextLine((const byte *)"\n", 1);
 		break;
 
 	case kGameVersionMac:

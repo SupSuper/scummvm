@@ -401,7 +401,7 @@ bool InventoryBox::hasAction(int32 x, int32 y, ObjectVerb verb) {
 	if (item < 0)
 		return false;
 
-	if (((uint32) item) >= _visibleItems.size())
+	if (((uint32)item) >= _visibleItems.size())
 		return false;
 
 	if ((verb == kObjectVerbLook) && (_visibleItems[item]->curLook))
@@ -427,7 +427,7 @@ InventoryBox::ItemRef InventoryBox::doAction(int32 x, int32 y, ObjectVerb verb,
 	if (item < 0)
 		return 0;
 
-	if (((uint32) item) >= _visibleItems.size())
+	if (((uint32)item) >= _visibleItems.size())
 		return 0;
 
 	if ((verb == kObjectVerbLook) && (_visibleItems[item]->curLook))
@@ -497,7 +497,7 @@ void InventoryBox::updateStatus() {
 InventoryBox::ScrollAction InventoryBox::getScrollAction(int32 x, int32 y) {
 	for (int i = 0; i < 2; i++)
 		if (_scrollAreas[i].contains(x, y))
-			return (ScrollAction) i;
+			return (ScrollAction)i;
 
 	return kScrollActionNone;
 }
