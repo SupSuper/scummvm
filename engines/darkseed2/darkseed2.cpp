@@ -106,6 +106,7 @@ DarkSeed2Engine::DarkSeed2Engine(OSystem *syst, const DS2GameDescription *gameDe
 	_inter          = 0;
 	_events         = 0;
 	_macExeResFork  = 0;
+	_midiDriver     = 0;
 
 	_rnd = new Common::RandomSource();
 	g_eventRec.registerRandomSource(*_rnd, "ds2");
@@ -118,8 +119,10 @@ DarkSeed2Engine::DarkSeed2Engine(OSystem *syst, const DS2GameDescription *gameDe
 }
 
 DarkSeed2Engine::~DarkSeed2Engine() {
-	_music->stop();
-	_sound->stopAll();
+	if (_music)
+		_music->stop();
+	if (_sound)
+		_sound->stopAll();
 
 	_mixer->stopAll();
 
