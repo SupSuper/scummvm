@@ -91,6 +91,8 @@ private:
 
 	bool playMID(Common::SeekableReadStream &mid);
 	bool playMID(const Resource &resource);
+
+	byte *convertSEQ(Common::SeekableReadStream &mid, uint32 &size);
 };
 
 // Taken from Draci, which took it from MADE, which took it from SAGA.
