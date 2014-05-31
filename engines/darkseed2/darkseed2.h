@@ -107,10 +107,9 @@ public:
 	/** Show the load dialog. */
 	bool doLoadDialog();
 
-	bool isWindows() const;
-	bool isSaturn() const;
-	bool isMac() const;
 	bool isDemo() const;
+	Common::Language getLanguage() const;
+	Common::Platform getPlatform() const;
 
 private:
 	struct SaveMeta {
@@ -148,8 +147,6 @@ private:
 	bool initGraphicsSystem();
 
 	const char *getGameId() const;
-	Common::Language getLanguage() const;
-	Common::Platform getPlatform() const;
 
 	// Saving/Loading
 	bool canLoadGameStateCurrently();

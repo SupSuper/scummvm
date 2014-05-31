@@ -33,7 +33,6 @@
 
 #include "darkseed2/darkseed2.h"
 #include "darkseed2/saveable.h"
-#include "darkseed2/versionformats.h"
 
 namespace Common {
 	class SeekableReadStream;
@@ -57,11 +56,8 @@ public:
 		kMidiModeFM = 1  ///< Frequency modulation synthesis
 	};
 
-	Music(Audio::Mixer &mixer, MidiDriver &driver);
+	Music(Common::Platform platform, Audio::Mixer &mixer, MidiDriver &driver);
 	~Music();
-
-	/** Set the music type */
-	void init(MusicType musicType);
 
 	/** Set the MIDI mode. */
 	void setMidiMode(MidiMode midiMode);
@@ -80,6 +76,8 @@ protected:
 	bool loading(Resources &resources);
 
 private:
+	Common::Platform _platform;
+
 	Audio::Mixer *_mixer;
 
 	MidiPlayer *_midiPlayer;
