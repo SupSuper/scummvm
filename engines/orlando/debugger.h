@@ -20,28 +20,21 @@
  *
  */
 
-#ifndef ORLANDO_ORLANDO_H
-#define ORLANDO_ORLANDO_H
+#ifndef ORLANDO_DEBUGGER_H
+#define ORLANDO_DEBUGGER_H
 
-#include "engines/engine.h"
-
-struct ADGameDescription;
+#include "gui/debugger.h"
 
 namespace Orlando {
 
-class Debugger;
+class OrlandoEngine;
 
-class OrlandoEngine : public Engine {
-	Debugger *_debugger;
+class Debugger : public GUI::Debugger {
+	OrlandoEngine *_vm;
 
 public:
-	OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc);
-	~OrlandoEngine();
-
-	virtual Common::Error run();
-
-	// Detection related functions
-	const ADGameDescription *_gameDescription;
+	Debugger(OrlandoEngine *vm);
+	virtual ~Debugger() {}
 };
 
 } // End of namespace Orlando

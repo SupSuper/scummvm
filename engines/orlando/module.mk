@@ -2,7 +2,8 @@ MODULE := engines/orlando
 
 MODULE_OBJS = \
 	orlando.o \
-	detection.o
+	detection.o \
+	debugger.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_ORLANDO), DYNAMIC_PLUGIN)

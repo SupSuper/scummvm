@@ -28,36 +28,43 @@
 #include "engines/util.h"
 
 #include "orlando/orlando.h"
+#include "orlando/debugger.h"
 
 namespace Orlando {
 
-OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst), _gameDescription(gameDesc) {
+OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst), _debugger(nullptr), _gameDescription(gameDesc) {
 }
 
 OrlandoEngine::~OrlandoEngine() {
+	delete _debugger;
 }
 
 Common::Error OrlandoEngine::run() {
 	Graphics::PixelFormat pixelFormat16(2, 5, 6, 5, 0, 11, 5, 0, 0);
 	initGraphics(640, 480, &pixelFormat16);
+	if (_system->getScreenFormat() != pixelFormat16)
+		return Common::kUnsupportedColorMode;
 
-	bool quit = false;
+	_debugger = new Debugger(this);
 
-	while (!quit) {
+	while (!shouldQuit()) {
 		Common::Event event;
-		while (g_system->getEventManager()->pollEvent(event)) {
+		while (_system->getEventManager()->pollEvent(event)) {
 			switch (event.type) {
-			case Common::EVENT_QUIT:
-			case Common::EVENT_RTL:
-				quit = true;
+			case Common::EVENT_KEYDOWN:
+				// CTRL+D - open debugger
+				if (event.kbd.hasFlags(Common::KBD_CTRL) && event.kbd.keycode == Common::KEYCODE_d) {
+					_debugger->attach();
+				}
 				break;
 			default:
 				break;
 			}
 		}
 
-		g_system->updateScreen();
-		g_system->delayMillis(10);
+		_debugger->onFrame();
+		_system->updateScreen();
+		_system->delayMillis(10);
 	}
 
 	return Common::kNoError;
