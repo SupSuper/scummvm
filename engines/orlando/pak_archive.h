@@ -40,25 +40,25 @@ class PakArchive : public Common::Archive {
 	Common::SeekableReadStream *_stream;
 
 	/**
-	 * Loads a PAK file from the DOS version. Header format is as follows:
-	 * - int32: Size of header in bytes.
-	 * Followed by description of each file:
-	 * - int32: Starting position of file in PAK.
-	 * - int32: Size of file.
-	 * - char[]: Filename zero-padded to 13 chars (8.3).
+	 * Loads a PAK file from the DOS version. Header format:
+	 * @li int32: Size of header in bytes.
+	 * Followed by each file definition:
+	 * @li int32: Starting position of file in PAK.
+	 * @li int32: Size of file.
+	 * @li char[]: Filename zero-padded to 13 chars (8.3).
 	 */
 	void loadDosPak();
 	/**
-	 * Loads a PAK file from the Windows version. Header format is as follows:
-	 * - char[]: "PAK\0" code.
-	 * - int32: Number of files stored.
-	 * - int32: Size of header in bytes (unused).
-	 * - int32: File handle (unused).
-	 * Followed by description of each file:
-	 * - int32: Starting position of file in PAK.
-	 * - int32: Size of file.
-	 * - int32: Length of filename.
-	 * - char[]: Zero-terminated filename.
+	 * Loads a PAK file from the Windows version. Header format:
+	 * @li char[]: "PAK\0" code.
+	 * @li int32: Number of files stored.
+	 * @li int32: Size of header in bytes (unused).
+	 * @li int32: File handle (unused).
+	 * Followed by each file definition:
+	 * @li int32: Starting position of file in PAK.
+	 * @li int32: Size of file.
+	 * @li int32: Length of filename.
+	 * @li char[]: Zero-terminated filename.
 	 */
 	void loadWindowsPak();
 	const PakFile *findFile(const Common::String &name) const;

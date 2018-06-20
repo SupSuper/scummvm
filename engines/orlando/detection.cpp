@@ -33,6 +33,14 @@ static const PlainGameDescriptor orlandoGames[] = {
 
 namespace Orlando {
 
+/**
+ * Known game variants:
+ * @li 1997 DOS version
+ * @li 2001 Windows version: Director's Cut (adds an Easy Mode, no other known differences)
+ * Digital rereleases are the same as the Windows version without CD checks.
+ *
+ * TODO: Support different language versions (assuming English for now).
+ */
 static const ADGameDescription gameDescriptions[] = {
 	// DOS version (original)
 	{

@@ -29,12 +29,15 @@ namespace Orlando {
 
 class OrlandoEngine;
 
+/**
+ * Console debugger.
+ */
 class Debugger : public GUI::Debugger {
 	OrlandoEngine *_vm;
 
 public:
 	Debugger(OrlandoEngine *vm);
-	virtual ~Debugger() {}
+	~Debugger() {}
 };
 
 } // End of namespace Orlando
