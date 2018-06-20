@@ -23,9 +23,11 @@
 #include "common/scummsys.h"
 
 #include "common/rect.h"
+#include "common/stream.h"
 #include "common/system.h"
 #include "engines/util.h"
 #include "graphics/surface.h"
+#include "graphics/managed_surface.h"
 
 #include "orlando/graphics.h"
 #include "orlando/orlando.h"
@@ -38,9 +40,7 @@ GraphicsManager::GraphicsManager(OrlandoEngine *vm) : _vm(vm), _screenBuffer(nul
 }
 
 GraphicsManager::~GraphicsManager() {
-	if (_screenBuffer != nullptr) {
-		_screenBuffer->free();
-	}
+	delete _screenBuffer;
 }
 
 bool GraphicsManager::setupScreen() {
@@ -49,8 +49,7 @@ bool GraphicsManager::setupScreen() {
 		return false;
 	}
 
-	_screenBuffer = new Graphics::Surface();
-	_screenBuffer->create(kScreenWidth, kScreenHeight, kScreenFormat);
+	_screenBuffer = new Graphics::ManagedSurface(kScreenWidth, kScreenHeight, kScreenFormat);
 	return true;
 }
 
@@ -62,6 +61,52 @@ void GraphicsManager::updateScreen() {
 	system->unlockScreen();
 
 	system->updateScreen();
+}
+
+void GraphicsManager::drawSurface(const Graphics::Surface &surface, const Common::Point &pos) {
+	_screenBuffer->transBlitFrom(surface, pos);
+}
+
+Graphics::Surface *GraphicsManager::loadRawBitmap(Common::SeekableReadStream *stream) {
+	int width = stream->readSint16LE();
+	int height = stream->readSint16LE();
+
+	Graphics::Surface *surface = new Graphics::Surface();
+	surface->create(width, height, kScreenFormat);
+	stream->read(surface->getPixels(), width * height * kScreenFormat.bytesPerPixel);
+
+	return surface;
+}
+
+Graphics::Surface *GraphicsManager::loadPaletteBitmap(Common::SeekableReadStream *stream) {
+	int width = stream->readSint16LE();
+	int height = stream->readSint16LE();
+	uint16 palette[128];
+	stream->read(&palette, 128 * sizeof(uint16));
+
+	Graphics::Surface *surface = new Graphics::Surface();
+	surface->create(width, height, kScreenFormat);
+
+	uint16 *pixel = (uint16*)surface->getBasePtr(0, 0);
+	do {
+		int color = stream->readByte();
+		if (stream->eos())
+			break;
+
+		int repeat = 1;
+		// RLE byte
+		if (color & 1) {
+			repeat = stream->readByte();
+		}
+
+		color = color >> 1;
+		for (int i = 0; i < repeat; i++) {
+			*pixel = palette[color];
+			pixel++;
+		}
+	} while (!stream->eos());
+
+	return surface;
 }
 
 } // End of namespace Orlando

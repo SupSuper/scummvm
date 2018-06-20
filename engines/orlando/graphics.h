@@ -25,8 +25,14 @@
 
 #include "graphics/pixelformat.h"
 
+namespace Common {
+	struct Point;
+	class ReadableSeekStream;
+}
+
 namespace Graphics {
-	class Surface;
+	struct Surface;
+	class ManagedSurface;
 }
 
 namespace Orlando {
@@ -35,7 +41,7 @@ class OrlandoEngine;
 
 /**
  * Manages all graphics operations for the Orlando engine.
- * The game runs at 640x480x16 using RGB565 pixels.
+ * The game runs at 640x480x16 using RGB565 pixels. 0 is transparent.
  * All graphics have the same format, no conversions necessary.
  * Drawing is performed on a buffer surface which is later blit to the screen.
  */
@@ -47,7 +53,7 @@ class GraphicsManager {
 	static const Graphics::PixelFormat kScreenFormat;
 
 	OrlandoEngine *_vm;
-	Graphics::Surface *_screenBuffer;
+	Graphics::ManagedSurface *_screenBuffer;
 
 public:
 	GraphicsManager(OrlandoEngine *vm);
@@ -61,6 +67,34 @@ public:
 	 * Refreshes the screen contents with our buffer surface.
 	 */
 	void updateScreen();
+	/**
+	 * Draws a surface with transparency to the screen.
+	 * @param surface Source surface.
+	 * @param pos Position on screen to draw to.
+	 */
+	void drawSurface(const Graphics::Surface &surface, const Common::Point &pos);
+	/**
+	 * Loads a raw bitmap (normally *.BM) into a surface. They are uncompressed
+	 * images composed of:
+	 * @li int16: Width in pixels.
+	 * @li int16: Height in pixels.
+	 * @li int16[]: Row-first colors of each pixel.
+	 * @param stream Stream to load from.
+	 * @return New image surface. Must be free()d manually.
+	 */	 
+	Graphics::Surface *loadRawBitmap(Common::SeekableReadStream *stream);
+	/**
+	* Loads a palette bitmap (normally *.PBM) into a surface. They are RLE-compressed
+	* images composed of:
+	* @li int16: Width in pixels.
+	* @li int16: Height in pixels.
+	* @li int16[]: 128-color palette.
+	* @li byte[]: Row-first indices of each pixel. The first 7 bits are the index and
+	* the last bit is a RLE flag (if 1, repeat index by the value of the next byte).
+	* @param stream Stream to load from.
+	* @return New image surface. Must be free()d manually.
+	*/
+	Graphics::Surface *loadPaletteBitmap(Common::SeekableReadStream *stream);
 };
 
 } // End of namespace Orlando
