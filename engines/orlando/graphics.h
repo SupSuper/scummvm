@@ -20,33 +20,47 @@
  *
  */
 
-#ifndef ORLANDO_ORLANDO_H
-#define ORLANDO_ORLANDO_H
+#ifndef ORLANDO_GRAPHICS_H
+#define ORLANDO_GRAPHICS_H
 
-#include "engines/engine.h"
+#include "graphics/pixelformat.h"
 
-struct ADGameDescription;
+namespace Graphics {
+	class Surface;
+}
 
 namespace Orlando {
 
-class Debugger;
-class GraphicsManager;
+class OrlandoEngine;
 
 /**
- * Engine for the Jack Orlando adventure game.
+ * Manages all graphics operations for the Orlando engine.
+ * The game runs at 640x480x16 using RGB565 pixels.
+ * All graphics have the same format, no conversions necessary.
+ * Drawing is performed on a buffer surface which is later blit to the screen.
  */
-class OrlandoEngine : public Engine {
-	Debugger *_debugger;
-	GraphicsManager *_graphics;
+class GraphicsManager {
+	friend class OrlandoEngine;
+
+	static const int kScreenWidth = 640;
+	static const int kScreenHeight = 480;
+	static const Graphics::PixelFormat kScreenFormat;
+
+	OrlandoEngine *_vm;
+	Graphics::Surface *_screenBuffer;
 
 public:
-	OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc);
-	~OrlandoEngine();
-
-	Common::Error run();
-
-	// Detection related functions
-	const ADGameDescription *_gameDescription;
+	GraphicsManager(OrlandoEngine *vm);
+	~GraphicsManager();
+	/**
+	 * Initializes the system screen and buffer surface with the required resolution.
+	 * @return False if the pixel format isn't supported.
+	 */
+	bool setupScreen();
+	/**
+	 * Refreshes the screen contents with our buffer surface.
+	 */
+	void updateScreen();
 };
 
 } // End of namespace Orlando

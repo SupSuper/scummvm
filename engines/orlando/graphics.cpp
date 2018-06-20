@@ -22,52 +22,46 @@
 
 #include "common/scummsys.h"
 
-#include "common/error.h"
-#include "common/events.h"
+#include "common/rect.h"
 #include "common/system.h"
+#include "engines/util.h"
+#include "graphics/surface.h"
 
-#include "orlando/orlando.h"
-#include "orlando/debugger.h"
 #include "orlando/graphics.h"
+#include "orlando/orlando.h"
 
 namespace Orlando {
 
-OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst), _debugger(nullptr), _gameDescription(gameDesc) {
-	_graphics = new GraphicsManager(this);
+const Graphics::PixelFormat GraphicsManager::kScreenFormat(2, 5, 6, 5, 0, 11, 5, 0, 0); // RGB565
+
+GraphicsManager::GraphicsManager(OrlandoEngine *vm) : _vm(vm), _screenBuffer(nullptr) {
 }
 
-OrlandoEngine::~OrlandoEngine() {
-	delete _graphics;
-	delete _debugger;
+GraphicsManager::~GraphicsManager() {
+	if (_screenBuffer != nullptr) {
+		_screenBuffer->free();
+	}
 }
 
-Common::Error OrlandoEngine::run() {
-	if (!_graphics->setupScreen())
-		return Common::kUnsupportedColorMode;
-
-	_debugger = new Debugger(this);
-
-	while (!shouldQuit()) {
-		Common::Event event;
-		while (_system->getEventManager()->pollEvent(event)) {
-			switch (event.type) {
-			case Common::EVENT_KEYDOWN:
-				// CTRL+D - open debugger
-				if (event.kbd.hasFlags(Common::KBD_CTRL) && event.kbd.keycode == Common::KEYCODE_d) {
-					_debugger->attach();
-				}
-				break;
-			default:
-				break;
-			}
-		}
-
-		_debugger->onFrame();
-		_graphics->updateScreen();
-		_system->delayMillis(10);
+bool GraphicsManager::setupScreen() {
+	initGraphics(kScreenWidth, kScreenHeight, &kScreenFormat);
+	if (_vm->_system->getScreenFormat() != kScreenFormat) {
+		return false;
 	}
 
-	return Common::kNoError;
+	_screenBuffer = new Graphics::Surface();
+	_screenBuffer->create(kScreenWidth, kScreenHeight, kScreenFormat);
+	return true;
+}
+
+void GraphicsManager::updateScreen() {
+	OSystem *system = _vm->_system;
+
+	Graphics::Surface *screen = system->lockScreen();
+	screen->copyRectToSurface(*_screenBuffer, 0, 0, Common::Rect(0, 0, _screenBuffer->w, _screenBuffer->h));
+	system->unlockScreen();
+
+	system->updateScreen();
 }
 
 } // End of namespace Orlando

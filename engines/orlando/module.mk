@@ -4,7 +4,8 @@ MODULE_OBJS = \
 	orlando.o \
 	detection.o \
 	debugger.o \
-	pak_archive.o
+	pak_archive.o \
+	graphics.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_ORLANDO), DYNAMIC_PLUGIN)
