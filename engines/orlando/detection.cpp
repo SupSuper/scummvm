@@ -50,7 +50,7 @@ static const ADGameDescription gameDescriptions[] = {
 		Common::EN_ANY,
 		Common::kPlatformDOS,
 		ADGF_NO_FLAGS,
-		GUIO1(GUIO_NONE)
+		GUIO0()
 	},
 	// Windows version (director's cut)
 	{
@@ -60,7 +60,7 @@ static const ADGameDescription gameDescriptions[] = {
 		Common::EN_ANY,
 		Common::kPlatformWindows,
 		ADGF_NO_FLAGS,
-		GUIO1(GUIO_NONE)
+		GUIO0()
 	},
 
 	AD_TABLE_END_MARKER
@@ -72,6 +72,7 @@ class OrlandoMetaEngine : public AdvancedMetaEngine {
 public:
 	OrlandoMetaEngine() : AdvancedMetaEngine(Orlando::gameDescriptions, sizeof(ADGameDescription), orlandoGames) {
 		_singleId = "orlando";
+		_guiOptions = GUIO1(GUIO_NOMIDI);
 	}
 
 	virtual const char *getName() const {
@@ -88,6 +89,15 @@ public:
 
 bool OrlandoMetaEngine::hasFeature(MetaEngineFeature f) const {
 	return false;
+}
+
+bool Orlando::OrlandoEngine::hasFeature(EngineFeature f) const {
+	switch (f) {
+	case kSupportsRTL:
+		return true;
+	default:
+		return false;
+	}
 }
 
 bool OrlandoMetaEngine::createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const {

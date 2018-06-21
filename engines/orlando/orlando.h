@@ -43,7 +43,9 @@ public:
 	OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc);
 	~OrlandoEngine();
 
-	Common::Error run();
+	Common::Error run() override;
+	GUI::Debugger *getDebugger() override;
+	bool hasFeature(EngineFeature f) const override;
 
 	// Detection related functions
 	const ADGameDescription *_gameDescription;

@@ -70,4 +70,8 @@ Common::Error OrlandoEngine::run() {
 	return Common::kNoError;
 }
 
+GUI::Debugger *OrlandoEngine::getDebugger() {
+	return _debugger;
+}
+
 } // End of namespace Orlando
