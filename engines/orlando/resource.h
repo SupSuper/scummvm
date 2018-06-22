@@ -20,41 +20,47 @@
  *
  */
 
-#ifndef ORLANDO_ORLANDO_H
-#define ORLANDO_ORLANDO_H
+#ifndef ORLANDO_RESOURCE_H
+#define ORLANDO_RESOURCE_H
 
-#include "engines/engine.h"
-#include "orlando/debugger.h"
-
-struct ADGameDescription;
+namespace Common {
+	class File;
+	class Archive;
+	class String;
+}
 
 namespace Orlando {
 
-class GraphicsManager;
-class ResourceManager;
-class MainMenu;
+class OrlandoEngine;
 
 /**
- * Engine for the Jack Orlando adventure game.
- */
-class OrlandoEngine : public Engine {
-	Debugger *_debugger;
-	GraphicsManager *_graphics;
-	ResourceManager *_resources;
-	MainMenu *_menu;
+  * Manages global resources and resource acquisition.
+  */
+class ResourceManager {
+	OrlandoEngine *_vm;
+	Common::Archive *_globalPak, *_resourcePak;
 
 public:
-	OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc);
-	~OrlandoEngine();
-
-	Common::Error run() override;
-	GUI::Debugger *getDebugger() override {	return _debugger; }
-	GraphicsManager *getGraphicsManager() {	return _graphics; }
-	ResourceManager *getResourceManager() {	return _resources; }
-
-	// Detection related functions
-	const ADGameDescription *_gameDescription;
-	bool hasFeature(EngineFeature f) const override;
+	ResourceManager(OrlandoEngine *vm);
+	~ResourceManager();
+	/**
+	 * Loads and stores resources needed throughout the game.
+	 * @return False if a file wasn't found.
+	 */
+	bool loadGlobalResources();
+	/**
+	 * Loads a specific PAK archive.
+	 * @param filename Path relative to game folder.
+	 * @return Loaded resource, or nullptr if an error occured.
+	 */
+	Common::Archive *loadPakArchive(const Common::String &filename) const;
+	/**
+	* Loads a file contained in a PAK archive.
+	* @param archive Archive to search.
+	* @param filename File to load.
+	* @return Loaded resource, or nullptr if an error occured.
+	*/
+	Common::File *loadPakFile(Common::Archive &archive, const Common::String &filename) const;
 };
 
 } // End of namespace Orlando

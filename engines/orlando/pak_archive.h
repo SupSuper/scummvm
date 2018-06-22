@@ -64,7 +64,11 @@ class PakArchive : public Common::Archive {
 	const PakFile *findFile(const Common::String &name) const;
 
 public:
-	PakArchive(const Common::String &name);
+	/**
+	 * Loads a PAK archive from a stream. If an error occurs, the archive will be empty.
+	 * @param stream Pointer to file stream. The archive takes ownership of the stream.
+	 */
+	PakArchive(Common::SeekableReadStream *stream);
 	~PakArchive();
 	bool hasFile(const Common::String &name) const override;
 	int listMembers(Common::ArchiveMemberList &list) const override;

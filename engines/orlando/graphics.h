@@ -68,18 +68,24 @@ public:
 	 */
 	void updateScreen();
 	/**
-	 * Draws a surface with transparency to the screen.
+	* Draws a surface to the screen.
+	* @param surface Source surface.
+	* @param pos Position on screen to draw to.
+	*/
+	void drawSurface(const Graphics::Surface &surface, const Common::Point &pos = Common::Point(0, 0));
+	/**
+	 * Draws a transparent sprite to the screen.
 	 * @param surface Source surface.
 	 * @param pos Position on screen to draw to.
 	 */
-	void drawSurface(const Graphics::Surface &surface, const Common::Point &pos);
+	void drawSprite(const Graphics::Surface &surface, const Common::Point &pos = Common::Point(0, 0));
 	/**
 	 * Loads a raw bitmap (normally *.BM) into a surface. They are uncompressed
 	 * images composed of:
 	 * @li int16: Width in pixels.
 	 * @li int16: Height in pixels.
 	 * @li int16[]: Row-first colors of each pixel.
-	 * @param stream Stream to load from.
+	 * @param stream Stream to load from. Deleted after loading.
 	 * @return New image surface. Must be free()d manually.
 	 */	 
 	Graphics::Surface *loadRawBitmap(Common::SeekableReadStream *stream);
@@ -91,7 +97,7 @@ public:
 	* @li int16[]: 128-color palette.
 	* @li byte[]: Row-first indices of each pixel. The first 7 bits are the index and
 	* the last bit is a RLE flag (if 1, repeat index by the value of the next byte).
-	* @param stream Stream to load from.
+	* @param stream Stream to load from. Deleted after loading.
 	* @return New image surface. Must be free()d manually.
 	*/
 	Graphics::Surface *loadPaletteBitmap(Common::SeekableReadStream *stream);

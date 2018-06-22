@@ -64,6 +64,10 @@ void GraphicsManager::updateScreen() {
 }
 
 void GraphicsManager::drawSurface(const Graphics::Surface &surface, const Common::Point &pos) {
+	_screenBuffer->blitFrom(surface, pos);
+}
+
+void GraphicsManager::drawSprite(const Graphics::Surface &surface, const Common::Point &pos) {
 	_screenBuffer->transBlitFrom(surface, pos);
 }
 
@@ -75,6 +79,7 @@ Graphics::Surface *GraphicsManager::loadRawBitmap(Common::SeekableReadStream *st
 	surface->create(width, height, kScreenFormat);
 	stream->read(surface->getPixels(), width * height * kScreenFormat.bytesPerPixel);
 
+	delete stream;
 	return surface;
 }
 
@@ -106,6 +111,7 @@ Graphics::Surface *GraphicsManager::loadPaletteBitmap(Common::SeekableReadStream
 		}
 	} while (!stream->eos());
 
+	delete stream;
 	return surface;
 }
 

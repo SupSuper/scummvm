@@ -29,26 +29,39 @@
 #include "orlando/orlando.h"
 #include "orlando/debugger.h"
 #include "orlando/graphics.h"
+#include "orlando/resource.h"
+#include "orlando/main_menu.h"
 
 namespace Orlando {
 
-OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst), _debugger(nullptr), _gameDescription(gameDesc) {
+OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst), _debugger(nullptr), _menu(nullptr), _gameDescription(gameDesc) {
 	_graphics = new GraphicsManager(this);
+	_resources = new ResourceManager(this);
 }
 
 OrlandoEngine::~OrlandoEngine() {
-	delete _graphics;
+	delete _menu;
 	delete _debugger;
+	delete _resources;
+	delete _graphics;
 }
 
 Common::Error OrlandoEngine::run() {
 	if (!_graphics->setupScreen())
 		return Common::kUnsupportedColorMode;
 
-	_debugger = new Debugger(this);
+	if (!_resources->loadGlobalResources())
+		return Common::kNoGameDataFoundError;
 
+	_debugger = new Debugger(this);
+	_menu = new MainMenu(this);
+
+	if (!_menu->setup())
+		return Common::kUnknownError;
+
+	Common::Event event;
 	while (!shouldQuit()) {
-		Common::Event event;
+
 		while (_system->getEventManager()->pollEvent(event)) {
 			switch (event.type) {
 			case Common::EVENT_KEYDOWN:
@@ -62,16 +75,15 @@ Common::Error OrlandoEngine::run() {
 			}
 		}
 
+		if (!_menu->run())
+			return Common::kUnknownError;
+
 		_debugger->onFrame();
 		_graphics->updateScreen();
 		_system->delayMillis(10);
 	}
 
 	return Common::kNoError;
-}
-
-GUI::Debugger *OrlandoEngine::getDebugger() {
-	return _debugger;
 }
 
 } // End of namespace Orlando

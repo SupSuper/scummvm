@@ -20,41 +20,37 @@
  *
  */
 
-#ifndef ORLANDO_ORLANDO_H
-#define ORLANDO_ORLANDO_H
+#ifndef ORLANDO_MAIN_MENU_H
+#define ORLANDO_MAIN_MENU_H
 
-#include "engines/engine.h"
-#include "orlando/debugger.h"
+namespace Common {
+	class Archive;
+}
 
-struct ADGameDescription;
+namespace Graphics {
+	struct Surface;
+}
 
 namespace Orlando {
 
-class GraphicsManager;
-class ResourceManager;
-class MainMenu;
+class OrlandoEngine;
 
 /**
- * Engine for the Jack Orlando adventure game.
- */
-class OrlandoEngine : public Engine {
-	Debugger *_debugger;
-	GraphicsManager *_graphics;
-	ResourceManager *_resources;
-	MainMenu *_menu;
+  * Scene representing the menu when the game starts.
+  */
+class MainMenu {
+	OrlandoEngine *_vm;
+	Common::Archive *_pak;
+	Graphics::Surface *_bg, *_truck;
+	uint32 _truckTimer;
+	bool _drawTruck;
 
 public:
-	OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc);
-	~OrlandoEngine();
+	MainMenu(OrlandoEngine *vm);
+	~MainMenu();
 
-	Common::Error run() override;
-	GUI::Debugger *getDebugger() override {	return _debugger; }
-	GraphicsManager *getGraphicsManager() {	return _graphics; }
-	ResourceManager *getResourceManager() {	return _resources; }
-
-	// Detection related functions
-	const ADGameDescription *_gameDescription;
-	bool hasFeature(EngineFeature f) const override;
+	bool setup();
+	bool run();
 };
 
 } // End of namespace Orlando

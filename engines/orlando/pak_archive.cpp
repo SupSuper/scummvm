@@ -20,9 +20,9 @@
  *
  */
 
+#include "common/scummsys.h"
 #include "common/stream.h"
-
-#include "pak_archive.h"
+#include "orlando/pak_archive.h"
 
 namespace Orlando {
 
@@ -71,12 +71,7 @@ const PakFile *PakArchive::findFile(const Common::String &name) const {
 	return nullptr;
 }
 
-PakArchive::PakArchive(const Common::String &name) : _members(nullptr), _numMembers(0) {
-	_stream = SearchMan.createReadStreamForMember(name);
-	if (_stream == nullptr) {
-		return;
-	}
-
+PakArchive::PakArchive(Common::SeekableReadStream *stream) : _stream(stream), _members(nullptr), _numMembers(0) {
 	// Determine PAK type
 	char fourCC[4];
 	_stream->read(fourCC, 4);
@@ -117,8 +112,7 @@ Common::SeekableReadStream *PakArchive::createReadStreamForMember(const Common::
 	const PakFile *file = findFile(name);
 	if (file == nullptr) {
 		return nullptr;
-	}
-	else {
+	} else {
 		_stream->seek(file->offset);
 		return _stream->readStream(file->size);
 	}

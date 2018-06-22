@@ -5,7 +5,9 @@ MODULE_OBJS = \
 	detection.o \
 	debugger.o \
 	pak_archive.o \
-	graphics.o
+	graphics.o \
+	resource.o \
+	main_menu.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_ORLANDO), DYNAMIC_PLUGIN)
