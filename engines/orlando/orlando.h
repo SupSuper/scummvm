@@ -48,9 +48,9 @@ public:
 	~OrlandoEngine();
 
 	Common::Error run() override;
-	GUI::Debugger *getDebugger() override {	return _debugger; }
-	GraphicsManager *getGraphicsManager() {	return _graphics; }
-	ResourceManager *getResourceManager() {	return _resources; }
+	GUI::Debugger *getDebugger() override { return _debugger; }
+	GraphicsManager *getGraphicsManager() { return _graphics; }
+	ResourceManager *getResourceManager() { return _resources; }
 
 	// Detection related functions
 	const ADGameDescription *_gameDescription;

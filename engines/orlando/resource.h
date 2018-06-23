@@ -29,6 +29,10 @@ namespace Common {
 	class String;
 }
 
+namespace Graphics {
+	class Font;
+}
+
 namespace Orlando {
 
 class OrlandoEngine;
@@ -39,6 +43,7 @@ class OrlandoEngine;
 class ResourceManager {
 	OrlandoEngine *_vm;
 	Common::Archive *_globalPak, *_resourcePak;
+	Graphics::Font *_font;
 
 public:
 	ResourceManager(OrlandoEngine *vm);
@@ -61,6 +66,8 @@ public:
 	* @return Loaded resource, or nullptr if an error occured.
 	*/
 	Common::File *loadPakFile(Common::Archive &archive, const Common::String &filename) const;
+
+	Graphics::Font *getFont() { return _font; }
 };
 
 } // End of namespace Orlando

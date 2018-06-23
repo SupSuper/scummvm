@@ -24,6 +24,7 @@
 #define ORLANDO_GRAPHICS_H
 
 #include "graphics/pixelformat.h"
+#include "graphics/font.h"
 
 namespace Common {
 	struct Point;
@@ -68,18 +69,6 @@ public:
 	 */
 	void updateScreen();
 	/**
-	* Draws a surface to the screen.
-	* @param surface Source surface.
-	* @param pos Position on screen to draw to.
-	*/
-	void drawSurface(const Graphics::Surface &surface, const Common::Point &pos = Common::Point(0, 0));
-	/**
-	 * Draws a transparent sprite to the screen.
-	 * @param surface Source surface.
-	 * @param pos Position on screen to draw to.
-	 */
-	void drawSprite(const Graphics::Surface &surface, const Common::Point &pos = Common::Point(0, 0));
-	/**
 	 * Loads a raw bitmap (normally *.BM) into a surface. They are uncompressed
 	 * images composed of:
 	 * @li int16: Width in pixels.
@@ -88,19 +77,49 @@ public:
 	 * @param stream Stream to load from. Deleted after loading.
 	 * @return New image surface. Must be free()d manually.
 	 */	 
-	Graphics::Surface *loadRawBitmap(Common::SeekableReadStream *stream);
+	Graphics::Surface *loadRawBitmap(Common::SeekableReadStream *stream) const;
 	/**
-	* Loads a palette bitmap (normally *.PBM) into a surface. They are RLE-compressed
-	* images composed of:
-	* @li int16: Width in pixels.
-	* @li int16: Height in pixels.
-	* @li int16[]: 128-color palette.
-	* @li byte[]: Row-first indices of each pixel. The first 7 bits are the index and
-	* the last bit is a RLE flag (if 1, repeat index by the value of the next byte).
-	* @param stream Stream to load from. Deleted after loading.
-	* @return New image surface. Must be free()d manually.
-	*/
-	Graphics::Surface *loadPaletteBitmap(Common::SeekableReadStream *stream);
+	 * Loads a palette bitmap (normally *.PBM) into a surface. They are RLE-compressed
+	 * images composed of:
+	 * @li int16: Width in pixels.
+	 * @li int16: Height in pixels.
+	 * @li int16[]: 128-color palette.
+	 * @li byte[]: Row-first indices of each pixel. The first 7 bits are the index and
+	 * the last bit is a RLE flag (if 1, repeat index by the value of the next byte).
+	 * @param stream Stream to load from. Deleted after loading.
+	 * @return New image surface. Must be free()d manually.
+	 */
+	Graphics::Surface *loadPaletteBitmap(Common::SeekableReadStream *stream) const;
+	/**
+	 * Converts a RGB value to a color in the screen format.
+	 * @param r Red component (0-255).
+	 * @param g Green component (0-255).
+	 * @param b Blue component (0-255).
+	 * @return 16-bit color.
+	 */
+	uint16 RGBToColor(uint8 r, uint8 g, uint8 b) const;
+	/**
+	 * Draws a surface to the screen.
+	 * @param surface Source surface.
+	 * @param pos Position on screen to draw to.
+	 */
+	void draw(const Graphics::Surface &surface, const Common::Point &pos = Common::Point(0, 0));
+	/**
+	 * Draws a transparent surface to the screen.
+	 * @param surface Source surface.
+	 * @param pos Position on screen to draw to.
+	 */
+	void drawTransparent(const Graphics::Surface &surface, const Common::Point &pos = Common::Point(0, 0));
+	/**
+	 * Draws a text string to the screen.
+	 * @param text Source text.
+	 * @param pos Position on screen to draw to.
+	 * @param width Width of the text region, used for wrapping and alignment.
+	 * @param fill Fill color for the text.
+	 * @param border Border color for the text.
+	 * @param align Text alignment relative to the width.
+	 */
+	void drawText(const Common::String &text, const Common::Point &pos, int width, uint16 fill, uint16 border, Graphics::TextAlign align = Graphics::kTextAlignLeft);
 };
 
 } // End of namespace Orlando

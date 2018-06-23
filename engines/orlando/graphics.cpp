@@ -26,11 +26,13 @@
 #include "common/stream.h"
 #include "common/system.h"
 #include "engines/util.h"
+#include "graphics/font.h"
 #include "graphics/surface.h"
 #include "graphics/managed_surface.h"
 
 #include "orlando/graphics.h"
 #include "orlando/orlando.h"
+#include "orlando/resource.h"
 
 namespace Orlando {
 
@@ -63,15 +65,7 @@ void GraphicsManager::updateScreen() {
 	system->updateScreen();
 }
 
-void GraphicsManager::drawSurface(const Graphics::Surface &surface, const Common::Point &pos) {
-	_screenBuffer->blitFrom(surface, pos);
-}
-
-void GraphicsManager::drawSprite(const Graphics::Surface &surface, const Common::Point &pos) {
-	_screenBuffer->transBlitFrom(surface, pos);
-}
-
-Graphics::Surface *GraphicsManager::loadRawBitmap(Common::SeekableReadStream *stream) {
+Graphics::Surface *GraphicsManager::loadRawBitmap(Common::SeekableReadStream *stream) const {
 	int width = stream->readSint16LE();
 	int height = stream->readSint16LE();
 
@@ -83,7 +77,7 @@ Graphics::Surface *GraphicsManager::loadRawBitmap(Common::SeekableReadStream *st
 	return surface;
 }
 
-Graphics::Surface *GraphicsManager::loadPaletteBitmap(Common::SeekableReadStream *stream) {
+Graphics::Surface *GraphicsManager::loadPaletteBitmap(Common::SeekableReadStream *stream) const {
 	int width = stream->readSint16LE();
 	int height = stream->readSint16LE();
 	uint16 palette[128];
@@ -113,6 +107,24 @@ Graphics::Surface *GraphicsManager::loadPaletteBitmap(Common::SeekableReadStream
 
 	delete stream;
 	return surface;
+}
+
+uint16 GraphicsManager::RGBToColor(uint8 r, uint8 g, uint8 b) const
+{
+	return kScreenFormat.RGBToColor(r, g, b);
+}
+
+void GraphicsManager::draw(const Graphics::Surface &surface, const Common::Point &pos) {
+	_screenBuffer->blitFrom(surface, pos);
+}
+
+void GraphicsManager::drawTransparent(const Graphics::Surface &surface, const Common::Point &pos) {
+	_screenBuffer->transBlitFrom(surface, pos);
+}
+
+void GraphicsManager::drawText(const Common::String &text, const Common::Point &pos, int width, uint16 fill, uint16 border, Graphics::TextAlign align) {
+	uint32 color = (uint32)border << 16 | fill;
+	_vm->getResourceManager()->getFont()->drawString(_screenBuffer, text, pos.x, pos.y, width, color, align);
 }
 
 } // End of namespace Orlando

@@ -7,7 +7,8 @@ MODULE_OBJS = \
 	pak_archive.o \
 	graphics.o \
 	resource.o \
-	main_menu.o
+	main_menu.o \
+	font.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_ORLANDO), DYNAMIC_PLUGIN)

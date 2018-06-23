@@ -26,6 +26,7 @@
 
 #include "orlando/resource.h"
 #include "orlando/pak_archive.h"
+#include "orlando/font.h"
 
 namespace Orlando {
 
@@ -43,6 +44,12 @@ bool ResourceManager::loadGlobalResources() {
 
 	if (!(_resourcePak = loadPakArchive("resource/resource.pak")))
 		return false;
+
+	if (Common::File *file = loadPakFile(*_resourcePak, "jack.fnt")) {
+		_font = new Font(file);
+	} else {
+		return false;
+	}
 
 	return true;
 }
