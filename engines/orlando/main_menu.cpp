@@ -85,13 +85,20 @@ bool MainMenu::run() {
 	const uint16 kColorBlack = graphics->RGBToColor(0, 0, 0);
 	const uint16 kColorBlue = graphics->RGBToColor(0, 0, 255);
 	const uint16 kColorWhite = graphics->RGBToColor(255, 255, 255);
-	const Common::Rect kUiWindow = Common::Rect(205, 190, 205 + 230, 190 + 235);
+	Common::Rect kUiWindow = Common::Rect(0, 0, 230, 235);
+	kUiWindow.translate(205, 190);
+	Common::Rect kUiButton = Common::Rect(0, 0, 180, 34);
+	kUiButton.translate(kUiWindow.left + 25, kUiWindow.top + 60);
 
+	graphics->drawBlendedRect(kUiWindow, kColorBlack, 0.5f);
 	graphics->drawText("\x04=MAIN MENU=\x04", Common::Point(kUiWindow.left, kUiWindow.top + 16), kUiWindow.width(), kColorYellow, kColorBlack, Graphics::kTextAlignCenter);
-	graphics->drawText("Introduction", Common::Point(kUiWindow.left, kUiWindow.top + 60), kUiWindow.width(), kColorWhite, kColorBlue, Graphics::kTextAlignCenter);
-	graphics->drawText("New game", Common::Point(kUiWindow.left, kUiWindow.top + 98), kUiWindow.width(), kColorWhite, kColorBlue, Graphics::kTextAlignCenter);
-	graphics->drawText("Load game", Common::Point(kUiWindow.left, kUiWindow.top + 136), kUiWindow.width(), kColorWhite, kColorBlue, Graphics::kTextAlignCenter);
-	graphics->drawText("Exit", Common::Point(kUiWindow.left, kUiWindow.top + 174), kUiWindow.width(), kColorWhite, kColorBlue, Graphics::kTextAlignCenter);
+	graphics->drawButton("Introduction", kUiButton, kColorWhite, kColorBlue);
+	kUiButton.translate(0, 38);
+	graphics->drawButton("New game", kUiButton, kColorWhite, kColorBlue);
+	kUiButton.translate(0, 38);
+	graphics->drawButton("Load game", kUiButton, kColorWhite, kColorBlue);
+	kUiButton.translate(0, 38);
+	graphics->drawButton("Exit", kUiButton, kColorWhite, kColorBlue);
 
 	return true;
 }

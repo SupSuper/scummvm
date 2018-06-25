@@ -109,9 +109,12 @@ Graphics::Surface *GraphicsManager::loadPaletteBitmap(Common::SeekableReadStream
 	return surface;
 }
 
-uint16 GraphicsManager::RGBToColor(uint8 r, uint8 g, uint8 b) const
-{
+uint16 GraphicsManager::RGBToColor(uint8 r, uint8 g, uint8 b) const {
 	return kScreenFormat.RGBToColor(r, g, b);
+}
+
+void GraphicsManager::colorToRGB(uint16 color, uint8 &r, uint8 &g, uint8 &b) const {
+	kScreenFormat.colorToRGB(color, r, g, b);
 }
 
 void GraphicsManager::draw(const Graphics::Surface &surface, const Common::Point &pos) {
@@ -125,6 +128,32 @@ void GraphicsManager::drawTransparent(const Graphics::Surface &surface, const Co
 void GraphicsManager::drawText(const Common::String &text, const Common::Point &pos, int width, uint16 fill, uint16 border, Graphics::TextAlign align) {
 	uint32 color = (uint32)border << 16 | fill;
 	_vm->getResourceManager()->getFont()->drawString(_screenBuffer, text, pos.x, pos.y, width, color, align);
+}
+
+void GraphicsManager::drawBlendedRect(const Common::Rect &rect, uint16 color, float alpha) {
+	// TODO: Figure out the original game blending formula
+	uint8 srcR, srcG, srcB;
+	colorToRGB(color, srcR, srcG, srcB);
+	srcR *= alpha;
+	srcG *= alpha;
+	srcB *= alpha;
+	for (int y = rect.top; y < rect.bottom; ++y) {
+		for (int x = rect.left; x < rect.right; ++x) {
+			uint16 *pixel = (uint16*)_screenBuffer->getBasePtr(x, y);
+			uint8 dstR, dstG, dstB;
+			colorToRGB(*pixel, dstR, dstG, dstB);
+			dstR = srcR + dstR * (1 - alpha);
+			dstG = srcG + dstG * (1 - alpha);
+			dstB = srcB + dstB * (1 - alpha);
+			*pixel = RGBToColor(dstR, dstG, dstB);
+		}
+	}
+}
+
+void GraphicsManager::drawButton(const Common::String &text, const Common::Rect &rect, uint16 fill, uint16 border) {
+	drawBlendedRect(rect, 0xFFFF, 0.2f);
+	int y = (rect.height() - _vm->getResourceManager()->getFont()->getFontHeight()) / 2;
+	drawText(text, Common::Point(rect.left, rect.top + y), rect.width(), fill, border, Graphics::kTextAlignCenter);
 }
 
 } // End of namespace Orlando

@@ -99,6 +99,14 @@ public:
 	 */
 	uint16 RGBToColor(uint8 r, uint8 g, uint8 b) const;
 	/**
+	* Converts a color in the screen format to a RGB value.
+	* @param color Source color.
+	* @param r Red component (0-255).
+	* @param g Green component (0-255).
+	* @param b Blue component (0-255).
+	*/
+	void colorToRGB(uint16 color, uint8 &r, uint8 &g, uint8 &b) const;
+	/**
 	 * Draws a surface to the screen.
 	 * @param surface Source surface.
 	 * @param pos Position on screen to draw to.
@@ -120,6 +128,21 @@ public:
 	 * @param align Text alignment relative to the width.
 	 */
 	void drawText(const Common::String &text, const Common::Point &pos, int width, uint16 fill, uint16 border, Graphics::TextAlign align = Graphics::kTextAlignLeft);
+	/**
+	 * Draws a rectangle with color blending.
+	 * @param rect Rectangle coordinates.
+	 * @param color Source color to blend.
+	 * @param alpha Amount to blend.
+	 */
+	void drawBlendedRect(const Common::Rect &rect, uint16 color, float alpha);
+	/**
+	 * Draws a clickable button on screen.
+	 * @param text Button text.
+	 * @param rect Button coordinates.
+	 * @param fill Text fill color.
+	 * @param rect Button coordinates.
+	 */
+	void drawButton(const Common::String &text, const Common::Rect &rect, uint16 fill, uint16 border);
 };
 
 } // End of namespace Orlando
