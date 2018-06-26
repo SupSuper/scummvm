@@ -44,7 +44,7 @@ MainMenu::~MainMenu() {
 	delete _truck;
 }
 
-bool MainMenu::setup() {
+bool MainMenu::initialize() {
 	ResourceManager *resources = _vm->getResourceManager();
 
 	if (!(_pak = resources->loadPakArchive("menu.pak"))) {
@@ -98,7 +98,9 @@ bool MainMenu::run() {
 	kUiButton.translate(0, 38);
 	graphics->drawButton("Load game", kUiButton, kColorWhite, kColorBlue);
 	kUiButton.translate(0, 38);
-	graphics->drawButton("Exit", kUiButton, kColorWhite, kColorBlue);
+	if (graphics->drawButton("Exit", kUiButton, kColorWhite, kColorBlue)) {
+		_vm->quitGame();
+	}
 
 	return true;
 }

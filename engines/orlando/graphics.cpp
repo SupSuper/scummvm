@@ -33,6 +33,7 @@
 #include "orlando/graphics.h"
 #include "orlando/orlando.h"
 #include "orlando/resource.h"
+#include "orlando/mouse.h"
 
 namespace Orlando {
 
@@ -150,10 +151,21 @@ void GraphicsManager::drawBlendedRect(const Common::Rect &rect, uint16 color, fl
 	}
 }
 
-void GraphicsManager::drawButton(const Common::String &text, const Common::Rect &rect, uint16 fill, uint16 border) {
+bool GraphicsManager::drawButton(const Common::String &text, const Common::Rect &rect, uint16 fill, uint16 border) {
+	Mouse *mouse = _vm->getMouse();
+
+	// Draw background
 	drawBlendedRect(rect, 0xFFFF, 0.2f);
+
+	// Draw label
 	int y = (rect.height() - _vm->getResourceManager()->getFont()->getFontHeight()) / 2;
-	drawText(text, Common::Point(rect.left, rect.top + y), rect.width(), fill, border, Graphics::kTextAlignCenter);
+	Common::Point pos = Common::Point(rect.left, rect.top + y);
+	if (mouse->getLeftButton() == kButtonPressed && mouse->isOver(rect)) {
+		pos += Common::Point(1, 1);
+	}
+	drawText(text, pos, rect.width(), fill, border, Graphics::kTextAlignCenter);
+
+	return (mouse->getLeftButton() == kButtonReleased && mouse->isOver(rect));
 }
 
 } // End of namespace Orlando

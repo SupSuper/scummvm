@@ -23,6 +23,7 @@
 #include "common/scummsys.h"
 
 #include "common/file.h"
+#include "common/events.h"
 #include "graphics/cursorman.h"
 #include "graphics/surface.h"
 
@@ -33,13 +34,13 @@
 
 namespace Orlando {
 
-Mouse::Mouse(OrlandoEngine *vm) : _vm(vm) {
+Mouse::Mouse(OrlandoEngine *vm) : _vm(vm), _leftButton(kButtonNormal), _rightButton(kButtonNormal) {
 }
 
 Mouse::~Mouse() {
 }
 
-bool Mouse::setup() {
+bool Mouse::initialize() {
 	ResourceManager *resources = _vm->getResourceManager();
 
 	if (Common::File *file = resources->loadResourceFile("wsk.bm")) {
@@ -52,6 +53,40 @@ bool Mouse::setup() {
 	}
 
 	return true;
+}
+
+void Mouse::reset() {
+	if (_leftButton == kButtonReleased)
+		_leftButton = kButtonNormal;
+	if (_rightButton == kButtonReleased)
+		_rightButton = kButtonNormal;
+}
+
+void Mouse::onEvent(const Common::Event &event) {
+	switch (event.type) {
+	case Common::EVENT_LBUTTONDOWN:
+		_leftButton = kButtonPressed;
+		break;
+	case Common::EVENT_LBUTTONUP:
+		_leftButton = kButtonReleased;
+		break;
+	case Common::EVENT_RBUTTONDOWN:
+		_rightButton = kButtonPressed;
+		break;
+	case Common::EVENT_RBUTTONUP:
+		_rightButton = kButtonReleased;
+		break;
+	default:
+		break;
+	}
+}
+
+Common::Point Mouse::getPosition() const {
+	return _vm->getEventManager()->getMousePos();
+}
+
+bool Mouse::isOver(const Common::Rect &rect) const {
+	return rect.contains(getPosition());
 }
 
 } // End of namespace Orlando

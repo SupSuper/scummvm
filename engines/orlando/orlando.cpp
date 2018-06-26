@@ -59,15 +59,16 @@ Common::Error OrlandoEngine::run() {
 	_mouse = new Mouse(this);
 	_menu = new MainMenu(this);
 
-	if (!_mouse->setup())
+	if (!_mouse->initialize())
 		return Common::kNoGameDataFoundError;
-	if (!_menu->setup())
+	if (!_menu->initialize())
 		return Common::kUnknownError;
 
 	Common::Event event;
 	while (!shouldQuit()) {
-
+		_mouse->reset();
 		while (_system->getEventManager()->pollEvent(event)) {
+			_mouse->onEvent(event);
 			switch (event.type) {
 			case Common::EVENT_KEYDOWN:
 				// CTRL+D - open debugger

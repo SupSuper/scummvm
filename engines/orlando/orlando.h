@@ -53,6 +53,7 @@ public:
 	GUI::Debugger *getDebugger() override { return _debugger; }
 	GraphicsManager *getGraphicsManager() { return _graphics; }
 	ResourceManager *getResourceManager() { return _resources; }
+	Mouse *getMouse() { return _mouse; }
 
 	// Detection related functions
 	const ADGameDescription *_gameDescription;

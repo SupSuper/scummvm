@@ -23,20 +23,65 @@
 #ifndef ORLANDO_MOUSE_H
 #define ORLANDO_MOUSE_H
 
+#include "common/rect.h"
+
+namespace Common {
+	struct Event;
+}
+
 namespace Orlando {
 
 class OrlandoEngine;
 
+enum MouseState {
+	kButtonNormal,	///< Button is inactive
+	kButtonPressed,	///< Button is currently held down
+	kButtonReleased	///< Button has just been released (used to detect clicks)
+};
+
 /**
-  * Represents the mouse cursor.
+  * Represents the mouse cursor and handles associated events.
   */
 class Mouse {
 	OrlandoEngine *_vm;
+	MouseState _leftButton, _rightButton;
 
 public:
 	Mouse(OrlandoEngine *vm);
 	~Mouse();
-	bool setup();
+	/**
+	 * Loads and sets up the various cursor modes.
+	 */
+	bool initialize();
+	/**
+	 * Resets the mouse button states.
+	 */
+	void reset();
+	/**
+	 * Handles mouse events.
+	 */
+	void onEvent(const Common::Event &event);
+	/**
+	 * Gets the current mouse position.
+	 * @return Position in screen coordinates.
+	 */
+	Common::Point getPosition() const;
+	/**
+	 * Checks if the mouse is over a screen region.
+	 * @param rect Region coordinates.
+	 * @return True if the mouse is inside.
+	 */
+	bool isOver(const Common::Rect &rect) const;
+	/**
+	 * Returns the state of the left mouse button.
+	 * @return Button state.
+	 */
+	MouseState getLeftButton() const { return _leftButton; }
+	/**
+	 * Returns the state of the right mouse button.
+	 * @return Button state.
+	 */
+	MouseState getRightButton() const { return _rightButton; }
 };
 
 } // End of namespace Orlando

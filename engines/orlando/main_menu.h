@@ -49,7 +49,7 @@ public:
 	MainMenu(OrlandoEngine *vm);
 	~MainMenu();
 
-	bool setup();
+	bool initialize();
 	bool run();
 };
 

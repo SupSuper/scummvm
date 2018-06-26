@@ -141,8 +141,9 @@ public:
 	 * @param rect Button coordinates.
 	 * @param fill Text fill color.
 	 * @param rect Button coordinates.
+	 * @return True if the button was clicked.
 	 */
-	void drawButton(const Common::String &text, const Common::Rect &rect, uint16 fill, uint16 border);
+	bool drawButton(const Common::String &text, const Common::Rect &rect, uint16 fill, uint16 border);
 };
 
 } // End of namespace Orlando
