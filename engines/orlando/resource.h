@@ -52,7 +52,7 @@ public:
 	 * Loads and stores resources needed throughout the game.
 	 * @return False if a file wasn't found.
 	 */
-	bool loadGlobalResources();
+	bool loadCommonResources();
 	/**
 	 * Loads a specific PAK archive.
 	 * @param filename Path relative to game folder.
@@ -66,7 +66,21 @@ public:
 	* @return Loaded resource, or nullptr if an error occured.
 	*/
 	Common::File *loadPakFile(Common::Archive &archive, const Common::String &filename) const;
-
+	/**
+	* Loads a file from GLOBAL.PAK.
+	* @param filename File to load.
+	* @return Loaded resource, or nullptr if an error occured.
+	*/
+	Common::File *loadGlobalFile(const Common::String &filename) const;
+	/**
+	* Loads a file from RESOURCE.PAK.
+	* @param filename File to load.
+	* @return Loaded resource, or nullptr if an error occured.
+	*/
+	Common::File *loadResourceFile(const Common::String &filename) const;
+	/**
+	 * Returns the game's text font.
+	 */
 	Graphics::Font *getFont() { return _font; }
 };
 

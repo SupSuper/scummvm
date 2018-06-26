@@ -20,43 +20,23 @@
  *
  */
 
-#ifndef ORLANDO_ORLANDO_H
-#define ORLANDO_ORLANDO_H
-
-#include "engines/engine.h"
-#include "orlando/debugger.h"
-
-struct ADGameDescription;
+#ifndef ORLANDO_MOUSE_H
+#define ORLANDO_MOUSE_H
 
 namespace Orlando {
 
-class GraphicsManager;
-class ResourceManager;
-class Mouse;
-class MainMenu;
+class OrlandoEngine;
 
 /**
- * Engine for the Jack Orlando adventure game.
- */
-class OrlandoEngine : public Engine {
-	Debugger *_debugger;
-	GraphicsManager *_graphics;
-	ResourceManager *_resources;
-	Mouse *_mouse;
-	MainMenu *_menu;
+  * Represents the mouse cursor.
+  */
+class Mouse {
+	OrlandoEngine *_vm;
 
 public:
-	OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc);
-	~OrlandoEngine();
-
-	Common::Error run() override;
-	GUI::Debugger *getDebugger() override { return _debugger; }
-	GraphicsManager *getGraphicsManager() { return _graphics; }
-	ResourceManager *getResourceManager() { return _resources; }
-
-	// Detection related functions
-	const ADGameDescription *_gameDescription;
-	bool hasFeature(EngineFeature f) const override;
+	Mouse(OrlandoEngine *vm);
+	~Mouse();
+	bool setup();
 };
 
 } // End of namespace Orlando

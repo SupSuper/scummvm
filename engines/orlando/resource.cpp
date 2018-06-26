@@ -30,22 +30,23 @@
 
 namespace Orlando {
 
-ResourceManager::ResourceManager(OrlandoEngine *vm) : _vm(vm), _globalPak(nullptr), _resourcePak(nullptr) {
+ResourceManager::ResourceManager(OrlandoEngine *vm) : _vm(vm), _globalPak(nullptr), _resourcePak(nullptr), _font(nullptr) {
 }
 
 ResourceManager::~ResourceManager() {
+	delete _font;
 	delete _resourcePak;
 	delete _globalPak;
 }
 
-bool ResourceManager::loadGlobalResources() {
+bool ResourceManager::loadCommonResources() {
 	if (!(_globalPak = loadPakArchive("global.pak")))
 		return false;
 
 	if (!(_resourcePak = loadPakArchive("resource/resource.pak")))
 		return false;
 
-	if (Common::File *file = loadPakFile(*_resourcePak, "jack.fnt")) {
+	if (Common::File *file = loadResourceFile("jack.fnt")) {
 		_font = new Font(file);
 	} else {
 		return false;
@@ -82,6 +83,14 @@ Common::File *ResourceManager::loadPakFile(Common::Archive &archive, const Commo
 	}
 
 	return file;
+}
+
+Common::File *ResourceManager::loadGlobalFile(const Common::String &filename) const {
+	return loadPakFile(*_globalPak, filename);
+}
+
+Common::File *ResourceManager::loadResourceFile(const Common::String &filename) const {
+	return loadPakFile(*_resourcePak, filename);
 }
 
 } // End of namespace Orlando

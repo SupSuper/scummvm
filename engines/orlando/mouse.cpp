@@ -20,45 +20,38 @@
  *
  */
 
-#ifndef ORLANDO_ORLANDO_H
-#define ORLANDO_ORLANDO_H
+#include "common/scummsys.h"
 
-#include "engines/engine.h"
-#include "orlando/debugger.h"
+#include "common/file.h"
+#include "graphics/cursorman.h"
+#include "graphics/surface.h"
 
-struct ADGameDescription;
+#include "orlando/mouse.h"
+#include "orlando/orlando.h"
+#include "orlando/resource.h"
+#include "orlando/graphics.h"
 
 namespace Orlando {
 
-class GraphicsManager;
-class ResourceManager;
-class Mouse;
-class MainMenu;
+Mouse::Mouse(OrlandoEngine *vm) : _vm(vm) {
+}
 
-/**
- * Engine for the Jack Orlando adventure game.
- */
-class OrlandoEngine : public Engine {
-	Debugger *_debugger;
-	GraphicsManager *_graphics;
-	ResourceManager *_resources;
-	Mouse *_mouse;
-	MainMenu *_menu;
+Mouse::~Mouse() {
+}
 
-public:
-	OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc);
-	~OrlandoEngine();
+bool Mouse::setup() {
+	ResourceManager *resources = _vm->getResourceManager();
 
-	Common::Error run() override;
-	GUI::Debugger *getDebugger() override { return _debugger; }
-	GraphicsManager *getGraphicsManager() { return _graphics; }
-	ResourceManager *getResourceManager() { return _resources; }
+	if (Common::File *file = resources->loadResourceFile("wsk.bm")) {
+		Graphics::Surface *surface = _vm->getGraphicsManager()->loadRawBitmap(file);
+		CursorMan.replaceCursor(surface->getPixels(), surface->w, surface->h, 0, 0, 0, false, &surface->format);
+		CursorMan.showMouse(true);
+		delete surface;
+	} else {
+		return false;
+	}
 
-	// Detection related functions
-	const ADGameDescription *_gameDescription;
-	bool hasFeature(EngineFeature f) const override;
-};
+	return true;
+}
 
 } // End of namespace Orlando
-
-#endif

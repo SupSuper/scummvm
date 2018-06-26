@@ -30,17 +30,19 @@
 #include "orlando/debugger.h"
 #include "orlando/graphics.h"
 #include "orlando/resource.h"
+#include "orlando/mouse.h"
 #include "orlando/main_menu.h"
 
 namespace Orlando {
 
-OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst), _debugger(nullptr), _menu(nullptr), _gameDescription(gameDesc) {
+OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst), _debugger(nullptr), _mouse(nullptr), _menu(nullptr), _gameDescription(gameDesc) {
 	_graphics = new GraphicsManager(this);
 	_resources = new ResourceManager(this);
 }
 
 OrlandoEngine::~OrlandoEngine() {
 	delete _menu;
+	delete _mouse;
 	delete _debugger;
 	delete _resources;
 	delete _graphics;
@@ -50,12 +52,15 @@ Common::Error OrlandoEngine::run() {
 	if (!_graphics->setupScreen())
 		return Common::kUnsupportedColorMode;
 
-	if (!_resources->loadGlobalResources())
+	if (!_resources->loadCommonResources())
 		return Common::kNoGameDataFoundError;
 
 	_debugger = new Debugger(this);
+	_mouse = new Mouse(this);
 	_menu = new MainMenu(this);
 
+	if (!_mouse->setup())
+		return Common::kNoGameDataFoundError;
 	if (!_menu->setup())
 		return Common::kUnknownError;
 

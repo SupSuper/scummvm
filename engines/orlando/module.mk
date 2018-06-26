@@ -8,7 +8,8 @@ MODULE_OBJS = \
 	graphics.o \
 	resource.o \
 	main_menu.o \
-	font.o
+	font.o \
+	mouse.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_ORLANDO), DYNAMIC_PLUGIN)
