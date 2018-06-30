@@ -30,6 +30,7 @@
 #include "orlando/orlando.h"
 #include "orlando/graphics.h"
 #include "orlando/resource.h"
+#include "orlando/sound.h"
 
 namespace Orlando {
 
@@ -64,6 +65,14 @@ bool MainMenu::initialize() {
 	}
 
 	_truckTimer = _vm->getTotalPlayTime();
+
+	Common::File *music = new Common::File();
+	if (music->open("music/tr02-22.pms")) {
+		_vm->getSoundManager()->playFile(music, Audio::Mixer::SoundType::kMusicSoundType);
+	} else {
+		delete music;
+		return false;
+	}
 
 	return true;
 }

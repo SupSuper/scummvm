@@ -30,20 +30,22 @@
 #include "orlando/debugger.h"
 #include "orlando/graphics.h"
 #include "orlando/resource.h"
+#include "orlando/sound.h"
 #include "orlando/mouse.h"
 #include "orlando/main_menu.h"
 
 namespace Orlando {
 
-OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst), _debugger(nullptr), _mouse(nullptr), _menu(nullptr), _gameDescription(gameDesc) {
-	_graphics = new GraphicsManager(this);
-	_resources = new ResourceManager(this);
+OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),
+	_graphics(new GraphicsManager(this)), _resources(new ResourceManager(this)), _sound(new SoundManager(this)),
+	_debugger(nullptr), _mouse(nullptr), _menu(nullptr), _gameDescription(gameDesc) {
 }
 
 OrlandoEngine::~OrlandoEngine() {
 	delete _menu;
 	delete _mouse;
 	delete _debugger;
+	delete _sound;
 	delete _resources;
 	delete _graphics;
 }

@@ -20,47 +20,35 @@
  *
  */
 
-#ifndef ORLANDO_ORLANDO_H
-#define ORLANDO_ORLANDO_H
+#ifndef ORLANDO_SOUND_H
+#define ORLANDO_SOUND_H
 
-#include "engines/engine.h"
-#include "orlando/debugger.h"
+#include "audio/mixer.h"
 
-struct ADGameDescription;
+namespace Common {
+	class SeekableReadStream;
+}
 
 namespace Orlando {
 
-class GraphicsManager;
-class ResourceManager;
-class SoundManager;
-class Mouse;
-class MainMenu;
+class OrlandoEngine;
 
 /**
- * Engine for the Jack Orlando adventure game.
- */
-class OrlandoEngine : public Engine {
-	Debugger *_debugger;
-	GraphicsManager *_graphics;
-	ResourceManager *_resources;
-	SoundManager *_sound;
-	Mouse *_mouse;
-	MainMenu *_menu;
+  * Handles decoding and playback of all game audio.
+  */
+class SoundManager {
+	OrlandoEngine *_vm;
+	Audio::SoundHandle *_handle;
 
 public:
-	OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc);
-	~OrlandoEngine();
-
-	Common::Error run() override;
-	GUI::Debugger *getDebugger() override { return _debugger; }
-	GraphicsManager *getGraphicsManager() { return _graphics; }
-	ResourceManager *getResourceManager() { return _resources; }
-	SoundManager *getSoundManager() { return _sound; }
-	Mouse *getMouse() { return _mouse; }
-
-	// Detection related functions
-	const ADGameDescription *_gameDescription;
-	bool hasFeature(EngineFeature f) const override;
+	SoundManager(OrlandoEngine *vm);
+	~SoundManager();
+	/**
+	 * Plays a sound file. The format is automatically determined based on the header.
+	 * @param stream Stream to load data from. Freed after usage.
+	 * @param type Channel to use for playback.
+	 */
+	void playFile(Common::SeekableReadStream *stream, Audio::Mixer::SoundType type);
 };
 
 } // End of namespace Orlando

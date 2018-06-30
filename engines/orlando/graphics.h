@@ -47,8 +47,6 @@ class OrlandoEngine;
  * Drawing is performed on a buffer surface which is later blit to the screen.
  */
 class GraphicsManager {
-	friend class OrlandoEngine;
-
 	static const int kScreenWidth = 640;
 	static const int kScreenHeight = 480;
 	static const Graphics::PixelFormat kScreenFormat;
