@@ -72,10 +72,10 @@ const PakFile *PakArchive::findFile(const Common::String &name) const {
 }
 
 PakArchive::PakArchive(Common::SeekableReadStream *stream) : _stream(stream), _members(nullptr), _numMembers(0) {
-	// Determine PAK type
-	char fourCC[4];
-	_stream->read(fourCC, 4);
-	if (strcmp(fourCC, "PAK") == 0) {
+	// Determine PAK type	
+	const uint32 kWindowsPak = MKTAG('P', 'A', 'K', '\0');
+	uint32 tag = _stream->readUint32BE();
+	if (tag == kWindowsPak) {
 		loadWindowsPak();
 	} else {
 		_stream->seek(0);
