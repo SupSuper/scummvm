@@ -10,7 +10,8 @@ MODULE_OBJS = \
 	main_menu.o \
 	font.o \
 	mouse.o \
-	sound.o
+	sound.o \
+	libgsm.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_ORLANDO), DYNAMIC_PLUGIN)
