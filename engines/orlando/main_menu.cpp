@@ -38,11 +38,11 @@ MainMenu::MainMenu(OrlandoEngine *vm) : _vm(vm), _pak(nullptr), _bg(nullptr), _t
 }
 
 MainMenu::~MainMenu() {
-	delete _pak;
-	_bg->free();
-	delete _bg;
 	_truck->free();
 	delete _truck;
+	_bg->free();
+	delete _bg;
+	delete _pak;
 }
 
 bool MainMenu::initialize() {
