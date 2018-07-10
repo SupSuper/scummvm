@@ -85,6 +85,26 @@ Common::File *ResourceManager::loadPakFile(Common::Archive &archive, const Commo
 	return file;
 }
 
+Common::File *ResourceManager::loadPakFile(const Common::String &pakName, const Common::String &fileName) const {
+	Common::Archive *archive = loadPakArchive(pakName);
+	if (archive == nullptr) {
+		return nullptr;
+	}
+	Common::File *file = loadPakFile(*archive, fileName);
+	return file;
+}
+
+Common::File *ResourceManager::loadRawFile(const Common::String &filename) const {
+	Common::File *file = new Common::File();
+	if (!file->open(filename)) {
+		error("ResourceManager: Failed to open file: %s", filename.c_str());
+		delete file;
+		return nullptr;
+	}
+
+	return file;
+}
+
 Common::File *ResourceManager::loadGlobalFile(const Common::String &filename) const {
 	return loadPakFile(*_globalPak, filename);
 }

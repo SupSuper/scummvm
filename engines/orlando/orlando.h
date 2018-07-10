@@ -60,6 +60,7 @@ public:
 
 	// Detection related functions
 	const ADGameDescription *_gameDescription;
+	Common::Platform getPlatform() const;
 	bool hasFeature(EngineFeature f) const override;
 };
 

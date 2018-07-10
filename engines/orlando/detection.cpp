@@ -33,10 +33,14 @@ static const PlainGameDescriptor orlandoGames[] = {
 
 namespace Orlando {
 
+Common::Platform OrlandoEngine::getPlatform() const {
+	return _gameDescription->platform;
+}
+
 /**
  * Known game variants:
  * @li 1997 DOS version
- * @li 2001 Windows version: Director's Cut (adds an Easy Mode, no other known differences)
+ * @li 2001 Windows version: Director's Cut (adds an Easy Mode and higher-quality audio)
  * Digital rereleases are the same as the Windows version without CD checks.
  *
  * TODO: Support different language versions (assuming English for now).
@@ -55,7 +59,7 @@ static const ADGameDescription gameDescriptions[] = {
 	// Windows version (director's cut)
 	{
 		"orlando",
-		"The Director's Cut",
+		"Director's Cut",
 		AD_ENTRY1s("GLOBAL.PAK", 0, 14986139),
 		Common::EN_ANY,
 		Common::kPlatformWindows,

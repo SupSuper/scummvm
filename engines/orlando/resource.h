@@ -67,20 +67,31 @@ public:
 	*/
 	Common::File *loadPakFile(Common::Archive &archive, const Common::String &filename) const;
 	/**
-	* Loads a file from GLOBAL.PAK.
-	* @param filename File to load.
-	* @return Loaded resource, or nullptr if an error occured.
-	*/
+	 * Loads a file contained in a PAK archive.
+	 * @param pakName PAK to search in.
+	 * @param fileName File to load.
+	 * @return Loaded resource, or nullptr if an error occured.
+	 */
+	Common::File *loadPakFile(const Common::String &pakName, const Common::String &fileName) const;
+	/**
+	 * Loads a file from GLOBAL.PAK.
+	 * @param filename File to load.
+	 * @return Loaded resource, or nullptr if an error occured.
+	 */
 	Common::File *loadGlobalFile(const Common::String &filename) const;
 	/**
-	* Loads a file from RESOURCE.PAK.
-	* @param filename File to load.
-	* @return Loaded resource, or nullptr if an error occured.
-	*/
-	Common::File *loadResourceFile(const Common::String &filename) const;
-	/**
-	 * Returns the game's text font.
+	 * Loads a file from RESOURCE.PAK.
+	 * @param filename File to load.
+	 * @return Loaded resource, or nullptr if an error occured.
 	 */
+	Common::File *loadResourceFile(const Common::String &filename) const;	
+	/**
+	 * Loads a file in the game path.
+	 * @param filename File to load.
+	 * @return Loaded resource, or nullptr if an error occured.
+	 */
+	Common::File *loadRawFile(const Common::String &filename) const;
+
 	Graphics::Font *getFont() { return _font; }
 };
 
