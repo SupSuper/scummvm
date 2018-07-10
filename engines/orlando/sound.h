@@ -25,6 +25,10 @@
 
 #include "audio/mixer.h"
 
+namespace Audio {
+	class SeekableAudioStream;
+}
+
 namespace Common {
 	class SeekableReadStream;
 }
@@ -40,13 +44,42 @@ class SoundManager {
 	OrlandoEngine *_vm;
 	Audio::SoundHandle *_handle;
 
+	/**
+	 * Removes the header from a stream. Shortcut for substream since most decoders expect an audio stream to start with data.
+	 * @param stream Source stream.
+	 * @param headerSize Number of bytes to skip.
+	 * @return SubStream starting after the header.
+	 */
+	Common::SeekableReadStream *makeHeaderless(Common::SeekableReadStream *stream, int headerSize) const;
+	/**
+	 * Creates a raw PCM stream based on the type of audio passed:
+	 * @li Music (.mus) - 8bit 16khz Stereo
+	 * @li SFX (.snd) - 8bit 16khz Mono
+	 * @li Unused (.s16) - 16bit 22khz Mono
+	 * First 32-bit is the size of the data.
+	 * @param stream Source file stream.
+	 * @param type Type of audio (Music/SFX/Speech).
+	 * @return Audio stream.
+	 */
+	Audio::SeekableAudioStream *loadRawAudio(Common::SeekableReadStream *stream, Audio::Mixer::SoundType type) const;
+	/**
+	 * Creates an encoded audio stream based on the type (32-bit integer) defined by the header:
+	 * @li 50 - ADPCM 44khz Mono (SFX - .psd)
+	 * @li 51 - ADPCM 44khz Stereo (Music - .pms)
+	 * @li 52 - GSM 16khz (Speech DOS - .snd)
+	 * @li 53 - GSM 22khz (Speech Windows - .s22)
+	 * @param stream Source file stream.
+	 * @return Audio stream.
+	 */
+	Audio::SeekableAudioStream *loadHeaderAudio(Common::SeekableReadStream *stream) const;
 public:
 	SoundManager(OrlandoEngine *vm);
 	~SoundManager();
 	/**
-	 * Plays a sound file. The format is automatically determined based on the header.
+	 * Plays a sound file. The format is automatically determined.
+	 * The DOS version uses raw PCM while the Windows version uses encoded audio.
 	 * @param stream Stream to load data from. Freed after usage.
-	 * @param type Channel to use for playback.
+	 * @param type Mixer channel.
 	 */
 	void playFile(Common::SeekableReadStream *stream, Audio::Mixer::SoundType type);
 };
