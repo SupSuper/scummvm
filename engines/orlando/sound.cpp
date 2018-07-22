@@ -96,7 +96,7 @@ public:
 	virtual bool endOfData() const override { return _stream->eos(); }
 	// TODO: ?
 	virtual bool seek(const Audio::Timestamp &where) override { return false; }
-	virtual Audio::Timestamp getLength() const override { return -1; }
+	virtual Audio::Timestamp getLength() const override { return Audio::Timestamp(); }
 };
 
 /**
@@ -157,23 +157,19 @@ Common::SeekableReadStream *SoundManager::makeHeaderless(Common::SeekableReadStr
 }
 
 Audio::SeekableAudioStream *SoundManager::loadRawAudio(Common::SeekableReadStream *stream, Audio::Mixer::SoundType type) const {
-	uint32 size = stream->readUint32LE();
+	/* uint32 size = stream->readUint32LE(); */
 
-	Audio::SeekableAudioStream *audio = nullptr;
 	byte flags = Audio::FLAG_UNSIGNED | Audio::FLAG_LITTLE_ENDIAN;
+	int rate = 16000;
 	if (type == Audio::Mixer::kMusicSoundType) {
 		flags |= Audio::FLAG_STEREO;
-		audio = Audio::makeRawStream(makeHeaderless(stream, 4), 16000, flags);
-	} else if (type == Audio::Mixer::kSFXSoundType) {
-		audio = Audio::makeRawStream(makeHeaderless(stream, 4), 16000, flags);
-	} else {
-		audio = loadHeaderAudio(stream);
 	}
-
+	
+	Audio::SeekableAudioStream *audio = Audio::makeRawStream(makeHeaderless(stream, 4), rate, flags);
 	return audio;
 }
 
-Audio::SeekableAudioStream *SoundManager::loadHeaderAudio(Common::SeekableReadStream *stream) const {	
+Audio::SeekableAudioStream *SoundManager::loadHeaderAudio(Common::SeekableReadStream *stream, Audio::Mixer::SoundType type) const {	
 	enum AudioFormat {
 		kAudioAdpcmMono = 50,
 		kAudioAdpcmStereo = 51,
@@ -185,36 +181,48 @@ Audio::SeekableAudioStream *SoundManager::loadHeaderAudio(Common::SeekableReadSt
 	format = (AudioFormat)stream->readUint32LE();
 	uint32 size = stream->readUint32LE();
 
+	// Guess format parameters
+	int rate = 0;
+	int channels = 1;
+	switch (format) {
+	case kAudioAdpcmStereo:
+		channels = 2;
+		// fall through
+	case kAudioAdpcmMono:
+		if (_vm->getPlatform() == Common::kPlatformDOS) {
+			rate = 22050;
+		} else if (_vm->getPlatform() == Common::kPlatformWindows) {
+			rate = 44100;
+		}
+		break;
+	case kAudioGSM16:
+		rate = 16000;
+		break;
+	case kAudioGSM22:
+		rate = 22050;
+		break;
+	}
+
+	// Create appropriate stream
 	Audio::SeekableAudioStream *audio = nullptr;
 	switch (format) {
 	case kAudioAdpcmMono:
-		audio = new Orlando_ADPCMStream(makeHeaderless(stream, 24), DisposeAfterUse::YES, size, 44100, 1);
-		break;
 	case kAudioAdpcmStereo:
-		audio = new Orlando_ADPCMStream(makeHeaderless(stream, 24), DisposeAfterUse::YES, size, 44100, 2);
+		audio = new Orlando_ADPCMStream(makeHeaderless(stream, 24), DisposeAfterUse::YES, size, rate, channels);
 		break;
 	case kAudioGSM16:
-		audio = new GSMStream(makeHeaderless(stream, 36), DisposeAfterUse::YES, kGSM610MS, 16000);
-		break;
 	case kAudioGSM22:
-		audio = new GSMStream(makeHeaderless(stream, 36), DisposeAfterUse::YES, kGSM610MS, 22050);
+		audio = new GSMStream(makeHeaderless(stream, 36), DisposeAfterUse::YES, kGSM610MS, rate);
 		break;
 	default:
-		error("SoundManager: Unrecognized audio format: %d", format);
-		delete stream;
-		return nullptr;
+		audio = loadRawAudio(stream, type);
+		break;
 	}
 	return audio;
 }
 
 void SoundManager::playFile(Common::SeekableReadStream *stream, Audio::Mixer::SoundType type) {
-	Audio::SeekableAudioStream *audio = nullptr;
-	if (_vm->getPlatform() == Common::kPlatformDOS) {
-		audio = loadRawAudio(stream, type);
-	}
-	else if (_vm->getPlatform() == Common::kPlatformWindows) {
-		audio = loadHeaderAudio(stream);
-	}
+	Audio::SeekableAudioStream *audio = loadHeaderAudio(stream, type);
 	if (audio == nullptr)
 		return;
 

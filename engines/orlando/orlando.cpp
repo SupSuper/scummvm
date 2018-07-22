@@ -64,7 +64,7 @@ Common::Error OrlandoEngine::run() {
 	if (!_mouse->initialize())
 		return Common::kNoGameDataFoundError;
 	if (!_menu->initialize())
-		return Common::kUnknownError;
+		return Common::kNoGameDataFoundError;
 
 	Common::Event event;
 	while (!shouldQuit()) {
