@@ -60,6 +60,12 @@ public:
 	 */
 	Common::Archive *loadPakArchive(const Common::String &filename) const;
 	/**
+	 * Loads a specific PAK archive.
+	 * @param file File resource to treat as PAK.
+	 * @return Loaded resource, or nullptr if an error occured.
+	 */
+	Common::Archive *loadPakArchive(Common::File *file) const;
+	/**
 	* Loads a file contained in a PAK archive.
 	* @param archive Archive to search.
 	* @param filename File to load.

@@ -40,10 +40,15 @@ ResourceManager::~ResourceManager() {
 }
 
 bool ResourceManager::loadCommonResources() {
-	if (!(_globalPak = loadPakArchive("global.pak")))
-		return false;
+	// If this is a game folder, there should be a GLOBAL.PAK in the root
+	// If this is an install disc, the GLOBAL.PAK should be inside a DATA.PAK
+	if (!(_globalPak = loadPakArchive("global.pak"))) {
+		if (!(_globalPak = loadPakArchive(loadPakFile("data.pak", "global.pak")))) {
+			return false;
+		}
+	}
 
-	if (!(_resourcePak = loadPakArchive("resource/resource.pak")))
+	if (!(_resourcePak = loadPakArchive("resource.pak")))
 		return false;
 
 	if (Common::File *file = loadResourceFile("jack.fnt")) {
@@ -58,16 +63,20 @@ bool ResourceManager::loadCommonResources() {
 Common::Archive *ResourceManager::loadPakArchive(const Common::String &filename) const {
 	Common::File *file = new Common::File();
 	if (!file->open(filename)) {
-		error("ResourceManager: Failed to open PAK file: %s", filename.c_str());
+		warning("ResourceManager: Failed to open PAK file: %s", filename.c_str());
 		delete file;
 		return nullptr;
 	}
 
+	return loadPakArchive(file);
+}
+
+Common::Archive *ResourceManager::loadPakArchive(Common::File *file) const {
 	Common::Archive *archive = new PakArchive(file);
 	// Empty PAKs shouldn't exist, assume an error occurred
 	Common::ArchiveMemberList list;
 	if (archive->listMembers(list) == 0) {
-		error("ResourceManager: Invalid PAK file: %s", filename.c_str());
+		warning("ResourceManager: Invalid PAK file: %s", file->getName());
 		delete archive;
 		return nullptr;
 	}
@@ -77,7 +86,7 @@ Common::Archive *ResourceManager::loadPakArchive(const Common::String &filename)
 Common::File *ResourceManager::loadPakFile(Common::Archive &archive, const Common::String &filename) const {
 	Common::File *file = new Common::File();
 	if (!file->open(filename, archive)) {
-		error("ResourceManager: File not found in PAK: %s", filename.c_str());
+		warning("ResourceManager: File not found in PAK: %s", filename.c_str());
 		delete file;
 		return nullptr;
 	}
@@ -97,7 +106,7 @@ Common::File *ResourceManager::loadPakFile(const Common::String &pakName, const 
 Common::File *ResourceManager::loadRawFile(const Common::String &filename) const {
 	Common::File *file = new Common::File();
 	if (!file->open(filename)) {
-		error("ResourceManager: Failed to open file: %s", filename.c_str());
+		warning("ResourceManager: Failed to open file: %s", filename.c_str());
 		delete file;
 		return nullptr;
 	}
