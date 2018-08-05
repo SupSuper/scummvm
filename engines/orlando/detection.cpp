@@ -33,8 +33,27 @@ static const PlainGameDescriptor orlandoGames[] = {
 
 namespace Orlando {
 
-Common::Platform OrlandoEngine::getPlatform() const {
-	return _gameDescription->platform;
+enum {
+	GF_HIGHPERF = (1 << 0)
+};
+
+/**
+ * Is this the Standard Performance version?
+ */
+bool OrlandoEngine::isStandardPerf() const {
+	return _gameDescription->platform == Common::kPlatformDOS && (_gameDescription->flags & GF_HIGHPERF) == 0;
+}
+/**
+ * Is this the High Performance version?
+ */
+bool OrlandoEngine::isHighPerf() const {
+	return _gameDescription->platform == Common::kPlatformDOS  && (_gameDescription->flags & GF_HIGHPERF) != 0;
+}
+/**
+ * Is this the Director's Cut version?
+ */
+bool OrlandoEngine::isDirectorCut() const {
+	return _gameDescription->platform == Common::kPlatformWindows;
 }
 
 /**
@@ -47,21 +66,36 @@ Common::Platform OrlandoEngine::getPlatform() const {
  * TODO: Support different language versions (assuming English for now).
  */
 static const ADGameDescription gameDescriptions[] = {
-	// DOS version (original)
 	{
 		"orlando",
-		0,
-		AD_ENTRY1s("GLOBAL.PAK", 0, 12775853),
+		"Standard Performance",
+		{
+			{ "MENU.PAK", 0, "3002f66028d63a6f2bb81e68c033b6e6", 2279621 },
+			{ "MUSIC.PAK", 0, "1eee80995fa625a8dbd2fecb15263737", 4077007 },
+			AD_LISTEND
+		},
 		Common::EN_ANY,
 		Common::kPlatformDOS,
 		ADGF_NO_FLAGS,
 		GUIO0()
 	},
-	// Windows version (director's cut)
+	{
+		"orlando",
+		"High Performance",
+		{
+			{ "MENU.PAK", 0, "3002f66028d63a6f2bb81e68c033b6e6", 2279621 },
+			{ "MUSIC16.PAK", 0, "37f1dbc6dec2a155d42fffaf39b083ff", 2809337 },
+			AD_LISTEND
+		},
+		Common::EN_ANY,
+		Common::kPlatformDOS,
+		GF_HIGHPERF,
+		GUIO0()
+	},
 	{
 		"orlando",
 		"Director's Cut",
-		AD_ENTRY1s("GLOBAL.PAK", 0, 14986139),
+		AD_ENTRY1s("MENU.PAK", "507574735545af15cc1e95ef58accb98", 4052566),
 		Common::EN_ANY,
 		Common::kPlatformWindows,
 		ADGF_NO_FLAGS,

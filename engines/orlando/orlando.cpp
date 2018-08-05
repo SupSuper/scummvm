@@ -22,6 +22,9 @@
 
 #include "common/scummsys.h"
 
+#include "common/archive.h"
+#include "common/config-manager.h"
+#include "common/fs.h"
 #include "common/error.h"
 #include "common/events.h"
 #include "common/system.h"
@@ -39,6 +42,14 @@ namespace Orlando {
 OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),
 	_graphics(new GraphicsManager(this)), _resources(new ResourceManager(this)), _sound(new SoundManager(this)),
 	_debugger(nullptr), _mouse(nullptr), _menu(nullptr), _gameDescription(gameDesc) {
+
+	// Search in subfolders
+	const Common::FSNode gameDataDir(ConfMan.get("path"));
+	SearchMan.addSubDirectoryMatching(gameDataDir, "ACTION");
+	SearchMan.addSubDirectoryMatching(gameDataDir, "DATA");
+	SearchMan.addSubDirectoryMatching(gameDataDir, "MUSIC");
+	SearchMan.addSubDirectoryMatching(gameDataDir, "MOVIES");
+	SearchMan.addSubDirectoryMatching(gameDataDir, "RESOURCE");
 }
 
 OrlandoEngine::~OrlandoEngine() {

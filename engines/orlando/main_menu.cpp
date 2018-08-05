@@ -67,14 +67,12 @@ bool MainMenu::initialize() {
 	_truckTimer = _vm->getTotalPlayTime();
 
 	Common::File *music = nullptr;
-	if (_vm->getPlatform() == Common::kPlatformDOS) {
-		if (Common::File::exists("music.pak")) {
-			music = resources->loadPakFile("music.pak", "track-02.mus");
-		} else if (Common::File::exists("music16.pak")) {
-			music = resources->loadPakFile("music16.pak", "track-02.pms");
-		}
-	} else if (_vm->getPlatform() == Common::kPlatformWindows) {
-		music = resources->loadRawFile("music/tr02-22.pms");
+	if (_vm->isStandardPerf()) {
+		music = resources->loadPakFile("music.pak", "track-02.mus");
+	} else if (_vm->isHighPerf()) {
+		music = resources->loadPakFile("music16.pak", "track-02.pms");
+	} else if (_vm->isDirectorCut()) {
+		music = resources->loadRawFile("tr02-22.pms");
 	}
 
 	if (music != nullptr) {

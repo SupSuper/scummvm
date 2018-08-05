@@ -60,7 +60,9 @@ public:
 
 	// Detection related functions
 	const ADGameDescription *_gameDescription;
-	Common::Platform getPlatform() const;
+	bool isStandardPerf() const;
+	bool isHighPerf() const;
+	bool isDirectorCut() const;
 	bool hasFeature(EngineFeature f) const override;
 };
 

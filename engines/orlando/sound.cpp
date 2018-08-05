@@ -163,6 +163,9 @@ Audio::SeekableAudioStream *SoundManager::loadRawAudio(Common::SeekableReadStrea
 	int rate = 16000;
 	if (type == Audio::Mixer::kMusicSoundType) {
 		flags |= Audio::FLAG_STEREO;
+	} else if (_vm->isHighPerf()) {
+		rate = 22050;
+		flags |= Audio::FLAG_16BITS;
 	}
 	
 	Audio::SeekableAudioStream *audio = Audio::makeRawStream(makeHeaderless(stream, 4), rate, flags);
@@ -189,10 +192,10 @@ Audio::SeekableAudioStream *SoundManager::loadHeaderAudio(Common::SeekableReadSt
 		channels = 2;
 		// fall through
 	case kAudioAdpcmMono:
-		if (_vm->getPlatform() == Common::kPlatformDOS) {
-			rate = 22050;
-		} else if (_vm->getPlatform() == Common::kPlatformWindows) {
+		if (_vm->isDirectorCut()) {
 			rate = 44100;
+		} else {
+			rate = 22050;
 		}
 		break;
 	case kAudioGSM16:
