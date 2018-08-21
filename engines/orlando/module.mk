@@ -11,7 +11,8 @@ MODULE_OBJS = \
 	font.o \
 	mouse.o \
 	sound.o \
-	libgsm.o
+	libgsm.o \
+	flx_anim.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_ORLANDO), DYNAMIC_PLUGIN)

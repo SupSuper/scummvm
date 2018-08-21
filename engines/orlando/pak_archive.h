@@ -41,23 +41,23 @@ class PakArchive : public Common::Archive {
 
 	/**
 	 * Loads a PAK file from the DOS version. Header format:
-	 * @li int32: Size of header in bytes.
+	 * @li uint32: Size of header in bytes.
 	 * Followed by each file definition:
-	 * @li int32: Starting position of file in PAK.
-	 * @li int32: Size of file.
+	 * @li uint32: Starting position of file in PAK.
+	 * @li uint32: Size of file.
 	 * @li char[]: Filename zero-padded to 13 chars (8.3).
 	 */
 	void loadDosPak();
 	/**
 	 * Loads a PAK file from the Windows version. Header format:
 	 * @li char[]: "PAK\0" code.
-	 * @li int32: Number of files stored.
-	 * @li int32: Size of header in bytes (unused).
-	 * @li int32: File handle (unused).
+	 * @li uint32: Number of files stored.
+	 * @li uint32: Size of header in bytes (unused).
+	 * @li uint32: File handle (unused).
 	 * Followed by each file definition:
-	 * @li int32: Starting position of file in PAK.
-	 * @li int32: Size of file.
-	 * @li int32: Length of filename.
+	 * @li uint32: Starting position of file in PAK.
+	 * @li uint32: Size of file.
+	 * @li uint32: Length of filename.
 	 * @li char[]: Zero-terminated filename.
 	 */
 	void loadWindowsPak();

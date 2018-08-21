@@ -28,7 +28,7 @@
 
 namespace Common {
 	struct Point;
-	class ReadableSeekStream;
+	class SeekableReadStream;
 }
 
 namespace Graphics {
@@ -49,12 +49,13 @@ class OrlandoEngine;
 class GraphicsManager {
 	static const int kScreenWidth = 640;
 	static const int kScreenHeight = 480;
-	static const Graphics::PixelFormat kScreenFormat;
 
 	OrlandoEngine *_vm;
 	Graphics::ManagedSurface *_screenBuffer;
 
 public:
+	static const Graphics::PixelFormat kScreenFormat;
+
 	GraphicsManager(OrlandoEngine *vm);
 	~GraphicsManager();
 	/**

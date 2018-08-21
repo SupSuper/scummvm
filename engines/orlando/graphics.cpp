@@ -67,8 +67,8 @@ void GraphicsManager::updateScreen() {
 }
 
 Graphics::Surface *GraphicsManager::loadRawBitmap(Common::SeekableReadStream *stream) const {
-	int width = stream->readSint16LE();
-	int height = stream->readSint16LE();
+	int width = stream->readUint16LE();
+	int height = stream->readUint16LE();
 
 	Graphics::Surface *surface = new Graphics::Surface();
 	surface->create(width, height, kScreenFormat);
@@ -79,15 +79,15 @@ Graphics::Surface *GraphicsManager::loadRawBitmap(Common::SeekableReadStream *st
 }
 
 Graphics::Surface *GraphicsManager::loadPaletteBitmap(Common::SeekableReadStream *stream) const {
-	int width = stream->readSint16LE();
-	int height = stream->readSint16LE();
+	int width = stream->readUint16LE();
+	int height = stream->readUint16LE();
 	uint16 palette[128];
-	stream->read(&palette, 128 * sizeof(uint16));
+	stream->read(palette, 128 * sizeof(uint16));
 
 	Graphics::Surface *surface = new Graphics::Surface();
 	surface->create(width, height, kScreenFormat);
 
-	uint16 *pixel = (uint16*)surface->getBasePtr(0, 0);
+	uint16 *pixel = (uint16*)surface->getPixels();
 	do {
 		int color = stream->readByte();
 		if (stream->eos())

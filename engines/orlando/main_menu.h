@@ -34,6 +34,7 @@ namespace Graphics {
 namespace Orlando {
 
 class OrlandoEngine;
+class FlxAnimation;
 
 /**
   * Scene representing the menu when the game starts.
@@ -42,6 +43,7 @@ class MainMenu {
 	OrlandoEngine *_vm;
 	Common::Archive *_pak;
 	Graphics::Surface *_bg, *_truck;
+	FlxAnimation *_smoke;
 	uint32 _truckTimer;
 	bool _drawTruck;
 

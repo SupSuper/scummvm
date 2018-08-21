@@ -31,13 +31,16 @@
 #include "orlando/graphics.h"
 #include "orlando/resource.h"
 #include "orlando/sound.h"
+#include "orlando/flx_anim.h"
 
 namespace Orlando {
 
-MainMenu::MainMenu(OrlandoEngine *vm) : _vm(vm), _pak(nullptr), _bg(nullptr), _truck(nullptr), _truckTimer(0), _drawTruck(false) {
+MainMenu::MainMenu(OrlandoEngine *vm) : _vm(vm), _pak(nullptr), _bg(nullptr), _truck(nullptr),
+	_smoke(nullptr), _truckTimer(0), _drawTruck(false) {
 }
 
 MainMenu::~MainMenu() {
+	delete _smoke;
 	_truck->free();
 	delete _truck;
 	_bg->free();
@@ -60,6 +63,12 @@ bool MainMenu::initialize() {
 
 	if (Common::File *file = resources->loadPakFile(*_pak, "_samoch1.bm")) {
 		_truck = _vm->getGraphicsManager()->loadRawBitmap(file);
+	} else {
+		return false;
+	}
+
+	if (Common::File *file = resources->loadPakFile(*_pak, "d1.flx")) {
+		_smoke = new FlxAnimation(file, GraphicsManager::kScreenFormat);
 	} else {
 		return false;
 	}
@@ -87,6 +96,7 @@ bool MainMenu::run() {
 	if (_vm->getTotalPlayTime() - _truckTimer >= kTruckDelay) {
 		_truckTimer = _vm->getTotalPlayTime();
 		_drawTruck = !_drawTruck;
+		_smoke->nextFrame();
 	}
 
 	GraphicsManager *graphics = _vm->getGraphicsManager();
@@ -94,6 +104,7 @@ bool MainMenu::run() {
 	graphics->draw(*_bg);
 	if (_drawTruck)
 		graphics->drawTransparent(*_truck, Common::Point(0, 323));
+	graphics->drawTransparent(*_smoke->getSurface(), Common::Point(309, 39));
 
 	const uint16 kColorYellow = graphics->RGBToColor(255, 255, 0);
 	const uint16 kColorBlack = graphics->RGBToColor(0, 0, 0);

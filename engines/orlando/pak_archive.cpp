@@ -28,35 +28,35 @@ namespace Orlando {
 
 struct PakFile {
 	Common::String filename;
-	int offset;
-	int size;
+	uint32 offset;
+	uint32 size;
 };
 
 void PakArchive::loadDosPak() {
 	const int kFileHeaderSize = 21;
-	int headerSize = _stream->readSint32LE();
+	int headerSize = _stream->readUint32LE();
 	_numMembers = (headerSize - sizeof(int32)) / kFileHeaderSize;
 
 	_members = new PakFile[_numMembers];
 	char name[13];
 	for (int i = 0; i < _numMembers; i++) {
-		_members[i].offset = _stream->readSint32LE();
-		_members[i].size = _stream->readSint32LE();
+		_members[i].offset = _stream->readUint32LE();
+		_members[i].size = _stream->readUint32LE();
 		_stream->read(name, 13);
 		_members[i].filename = name;
 	}
 }
 
 void PakArchive::loadWindowsPak() {
-	_numMembers = _stream->readSint32LE();
+	_numMembers = _stream->readUint32LE();
 	_stream->skip(8);
 
 	_members = new PakFile[_numMembers];
 	char name[13];
 	for (int i = 0; i < _numMembers; i++) {
-		_members[i].offset = _stream->readSint32LE();
-		_members[i].size = _stream->readSint32LE();
-		int nameSize = _stream->readSint32LE();
+		_members[i].offset = _stream->readUint32LE();
+		_members[i].size = _stream->readUint32LE();
+		int nameSize = _stream->readUint32LE();
 		_stream->read(name, nameSize);
 		_members[i].filename = name;
 	}
