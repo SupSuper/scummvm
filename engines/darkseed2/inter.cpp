@@ -23,6 +23,8 @@
  *
  */
 
+#include "common/textconsole.h"
+
 #include "darkseed2/inter.h"
 #include "darkseed2/variables.h"
 #include "darkseed2/datfile.h"

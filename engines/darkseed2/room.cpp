@@ -24,6 +24,7 @@
  */
 
 #include "common/serializer.h"
+#include "common/textconsole.h"
 
 #include "darkseed2/room.h"
 #include "darkseed2/variables.h"

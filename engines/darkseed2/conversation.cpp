@@ -23,6 +23,8 @@
  *
  */
 
+#include "common/debug.h"
+#include "common/textconsole.h"
 
 #include "darkseed2/conversation.h"
 #include "darkseed2/datfile.h"

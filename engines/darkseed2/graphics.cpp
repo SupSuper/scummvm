@@ -24,6 +24,9 @@
  */
 
 #include "common/serializer.h"
+#include "common/textconsole.h"
+
+#include "graphics/palette.h"
 
 #include "darkseed2/graphics.h"
 #include "darkseed2/imageconverter.h"

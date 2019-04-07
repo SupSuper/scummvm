@@ -29,9 +29,10 @@
 #include "common/random.h"
 #include "base/plugins.h"
 #include "common/config-manager.h"
-#include "common/EventRecorder.h"
 #include "common/debug-channels.h"
 #include "common/macresman.h"
+#include "common/textconsole.h"
+#include "common/error.h"
 
 #include "engines/util.h"
 
@@ -69,7 +70,7 @@ namespace DarkSeed2 {
 // Files
 static const char *kVariableIndex = "GAMEVAR";
 
-DarkSeed2Engine::DarkSeed2Engine(OSystem *syst, const DS2GameDescription *gameDesc) :
+DarkSeed2Engine::DarkSeed2Engine(OSystem *syst, const ADGameDescription *gameDesc) :
 	Engine(syst), _gameDescription(gameDesc) {
 
 	DebugMan.addDebugChannel(kDebugResources   , "Resources"   , "Resource handling debug level");
@@ -107,8 +108,7 @@ DarkSeed2Engine::DarkSeed2Engine(OSystem *syst, const DS2GameDescription *gameDe
 	_macExeResFork  = 0;
 	_midiDriver     = 0;
 
-	_rnd = new Common::RandomSource();
-	g_eventRec.registerRandomSource(*_rnd, "ds2");
+	_rnd = new Common::RandomSource("darkseed2");
 
 	_engineStartTime = 0;
 	_playTime        = 0;
@@ -189,7 +189,6 @@ void DarkSeed2Engine::syncSoundSettings() {
 
 	_options->syncSettings();
 
-	_music->syncSettings(*_options);
 	_talkMan->syncSettings(*_options);
 }
 
@@ -343,10 +342,7 @@ bool DarkSeed2Engine::doLoadDialog() {
 
 	int slot = dialog->runModalWithPluginAndTarget(plugin, ConfMan.getActiveDomainName());
 
-	bool result = false;
-	if (slot >= 0)
-		if (!loadGameState(slot))
-			result = true;
+	bool result = ((slot >= 0) && (loadGameState(slot).getCode() == Common::kNoError));
 
 	delete dialog;
 	return result;
