@@ -33,6 +33,7 @@
 #include "common/macresman.h"
 #include "common/textconsole.h"
 #include "common/error.h"
+#include "common/translation.h"
 
 #include "engines/util.h"
 
@@ -317,9 +318,10 @@ bool DarkSeed2Engine::init(int32 width, int32 height) {
 bool DarkSeed2Engine::initGraphics(int32 width, int32 height) {
 	debug(-1, "Setting up graphics...");
 
-	::initGraphics(width, height, width == 640, 0);
+	::Graphics::PixelFormat format(2, 5, 6, 5, 0, 11, 5, 0, 0);
+	::initGraphics(width, height, &format);
 
-	ImgConv.setPixelFormat(g_system->getScreenFormat());
+	ImgConv.setPixelFormat(format);
 
 	return true;
 }
@@ -334,13 +336,10 @@ bool DarkSeed2Engine::initGraphicsSystem() {
 }
 
 bool DarkSeed2Engine::doLoadDialog() {
-	const EnginePlugin *plugin = 0;
-	EngineMan.findGame(getGameId(), &plugin);
-	assert(plugin);
 
-	GUI::SaveLoadChooser *dialog = new GUI::SaveLoadChooser("Load game:", "Load", false);
+	GUI::SaveLoadChooser *dialog = new GUI::SaveLoadChooser(_("Load game:"), _("Load"), false);
 
-	int slot = dialog->runModalWithPluginAndTarget(plugin, ConfMan.getActiveDomainName());
+	int slot = dialog->runModalWithCurrentTarget();
 
 	bool result = ((slot >= 0) && (loadGameState(slot).getCode() == Common::kNoError));
 

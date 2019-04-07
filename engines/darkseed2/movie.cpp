@@ -75,7 +75,7 @@ Video::VideoDecoder *Movie::createDecoder(const Common::String &file) const {
 	case Common::kPlatformWindows:
 		// The Windows port uses AVI videos
 		realFile = Resources::addExtension(file, "AVI");
-		decoder = new Video::AVIDecoder(Audio::Mixer::kSFXSoundType);
+		decoder = new Video::AVIDecoder();
 		break;
 	case Common::kPlatformSaturn:
 		// The Sega Saturn port uses Sega FILM videos
@@ -159,18 +159,20 @@ void Movie::updateStatus() {
 		return;
 	}
 
-	const ::Graphics::Surface *frame = _decoder->decodeNextFrame();
+	if (_decoder->needsUpdate()) {
+		const ::Graphics::Surface* frame = _decoder->decodeNextFrame();
 
-	if (_decoder->hasDirtyPalette()) {
-		Palette newPalette;
-		newPalette.copyFrom(_decoder->getPalette(), 256);
-		_screen.setPalette(newPalette);
+		if (_decoder->hasDirtyPalette()) {
+			Palette newPalette;
+			newPalette.copyFrom(_decoder->getPalette(), 256);
+			_screen.setPalette(newPalette);
+		}
+
+		if (frame)
+			_screen.copyFrom((const byte*)frame->getPixels(), frame->format.bytesPerPixel, false);
+
+		_graphics->requestRedraw(_area);
 	}
-
-	if (frame)
-		_screen.copyFrom((const byte *)frame->getPixels(), frame->format.bytesPerPixel, false);
-
-	_graphics->requestRedraw(_area);
 }
 
 void Movie::redraw(Sprite &sprite, Common::Rect area) {

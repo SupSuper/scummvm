@@ -174,7 +174,7 @@ bool SegaFILMDecoder::loadStream(Common::SeekableReadStream *stream) {
 		if (audioSampleSize == 16)
 			audioFlags |= Audio::FLAG_16BITS;
 
-		addTrack(new SegaFILMAudioTrack(audioFrequency, audioFlags));
+		addTrack(new SegaFILMAudioTrack(audioFrequency, audioFlags, getSoundType()));
 	}
 
 	_sampleTablePosition = 0;
@@ -246,7 +246,7 @@ void SegaFILMDecoder::SegaFILMVideoTrack::decodeFrame(Common::SeekableReadStream
 	_nextFrameStartTime += duration; // Add the frame's duration to the next frame start
 }
 
-SegaFILMDecoder::SegaFILMAudioTrack::SegaFILMAudioTrack(uint audioFrequency, uint audioFlags) {
+SegaFILMDecoder::SegaFILMAudioTrack::SegaFILMAudioTrack(uint audioFrequency, uint audioFlags, Audio::Mixer::SoundType soundType) : AudioTrack(soundType) {
 	_audioFlags = audioFlags;
 	_audioStream = Audio::makeQueuingAudioStream(audioFrequency, audioFlags & Audio::FLAG_STEREO);
 }

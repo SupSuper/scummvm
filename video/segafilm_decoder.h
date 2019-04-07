@@ -79,7 +79,7 @@ private:
 
 	class SegaFILMAudioTrack : public AudioTrack {
 	public:
-		SegaFILMAudioTrack(uint audioFrequency, uint audioFlags);
+		SegaFILMAudioTrack(uint audioFrequency, uint audioFlags, Audio::Mixer::SoundType soundType);
 		~SegaFILMAudioTrack();
 
 		void queueAudio(Common::SeekableReadStream *stream, uint32 length);

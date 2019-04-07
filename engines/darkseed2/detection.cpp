@@ -33,7 +33,7 @@
 namespace DarkSeed2 {
 
 const char *DarkSeed2Engine::getGameId() const {
-	return _gameDescription->gameid;
+	return _gameDescription->gameId;
 }
 
 Common::Language DarkSeed2Engine::getLanguage() const {
@@ -180,11 +180,11 @@ class DarkSeed2MetaEngine : public AdvancedMetaEngine {
 public:
 	DarkSeed2MetaEngine() : AdvancedMetaEngine(DarkSeed2::gameDescriptions, sizeof(ADGameDescription), darkseed2Games) {
 		_md5Bytes = 10000;
-		_singleid = "darkseed2";
-		_guioptions = GUIO_NOLAUNCHLOAD;
+		_singleId = "darkseed2";
+		_guiOptions = GUIO_NOLAUNCHLOAD;
 	}
 
-	virtual const ADGameDescription *fallbackDetect(const FileMap &allFiles, const Common::FSList &fslist) const {
+	virtual ADDetectedGame fallbackDetect(const FileMap &allFiles, const Common::FSList &fslist) const {
 		return detectGameFilebased(allFiles, fslist, DarkSeed2::fileBased);
 	}
 

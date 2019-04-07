@@ -230,77 +230,69 @@ void Events::mainLoop(bool finishScripts) {
 				break;
 
 			_vm->_movie->updateStatus();
-
-			// Update screen
-			_vm->_graphics->retrace();
-			g_system->updateScreen();
-
-			// Wait
-			g_system->delayMillis(_vm->_movie->getFrameWaitTime());
-
-			continue;
 		}
+		else {
+			// Look for user input
+			handleInput();
 
-		// Look for user input
-		handleInput();
-
-		// Leaving the intro
-		if (_state == kStateIntro5) {
-			_state = kStateRunning;
-			break;
-		}
-
-		// If loading a game state was requested, break the loop
-		if (_loading)
-			break;
-
-		// Always use that mode/activity when the conversation box is visible
-		if (_vm->_graphics->getConversationBox().isActive()) {
-			if ((_cursorMode != kCursorModeWalk) || (_cursorActive != false)) {
-				_cursorMode   = kCursorModeWalk;
-				_cursorActive = false;
-				setCursor();
-			}
-		}
-
-		// Update the subsystems' status
-
-		_vm->_talkMan->updateStatus();
-		_vm->_roomConfMan->updateStatus();
-		_vm->_graphics->updateStatus();
-
-		if (!_vm->_mike->isBusy())
-			scriptStateChanged = _vm->_inter->updateStatus();
-
-		if (!_vm->_mike->isBusy()) {
-			if (finishScripts) {
-				// Just waiting for the scripts to finish
-
-				// No room changing
-				_changeRoom = false;
-				if (!scriptStateChanged)
-					// Scripts finished
-					break;
+			// Leaving the intro
+			if (_state == kStateIntro5) {
+				_state = kStateRunning;
+				break;
 			}
 
-			// If the script variable "LastAction" is set, queue the last object verb scripts again
-			if (_vm->_variables->get("LastAction") == 1) {
-				_vm->_variables->set("LastAction", 0);
-				if (_lastObject)
-					_vm->_inter->interpret(_lastObject->getScripts(kObjectVerbUse));
-			}
+			// If loading a game state was requested, break the loop
+			if (_loading)
+				break;
 
-			// Room changing, but not during a syscall
-			if (_changeRoom) {
-				if (_vm->_variables->get("SysCall") == 0) {
-					_changeRoom = false;
-
-					roomGo(_nextRoom);
+			// Always use that mode/activity when the conversation box is visible
+			if (_vm->_graphics->getConversationBox().isActive()) {
+				if ((_cursorMode != kCursorModeWalk) || (_cursorActive != false)) {
+					_cursorMode = kCursorModeWalk;
+					_cursorActive = false;
+					setCursor();
 				}
 			}
-		}
 
-		_vm->_mike->updateStatus();
+			// Update the subsystems' status
+
+			_vm->_talkMan->updateStatus();
+			_vm->_roomConfMan->updateStatus();
+			_vm->_graphics->updateStatus();
+
+			if (!_vm->_mike->isBusy())
+				scriptStateChanged = _vm->_inter->updateStatus();
+
+			if (!_vm->_mike->isBusy()) {
+				if (finishScripts) {
+					// Just waiting for the scripts to finish
+
+					// No room changing
+					_changeRoom = false;
+					if (!scriptStateChanged)
+						// Scripts finished
+						break;
+				}
+
+				// If the script variable "LastAction" is set, queue the last object verb scripts again
+				if (_vm->_variables->get("LastAction") == 1) {
+					_vm->_variables->set("LastAction", 0);
+					if (_lastObject)
+						_vm->_inter->interpret(_lastObject->getScripts(kObjectVerbUse));
+				}
+
+				// Room changing, but not during a syscall
+				if (_changeRoom) {
+					if (_vm->_variables->get("SysCall") == 0) {
+						_changeRoom = false;
+
+						roomGo(_nextRoom);
+					}
+				}
+			}
+
+			_vm->_mike->updateStatus();
+		}
 
 		// Update screen
 		_vm->_graphics->retrace();
