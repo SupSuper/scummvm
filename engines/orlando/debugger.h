@@ -38,6 +38,9 @@ class Debugger : public GUI::Debugger {
 public:
 	Debugger(OrlandoEngine *vm);
 	~Debugger() {}
+	bool cmdMusic(int argc, const char **argv);
+	bool cmdSfx(int argc, const char **argv);
+	bool cmdSpeech(int argc, const char **argv);
 };
 
 } // End of namespace Orlando

@@ -20,12 +20,40 @@
  *
  */
 
+#include "common/scummsys.h"
+
 #include "orlando/debugger.h"
+#include "orlando/orlando.h"
+#include "orlando/scene.h"
 
 namespace Orlando {
 
 Debugger::Debugger(OrlandoEngine *vm) : GUI::Debugger(), _vm(vm) {
-
+	registerCmd("music", WRAP_METHOD(Debugger, cmdMusic));
+	registerCmd("sound", WRAP_METHOD(Debugger, cmdSfx));
+	registerCmd("voice", WRAP_METHOD(Debugger, cmdSpeech));
 }
+
+bool Debugger::cmdMusic(int argc, const char **argv) {
+	if (argc == 2) {
+		_vm->getScene()->playMusic(argv[1]);
+	}
+	return true;
+}
+
+bool Debugger::cmdSfx(int argc, const char **argv) {
+	if (argc == 2) {
+		_vm->getScene()->playSfx(argv[1]);
+	}
+	return true;
+}
+
+bool Debugger::cmdSpeech(int argc, const char **argv) {
+	if (argc != 2) {
+		_vm->getScene()->playSpeech(argv[1]);
+	}
+	return true;
+}
+
 
 } // End of namespace Orlando
