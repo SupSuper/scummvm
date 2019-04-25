@@ -34,7 +34,7 @@ class GraphicsManager;
 class ResourceManager;
 class SoundManager;
 class Mouse;
-class MainMenu;
+class Scene;
 
 /**
  * Engine for the Jack Orlando adventure game.
@@ -45,7 +45,7 @@ class OrlandoEngine : public Engine {
 	ResourceManager *_resources;
 	SoundManager *_sound;
 	Mouse *_mouse;
-	MainMenu *_menu;
+	Scene *_scene;
 
 public:
 	OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc);
@@ -57,12 +57,13 @@ public:
 	ResourceManager *getResourceManager() { return _resources; }
 	SoundManager *getSoundManager() { return _sound; }
 	Mouse *getMouse() { return _mouse; }
+	Scene *getScene() { return _scene; }
 
 	// Detection related functions
 	const ADGameDescription *_gameDescription;
-	bool isStandardPerf() const;
-	bool isHighPerf() const;
-	bool isDirectorCut() const;
+	bool isVersionSP() const;
+	bool isVersionHP() const;
+	bool isVersionDC() const;
 	bool hasFeature(EngineFeature f) const override;
 };
 

@@ -163,7 +163,7 @@ Audio::SeekableAudioStream *SoundManager::loadRawAudio(Common::SeekableReadStrea
 	int rate = 16000;
 	if (type == Audio::Mixer::kMusicSoundType) {
 		flags |= Audio::FLAG_STEREO;
-	} else if (_vm->isHighPerf()) {
+	} else if (_vm->isVersionHP()) {
 		rate = 22050;
 		flags |= Audio::FLAG_16BITS;
 	}
@@ -192,7 +192,7 @@ Audio::SeekableAudioStream *SoundManager::loadHeaderAudio(Common::SeekableReadSt
 		channels = 2;
 		// fall through
 	case kAudioAdpcmMono:
-		if (_vm->isDirectorCut()) {
+		if (_vm->isVersionDC()) {
 			rate = 44100;
 		} else {
 			rate = 22050;
@@ -229,7 +229,10 @@ void SoundManager::playFile(Common::SeekableReadStream *stream, Audio::Mixer::So
 	if (audio == nullptr)
 		return;
 
-	delete _handle;
+	if (_handle != nullptr) {
+		_vm->_mixer->stopHandle(*_handle);
+		delete _handle;
+	}
 	_handle = new Audio::SoundHandle();
 	// Music should loop infinitely
 	if (type == Audio::Mixer::kMusicSoundType) {

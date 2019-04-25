@@ -20,40 +20,41 @@
  *
  */
 
-#ifndef ORLANDO_MAIN_MENU_H
-#define ORLANDO_MAIN_MENU_H
+#ifndef ORLANDO_SCENE_H
+#define ORLANDO_SCENE_H
 
-#include "orlando/scene.h"
+#include "common/str.h"
 
 namespace Common {
 	class Archive;
-}
-
-namespace Graphics {
-	struct Surface;
+	class File;
 }
 
 namespace Orlando {
 
 class OrlandoEngine;
-class FlxAnimation;
 
 /**
- * Scene representing the menu when the game starts.
- */
-class MainMenu : public Scene {
-	Graphics::Surface *_bg, *_truck;
-	FlxAnimation *_smoke;
-	uint32 _truckTimer;
-	bool _drawTruck;
+  * Represents a game room, screen, etc.
+  */
+class Scene {
+protected:
+	OrlandoEngine *_vm;
+	Common::String _id;
+	Common::Archive *_pak, *_pakEx;
 
-	void playMenuMusic();
+	Common::File *loadFile(const Common::String &filename);
+
 public:
-	MainMenu(OrlandoEngine *vm);
-	~MainMenu();
+	Scene(OrlandoEngine *vm, const Common::String &id);
+	~Scene();
 
-	bool initialize() override;
-	bool run() override;
+	virtual bool initialize();
+	virtual bool run();
+
+	void playMusic(const Common::String &filename);
+	void playSfx(const Common::String &filename);
+	void playSpeech(const Common::String &filename);
 };
 
 } // End of namespace Orlando

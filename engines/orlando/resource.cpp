@@ -42,12 +42,14 @@ ResourceManager::~ResourceManager() {
 bool ResourceManager::loadCommonResources() {
 	// If this is a game folder, there should be a GLOBAL.PAK in the root
 	// If this is an install disc, the GLOBAL.PAK should be inside a DATA.PAK
-	if (!(_globalPak = loadPakArchive("global.pak"))) {
-		if (!(_globalPak = loadPakArchive(loadPakFile("data.pak", "global.pak")))) {
-			return false;
-		}
+	if (Common::File::exists("global.pak")) {
+		_globalPak = loadPakArchive("global.pak");
+	} else {
+		_globalPak = loadPakArchive(loadPakFile("data.pak", "global.pak"));
 	}
 
+	if (_globalPak == nullptr)
+		return false;
 	if (!(_resourcePak = loadPakArchive("resource.pak")))
 		return false;
 

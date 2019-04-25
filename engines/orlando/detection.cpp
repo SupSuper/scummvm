@@ -40,19 +40,19 @@ enum {
 /**
  * Is this the Standard Performance version?
  */
-bool OrlandoEngine::isStandardPerf() const {
+bool OrlandoEngine::isVersionSP() const {
 	return _gameDescription->platform == Common::kPlatformDOS && (_gameDescription->flags & GF_HIGHPERF) == 0;
 }
 /**
  * Is this the High Performance version?
  */
-bool OrlandoEngine::isHighPerf() const {
+bool OrlandoEngine::isVersionHP() const {
 	return _gameDescription->platform == Common::kPlatformDOS  && (_gameDescription->flags & GF_HIGHPERF) != 0;
 }
 /**
  * Is this the Director's Cut version?
  */
-bool OrlandoEngine::isDirectorCut() const {
+bool OrlandoEngine::isVersionDC() const {
 	return _gameDescription->platform == Common::kPlatformWindows;
 }
 

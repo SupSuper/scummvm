@@ -35,7 +35,7 @@
 
 namespace Orlando {
 
-MainMenu::MainMenu(OrlandoEngine *vm) : _vm(vm), _pak(nullptr), _bg(nullptr), _truck(nullptr),
+MainMenu::MainMenu(OrlandoEngine *vm) : Scene(vm, "MENU"), _bg(nullptr), _truck(nullptr),
 	_smoke(nullptr), _truckTimer(0), _drawTruck(false) {
 }
 
@@ -45,29 +45,43 @@ MainMenu::~MainMenu() {
 	delete _truck;
 	_bg->free();
 	delete _bg;
-	delete _pak;
+}
+
+void MainMenu::playMenuMusic() {
+	ResourceManager *resources = _vm->getResourceManager();
+
+	Common::File *music = nullptr;
+	if (_vm->isVersionSP()) {
+		music = resources->loadPakFile("MUSIC.PAK", "TRACK-02.MUS");
+	} else if (_vm->isVersionHP()) {
+		music = resources->loadPakFile("MUSIC16.PAK", "TRACK-02.PMS");
+	} else if (_vm->isVersionDC()) {
+		music = resources->loadRawFile("TR02-22.PMS");
+	}
+
+	if (music != nullptr) {
+		_vm->getSoundManager()->playFile(music, Audio::Mixer::kMusicSoundType);
+	}
 }
 
 bool MainMenu::initialize() {
-	ResourceManager *resources = _vm->getResourceManager();
-
-	if (!(_pak = resources->loadPakArchive("menu.pak"))) {
+	if (!(_pak = _vm->getResourceManager()->loadPakArchive("MENU.PAK"))) {
 		return false;
 	}
 
-	if (Common::File *file = resources->loadPakFile(*_pak, "jack2.bm")) {
+	if (Common::File *file = loadFile("jack2.bm")) {
 		_bg = _vm->getGraphicsManager()->loadRawBitmap(file);
 	} else {
 		return false;
 	}
 
-	if (Common::File *file = resources->loadPakFile(*_pak, "_samoch1.bm")) {
+	if (Common::File *file = loadFile("_samoch1.bm")) {
 		_truck = _vm->getGraphicsManager()->loadRawBitmap(file);
 	} else {
 		return false;
 	}
 
-	if (Common::File *file = resources->loadPakFile(*_pak, "d1.flx")) {
+	if (Common::File *file = loadFile("d1.flx")) {
 		_smoke = new FlxAnimation(file, GraphicsManager::kScreenFormat);
 	} else {
 		return false;
@@ -75,18 +89,7 @@ bool MainMenu::initialize() {
 
 	_truckTimer = _vm->getTotalPlayTime();
 
-	Common::File *music = nullptr;
-	if (_vm->isStandardPerf()) {
-		music = resources->loadPakFile("music.pak", "track-02.mus");
-	} else if (_vm->isHighPerf()) {
-		music = resources->loadPakFile("music16.pak", "track-02.pms");
-	} else if (_vm->isDirectorCut()) {
-		music = resources->loadRawFile("tr02-22.pms");
-	}
-
-	if (music != nullptr) {
-		_vm->getSoundManager()->playFile(music, Audio::Mixer::kMusicSoundType);
-	}
+	playMenuMusic();
 
 	return true;
 }
