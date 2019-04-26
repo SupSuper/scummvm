@@ -128,7 +128,7 @@ public:
 	 */
 	void drawText(const Common::String &text, const Common::Point &pos, int width, uint16 fill, uint16 border, Graphics::TextAlign align = Graphics::kTextAlignLeft);
 	/**
-	 * Draws a rectangle with color blending.
+	 * Draws a filled rectangle with color blending.
 	 * @param rect Rectangle coordinates.
 	 * @param color Source color to blend.
 	 * @param alpha Amount to blend.
@@ -139,10 +139,23 @@ public:
 	 * @param text Button text.
 	 * @param rect Button coordinates.
 	 * @param fill Text fill color.
-	 * @param rect Button coordinates.
+	 * @param border Text border color.
 	 * @return True if the button was clicked.
 	 */
 	bool drawButton(const Common::String &text, const Common::Rect &rect, uint16 fill, uint16 border);
+	/**
+	 * Draws a polygon border on screen.
+	 * @param rect Polygon coordinates.
+	 * @param color Line color.
+	 */
+	void drawPolygon(const Common::Rect &rect, uint16 color);
+	/**
+	 * Draws a polygon border on screen.
+	 * @param points Array of point coordinates.
+	 * @param numPoints Total number of points.
+	 * @param color Line color.
+	 */
+	void drawPolygon(const Common::Point points[], int numPoints, uint16 color);
 };
 
 } // End of namespace Orlando

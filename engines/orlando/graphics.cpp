@@ -168,4 +168,15 @@ bool GraphicsManager::drawButton(const Common::String &text, const Common::Rect 
 	return (mouse->getLeftButton() == kButtonReleased && mouse->isOver(rect));
 }
 
+void GraphicsManager::drawPolygon(const Common::Rect &rect, uint16 color) {
+	_screenBuffer->frameRect(rect, color);
+}
+
+void GraphicsManager::drawPolygon(const Common::Point points[], int numPoints, uint16 color) {
+	for (int i = 0; i < numPoints; i++) {
+		int j = (i + 1) % numPoints;
+		_screenBuffer->drawLine(points[i].x, points[i].y, points[j].x, points[j].y, color);
+	}
+}
+
 } // End of namespace Orlando

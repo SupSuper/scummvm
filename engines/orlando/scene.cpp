@@ -22,11 +22,15 @@
 
 #include "common/scummsys.h"
 #include "common/file.h"
+#include "common/system.h"
+#include "graphics/surface.h"
 
 #include "orlando/scene.h"
 #include "orlando/orlando.h"
 #include "orlando/resource.h"
 #include "orlando/sound.h"
+#include "orlando/text_parser.h"
+#include "orlando/graphics.h"
 
 /**
  * Utility function for replacing the ending of a string with another string.
@@ -54,7 +58,7 @@ Scene::~Scene() {
 
 Common::File *Scene::loadFile(const Common::String &filename) {
 	Common::File *file = _vm->getResourceManager()->loadPakFile(*_pak, filename);
-	if (!file) {
+	if (file == nullptr && _pakEx != nullptr) {
 		file = _vm->getResourceManager()->loadPakFile(*_pakEx, filename);
 	}
 	return file;
@@ -129,6 +133,108 @@ bool Scene::initialize() {
 
 	if (_pak == nullptr)
 		return false;
+
+	if (!loadCcg())
+		return false;
+
+	return true;
+}
+
+bool Scene::loadCcg() {
+	GraphicsManager *graphics = _vm->getGraphicsManager();
+
+	TextParser parser = TextParser(loadFile(_id + ".CCG"));
+
+	Common::String id = parser.readString();
+	while (id.firstChar() == '[') {
+		id.deleteChar(0);
+		id.deleteLastChar();
+
+		if (id == "grafiki") {
+			Common::String bg = parser.readString();
+			if (bg.lastChar() == '+') {
+				bg.deleteLastChar();
+				int xOffset = parser.readInt();
+			}
+			Graphics::Surface *bgSurface = _vm->getGraphicsManager()->loadRawBitmap(loadFile(bg));
+			graphics->draw(*bgSurface);
+
+			while (true) {
+				id = parser.readString();
+				if (id.firstChar() == '[')
+					break;
+				Common::File *sprite = loadFile(id);
+				int bpp = parser.readInt();
+				int16 x = parser.readInt();
+				int16 y = parser.readInt();
+
+				if (sprite != nullptr) {
+					Graphics::Surface *spriteSurface = nullptr;
+					if (bpp == 16) {
+						spriteSurface = _vm->getGraphicsManager()->loadRawBitmap(sprite);
+					}
+					else if (bpp == 8 || bpp == -8) {
+						spriteSurface = _vm->getGraphicsManager()->loadPaletteBitmap(sprite);
+					}
+					graphics->drawTransparent(*spriteSurface, Common::Point(x, y));
+					Common::Rect border = { x, y, x + spriteSurface->w, y + spriteSurface->h };
+					graphics->drawPolygon(border, graphics->RGBToColor(255, 0, 0));
+				}
+
+				parser.readFloat();
+				parser.readFloat();
+				int16 x1 = parser.readInt();
+				int16 y1 = parser.readInt();
+				int16 x2 = parser.readInt();
+				int16 y2 = parser.readInt();
+				int16 x3 = parser.readInt();
+				int16 y3 = parser.readInt();
+				int16 x4 = parser.readInt();
+				int16 y4 = parser.readInt();
+				if (x1 == x2) x1++;
+				if (x3 == x4) x3++;
+				if (y1 == y2) y1++;
+				if (y3 == y4) y3++;
+				Common::Point poly[] = { {x + x1, y + y1}, {x + x2, y + y2}, {x + x3, y + y3}, {x + x4, y + y4} };
+				graphics->drawPolygon(poly, 4, graphics->RGBToColor(0, 255, 0));
+			}
+		} else if (id == "perspektywa") {
+			parser.readInt();
+			parser.readInt();
+			parser.readInt();
+			parser.readFloat();
+			id = parser.readString();
+		} else if (id == "obszar_chodu") {
+			int num = parser.readInt();
+			for (int i = 0; i < num; i++) {
+				int16 x1 = parser.readInt();
+				int16 y1 = parser.readInt();
+				int16 x2 = parser.readInt();
+				int16 y2 = parser.readInt();
+				int16 x3 = parser.readInt();
+				int16 y3 = parser.readInt();
+				Common::Point poly[] = { {x1, y1}, {x2, y2}, {x3, y3} };
+				graphics->drawPolygon(poly, 3, graphics->RGBToColor(0, 0, 255));
+			}
+			id = parser.readString();
+		} else if (id == "kolor_liter") {
+			parser.readInt();
+			parser.readInt();
+			parser.readInt();
+			parser.readInt();
+			parser.readInt();
+			parser.readInt();
+			id = parser.readString();
+		} else if (id == "swiatlo") {
+			parser.readInt();
+			parser.readInt();
+			id = parser.readString();
+		} else if (id == "elementy") {
+			id = parser.readString();
+		} else {
+			break;
+		}
+	}
 
 	return true;
 }

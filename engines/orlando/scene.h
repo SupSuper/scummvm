@@ -44,6 +44,7 @@ protected:
 	Common::Archive *_pak, *_pakEx;
 
 	Common::File *loadFile(const Common::String &filename);
+	bool loadCcg();
 
 public:
 	Scene(OrlandoEngine *vm, const Common::String &id);

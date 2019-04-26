@@ -32,6 +32,7 @@ Debugger::Debugger(OrlandoEngine *vm) : GUI::Debugger(), _vm(vm) {
 	registerCmd("music", WRAP_METHOD(Debugger, cmdMusic));
 	registerCmd("sound", WRAP_METHOD(Debugger, cmdSfx));
 	registerCmd("voice", WRAP_METHOD(Debugger, cmdSpeech));
+	registerCmd("scene", WRAP_METHOD(Debugger, cmdScene));
 }
 
 bool Debugger::cmdMusic(int argc, const char **argv) {
@@ -49,11 +50,17 @@ bool Debugger::cmdSfx(int argc, const char **argv) {
 }
 
 bool Debugger::cmdSpeech(int argc, const char **argv) {
-	if (argc != 2) {
+	if (argc == 2) {
 		_vm->getScene()->playSpeech(argv[1]);
 	}
 	return true;
 }
 
+bool Debugger::cmdScene(int argc, const char **argv) {
+	if (argc == 2) {
+		_vm->gotoScene(argv[1]);
+	}
+	return false;
+}
 
 } // End of namespace Orlando

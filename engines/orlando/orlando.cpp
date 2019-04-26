@@ -70,7 +70,8 @@ Common::Error OrlandoEngine::run() {
 
 	_debugger = new Debugger(this);
 	_mouse = new Mouse(this);
-	_scene = new MainMenu(this);
+	//_scene = new MainMenu(this);
+	_scene = new Scene(this, "SC001");
 
 	if (!_mouse->initialize())
 		return Common::kNoGameDataFoundError;
@@ -103,6 +104,12 @@ Common::Error OrlandoEngine::run() {
 	}
 
 	return Common::kNoError;
+}
+
+bool OrlandoEngine::gotoScene(const Common::String &id) {
+	delete _scene;
+	_scene = new Scene(this, id);
+	return _scene->initialize();
 }
 
 } // End of namespace Orlando
