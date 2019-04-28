@@ -57,7 +57,7 @@ public:
 	virtual bool seek(int32 offset, int whence = SEEK_SET) { return _parentStream->seek(offset, whence); }
 };
 
-TextParser::TextParser(Common::SeekableReadStream *stream, bool encrypted) : _stream(stream) {
+TextParser::TextParser(Common::SeekableReadStream *stream, bool encrypted) : _stream(stream), _lastPos(0) {
 	if (encrypted) {
 		_stream = new SeekableCryptReadStream(stream, DisposeAfterUse::YES);
 	}
@@ -70,12 +70,14 @@ TextParser::~TextParser() {
 
 Common::String TextParser::nextToken() {
 	Common::String token;
+	_lastPos = _stream->pos();
+
 	bool comment = false;
 	bool tokenRead = false;
 	bool end = false;
 	while (!end) {
 		char c = _stream->readByte();
-		if (_stream->eos() || _stream->err()) {
+		if (eof()) {
 			end = true;
 		} else {
 			if (c == '/') {
@@ -106,6 +108,14 @@ int TextParser::readInt() {
 float TextParser::readFloat() {
 	Common::String token = nextToken();
 	return atof(token.c_str());
+}
+
+bool TextParser::eof() {
+	return (_stream->eos() || _stream->err());
+}
+
+void TextParser::rewind() {
+	_stream->seek(_lastPos);
 }
 
 } // End of namespace Orlando

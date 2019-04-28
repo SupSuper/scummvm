@@ -20,62 +20,25 @@
  *
  */
 
-#ifndef ORLANDO_SCENE_H
-#define ORLANDO_SCENE_H
+#ifndef ORLANDO_HOTSPOT_H
+#define ORLANDO_HOTSPOT_H
 
 #include "common/str.h"
 #include "common/array.h"
-
 #include "orlando/util.h"
-
-namespace Common {
-	class Archive;
-	class File;
-}
-namespace Graphics {
-	struct Surface;
-}
 
 namespace Orlando {
 
-class OrlandoEngine;
-class Sprite;
-class Animation;
-class Hotspot;
+class TextParser;
 
-/**
-  * Represents a game room, screen, etc.
-  */
-class Scene {
-protected:
-	OrlandoEngine *_vm;
+class Hotspot {
 	Common::String _id;
-	Common::Archive *_pak, *_pakEx;
-
-	Graphics::Surface *_background;
-	int _scrollX;
-	Common::Array<Triangle> _walkAreas;
-
-	Common::Array<Sprite*> _objects;
-	Common::Array<Sprite*> _items;
-	Common::Array<Animation*> _anims;
-	Common::Array<Hotspot*> _hotspots;
-
-	Common::File *loadFile(const Common::String &filename);
-	bool loadCcg();
-	bool loadAci();
-	bool loadAce();
+	Common::Array<Triangle> _areas;
 
 public:
-	Scene(OrlandoEngine *vm, const Common::String &id);
-	~Scene();
-
-	virtual bool initialize();
-	virtual bool run();
-
-	void playMusic(const Common::String &filename);
-	void playSfx(const Common::String &filename);
-	void playSpeech(const Common::String &filename);
+	Hotspot(const Common::String &id);
+	~Hotspot();
+	void load(TextParser &parser);
 };
 
 } // End of namespace Orlando

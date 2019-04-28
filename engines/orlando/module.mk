@@ -14,7 +14,10 @@ MODULE_OBJS = \
 	libgsm.o \
 	flx_anim.o \
 	text_parser.o \
-	scene.o
+	scene.o \
+	animation.o \
+	sprite.o \
+	hotspot.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_ORLANDO), DYNAMIC_PLUGIN)

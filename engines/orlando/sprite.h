@@ -20,17 +20,15 @@
  *
  */
 
-#ifndef ORLANDO_SCENE_H
-#define ORLANDO_SCENE_H
+#ifndef ORLANDO_SPRITE_H
+#define ORLANDO_SPRITE_H
 
 #include "common/str.h"
-#include "common/array.h"
-
+#include "common/rect.h"
 #include "orlando/util.h"
 
 namespace Common {
-	class Archive;
-	class File;
+	class SeekableReadStream;
 }
 namespace Graphics {
 	struct Surface;
@@ -38,44 +36,22 @@ namespace Graphics {
 
 namespace Orlando {
 
-class OrlandoEngine;
-class Sprite;
-class Animation;
-class Hotspot;
+class TextParser;
+class GraphicsManager;
 
-/**
-  * Represents a game room, screen, etc.
-  */
-class Scene {
-protected:
-	OrlandoEngine *_vm;
+class Sprite {
 	Common::String _id;
-	Common::Archive *_pak, *_pakEx;
-
-	Graphics::Surface *_background;
-	int _scrollX;
-	Common::Array<Triangle> _walkAreas;
-
-	Common::Array<Sprite*> _objects;
-	Common::Array<Sprite*> _items;
-	Common::Array<Animation*> _anims;
-	Common::Array<Hotspot*> _hotspots;
-
-	Common::File *loadFile(const Common::String &filename);
-	bool loadCcg();
-	bool loadAci();
-	bool loadAce();
+	int _bpp;
+	Common::Point _pos;
+	float _scaleX, _scaleY;
+	Quad _area;
+	Graphics::Surface *_surface;
 
 public:
-	Scene(OrlandoEngine *vm, const Common::String &id);
-	~Scene();
-
-	virtual bool initialize();
-	virtual bool run();
-
-	void playMusic(const Common::String &filename);
-	void playSfx(const Common::String &filename);
-	void playSpeech(const Common::String &filename);
+	Sprite(const Common::String &id);
+	~Sprite();
+	void load(TextParser &parser);
+	void loadSurface(Common::SeekableReadStream *stream, GraphicsManager *graphics);
 };
 
 } // End of namespace Orlando

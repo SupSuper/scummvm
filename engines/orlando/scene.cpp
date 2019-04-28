@@ -27,31 +27,31 @@
 
 #include "orlando/scene.h"
 #include "orlando/orlando.h"
+#include "orlando/util.h"
 #include "orlando/resource.h"
 #include "orlando/sound.h"
 #include "orlando/text_parser.h"
 #include "orlando/graphics.h"
-
-/**
- * Utility function for replacing the ending of a string with another string.
- * @param str Source string.
- * @param replace Replacement string.
- * @param count Amount of characters to replace (npos = same as replacement).
- * @return String with replacement applied.
- */
-Common::String replaceEnd(Common::String str, const Common::String &replace, uint32 count = Common::String::npos) {
-	if (count == Common::String::npos)
-		count = replace.size();
-	str.replace(str.size() - count, count, replace);
-	return str;
-}
+#include "orlando/sprite.h"
+#include "orlando/animation.h"
+#include "orlando/hotspot.h"
 
 namespace Orlando {
 
-Scene::Scene(OrlandoEngine *vm, const Common::String &id) : _vm(vm), _id(id), _pak(nullptr), _pakEx(nullptr) {
+Scene::Scene(OrlandoEngine *vm, const Common::String &id) : _vm(vm), _id(id), _pak(nullptr), _pakEx(nullptr), _background(nullptr), _scrollX(0) {
 }
 
 Scene::~Scene() {
+	deleteArray(_hotspots);
+	deleteArray(_anims);
+	deleteArray(_items);
+	deleteArray(_objects);
+
+	if (_background != nullptr) {
+		_background->free();
+	}
+	delete _background;
+
 	delete _pakEx;
 	delete _pak;
 }
@@ -136,104 +136,124 @@ bool Scene::initialize() {
 
 	if (!loadCcg())
 		return false;
+	if (!loadAci())
+		return false;
+	if (!loadAce())
+		return false;
 
 	return true;
 }
 
 bool Scene::loadCcg() {
-	GraphicsManager *graphics = _vm->getGraphicsManager();
+	Common::File *ccg = loadFile(_id + ".CCG");
+	if (ccg == nullptr)
+		return false;
+	TextParser parser = TextParser(ccg);
 
-	TextParser parser = TextParser(loadFile(_id + ".CCG"));
+	while (!parser.eof()) {
+		Common::String section = parser.readString();
+		if (section.firstChar() != '[')
+			continue;
+		deleteFirstLast(section);
 
-	Common::String id = parser.readString();
-	while (id.firstChar() == '[') {
-		id.deleteChar(0);
-		id.deleteLastChar();
-
-		if (id == "grafiki") {
+		if (section == "grafiki") {
+			// graphics
 			Common::String bg = parser.readString();
+
 			if (bg.lastChar() == '+') {
 				bg.deleteLastChar();
-				int xOffset = parser.readInt();
+				_scrollX = parser.readInt();
 			}
-			Graphics::Surface *bgSurface = _vm->getGraphicsManager()->loadRawBitmap(loadFile(bg));
-			graphics->draw(*bgSurface);
 
-			while (true) {
-				id = parser.readString();
-				if (id.firstChar() == '[')
+			Common::File *bgFile = loadFile(bg);
+			if (bgFile == nullptr)
+				return false;
+			_background = _vm->getGraphicsManager()->loadRawBitmap(bgFile);
+
+			while (!parser.eof()) {
+				Common::String id = parser.readString();
+				if (id.empty() || id.firstChar() == '[') {
+					parser.rewind();
 					break;
-				Common::File *sprite = loadFile(id);
-				int bpp = parser.readInt();
-				int16 x = parser.readInt();
-				int16 y = parser.readInt();
+				}
+				Sprite *sprite = new Sprite(id);
+				sprite->load(parser);
 
-				if (sprite != nullptr) {
-					Graphics::Surface *spriteSurface = nullptr;
-					if (bpp == 16) {
-						spriteSurface = _vm->getGraphicsManager()->loadRawBitmap(sprite);
-					}
-					else if (bpp == 8 || bpp == -8) {
-						spriteSurface = _vm->getGraphicsManager()->loadPaletteBitmap(sprite);
-					}
-					graphics->drawTransparent(*spriteSurface, Common::Point(x, y));
-					Common::Rect border = { x, y, x + spriteSurface->w, y + spriteSurface->h };
-					graphics->drawPolygon(border, graphics->RGBToColor(255, 0, 0));
+				if (!id.hasPrefix("FLX")) {
+					Common::File *file = loadFile(id);
+					if (file == nullptr)
+						return false;
+					sprite->loadSurface(file, _vm->getGraphicsManager());
 				}
 
-				parser.readFloat();
-				parser.readFloat();
-				int16 x1 = parser.readInt();
-				int16 y1 = parser.readInt();
-				int16 x2 = parser.readInt();
-				int16 y2 = parser.readInt();
-				int16 x3 = parser.readInt();
-				int16 y3 = parser.readInt();
-				int16 x4 = parser.readInt();
-				int16 y4 = parser.readInt();
-				if (x1 == x2) x1++;
-				if (x3 == x4) x3++;
-				if (y1 == y2) y1++;
-				if (y3 == y4) y3++;
-				Common::Point poly[] = { {x + x1, y + y1}, {x + x2, y + y2}, {x + x3, y + y3}, {x + x4, y + y4} };
-				graphics->drawPolygon(poly, 4, graphics->RGBToColor(0, 255, 0));
+				_objects.push_back(sprite);
 			}
-		} else if (id == "perspektywa") {
-			parser.readInt();
-			parser.readInt();
-			parser.readInt();
-			parser.readFloat();
-			id = parser.readString();
-		} else if (id == "obszar_chodu") {
+		} else if (section == "perspektywa") {
+			// perspective
+		} else if (section == "obszar_chodu") {
+			// walk areas
 			int num = parser.readInt();
-			for (int i = 0; i < num; i++) {
-				int16 x1 = parser.readInt();
-				int16 y1 = parser.readInt();
-				int16 x2 = parser.readInt();
-				int16 y2 = parser.readInt();
-				int16 x3 = parser.readInt();
-				int16 y3 = parser.readInt();
-				Common::Point poly[] = { {x1, y1}, {x2, y2}, {x3, y3} };
-				graphics->drawPolygon(poly, 3, graphics->RGBToColor(0, 0, 255));
+			for (int j = 0; j < num; j++) {
+				Triangle area;
+				for (int i = 0; i < area.kPoints; i++) {
+					area.p[i].x = parser.readInt();
+					area.p[i].y = parser.readInt();
+				}
+				_walkAreas.push_back(area);
 			}
-			id = parser.readString();
-		} else if (id == "kolor_liter") {
-			parser.readInt();
-			parser.readInt();
-			parser.readInt();
-			parser.readInt();
-			parser.readInt();
-			parser.readInt();
-			id = parser.readString();
-		} else if (id == "swiatlo") {
-			parser.readInt();
-			parser.readInt();
-			id = parser.readString();
-		} else if (id == "elementy") {
-			id = parser.readString();
+		} else if (section == "kolor_liter") {
+			// text color
+		} else if (section == "swiatlo") {
+			// light
+		} else if (section == "elementy") {
+			// items
+			while (!parser.eof()) {
+				Common::String id = parser.readString();
+				if (id.empty() || id.firstChar() == '[') {
+					parser.rewind();
+					break;
+				}
+				Sprite *sprite = new Sprite(id);
+				sprite->load(parser);
+
+				Common::File *file = loadFile(id);
+				if (file == nullptr)
+					return false;
+				sprite->loadSurface(file, _vm->getGraphicsManager());
+
+				_items.push_back(sprite);
+			}
 		} else {
 			break;
 		}
+	}
+
+	return true;
+}
+
+bool Scene::loadAci() {
+	Common::File *aci = loadFile(_id + ".ACI");
+	if (aci == nullptr)
+		return true;
+	TextParser parser = TextParser(aci);
+
+	return true;
+}
+
+bool Scene::loadAce() {
+	Common::File *ace = loadFile(_id + ".ACE");
+	if (ace == nullptr)
+		return true;
+	TextParser parser = TextParser(ace);
+
+	int hotspots = parser.readInt();
+	for (int i = 0; i < hotspots; i++) {
+		Common::String id = parser.readString();
+		deleteFirstLast(id);
+
+		Hotspot *hotspot = new Hotspot(id);
+		hotspot->load(parser);
+		_hotspots.push_back(hotspot);
 	}
 
 	return true;

@@ -37,6 +37,7 @@ namespace Orlando {
  */
 class TextParser {
 	Common::SeekableReadStream *_stream;
+	int _lastPos;
 
 	/**
 	 * Reads the next token in the text file.
@@ -62,6 +63,14 @@ public:
 	 * Returns the next float value in the file.
 	 */
 	float readFloat();
+	/**
+	 *
+	 */
+	bool eof();
+	/**
+	 * Moves the parser back to the previous value.
+	 */
+	void rewind();
 };
 
 } // End of namespace Orlando
