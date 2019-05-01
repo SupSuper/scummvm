@@ -27,22 +27,33 @@
 #include "common/rect.h"
 #include "common/array.h"
 
+namespace Graphics {
+	struct Surface;
+}
+
 namespace Orlando {
 
+class TextParser;
+class FlxAnimation;
+class Scene;
+
 struct Frame {
-	Common::String file;
+	Graphics::Surface *surface;
 	Common::Point offset;
 };
 
 class Animation {
 	Common::String _id;
 	int _delay;
+	int _current;
 	Common::Array<int> _timeline;
 	Common::Array<Frame> _frames;
+	FlxAnimation *_flx;
 public:
 	Animation(const Common::String &id);
 	~Animation();
-	void nextFrame();
+	bool load(TextParser &parser, Scene *scene);
+	Frame nextFrame();
 };
 
 } // End of namespace Orlando

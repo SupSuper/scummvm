@@ -21,24 +21,28 @@
  */
 
 #include "common/scummsys.h"
+#include "common/file.h"
 #include "graphics/surface.h"
 #include "orlando/sprite.h"
 #include "orlando/text_parser.h"
 #include "orlando/graphics.h"
+#include "orlando/scene.h"
+#include "orlando/animation.h"
 
 namespace Orlando {
 
-Sprite::Sprite(const Common::String &id) : _id(id), _bpp(16), _scaleX(1.0), _scaleY(1.0), _surface(nullptr) {
+Sprite::Sprite(const Common::String &id) : _id(id), _bpp(16), _scaleX(1.0), _scaleY(1.0), _surface(nullptr), _anim(nullptr) {
 }
 
 Sprite::~Sprite() {
+	delete _anim;
 	if (_surface != nullptr) {
 		_surface->free();
 	}
 	delete _surface;
 }
 
-void Sprite::load(TextParser &parser) {
+bool Sprite::load(TextParser &parser, Scene *scene) {
 	_bpp = parser.readInt();
 	_pos.x = parser.readInt();
 	_pos.y = parser.readInt();
@@ -48,21 +52,38 @@ void Sprite::load(TextParser &parser) {
 		_area.p[i].x = _pos.x + parser.readInt();
 		_area.p[i].y = _pos.y + parser.readInt();
 	}
+
+	if (!_id.hasPrefix("FLX")) {
+		_surface = loadSurface(_id, scene);
+		if (_surface == nullptr)
+			return false;
+	}
+	return true;
 }
 
-void Sprite::loadSurface(Common::SeekableReadStream *stream, GraphicsManager *graphics) {
+Graphics::Surface *Sprite::loadSurface(const Common::String &name, Scene *scene) {
+	Common::File *file = scene->loadFile(name);
+	if (file == nullptr)
+		return nullptr;
 	switch (_bpp) {
 	case 16:
-		_surface = graphics->loadRawBitmap(stream);
-		break;
+		return scene->getGraphicsManager()->loadRawBitmap(file);
 	case 8:
 	case -8:
 		// TODO: Figure out -8
-		_surface = graphics->loadPaletteBitmap(stream);
-		break;
+		return scene->getGraphicsManager()->loadPaletteBitmap(file);
 	default:
 		warning("Sprite: Unknown bpp '%d'", _bpp);
-		break;
+		return nullptr;
+	}
+}
+
+void Sprite::draw(GraphicsManager *graphics) const {
+	if (_anim != nullptr) {
+		Frame frame = _anim->nextFrame();
+		graphics->drawTransparent(*frame.surface, _pos + frame.offset);
+	} else if (_surface != nullptr) {
+		graphics->drawTransparent(*_surface, _pos);
 	}
 }
 

@@ -36,6 +36,7 @@
 #include "orlando/sound.h"
 #include "orlando/mouse.h"
 #include "orlando/main_menu.h"
+#include "orlando/scene.h"
 
 namespace Orlando {
 
@@ -70,8 +71,7 @@ Common::Error OrlandoEngine::run() {
 
 	_debugger = new Debugger(this);
 	_mouse = new Mouse(this);
-	//_scene = new MainMenu(this);
-	_scene = new Scene(this, "SC001");
+	_scene = new MainMenu(this);
 
 	if (!_mouse->initialize())
 		return Common::kNoGameDataFoundError;
@@ -107,9 +107,13 @@ Common::Error OrlandoEngine::run() {
 }
 
 bool OrlandoEngine::gotoScene(const Common::String &id) {
-	delete _scene;
-	_scene = new Scene(this, id);
-	return _scene->initialize();
+	Scene *scene = new Scene(this, id);
+	bool success = scene->initialize();
+	if (success) {
+		delete _scene;
+		_scene = scene;
+	}
+	return success;
 }
 
 } // End of namespace Orlando

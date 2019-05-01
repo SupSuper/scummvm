@@ -107,7 +107,7 @@ bool MainMenu::run() {
 	graphics->draw(*_bg);
 	if (_drawTruck)
 		graphics->drawTransparent(*_truck, Common::Point(0, 323));
-	graphics->drawTransparent(*_smoke->getSurface(), Common::Point(309, 39));
+	//graphics->drawTransparent(*_smoke->getSurface(), Common::Point(309, 39));
 
 	const uint16 kColorYellow = graphics->RGBToColor(255, 255, 0);
 	const uint16 kColorBlack = graphics->RGBToColor(0, 0, 0);
@@ -122,7 +122,9 @@ bool MainMenu::run() {
 	graphics->drawText("\x04=MAIN MENU=\x04", Common::Point(kUiWindow.left, kUiWindow.top + 16), kUiWindow.width(), kColorYellow, kColorBlack, Graphics::kTextAlignCenter);
 	graphics->drawButton("Introduction", kUiButton, kColorWhite, kColorBlue);
 	kUiButton.translate(0, 38);
-	graphics->drawButton("New game", kUiButton, kColorWhite, kColorBlue);
+	if (graphics->drawButton("New game", kUiButton, kColorWhite, kColorBlue)) {
+		_vm->gotoScene("SC001");
+	}
 	kUiButton.translate(0, 38);
 	graphics->drawButton("Load game", kUiButton, kColorWhite, kColorBlue);
 	kUiButton.translate(0, 38);

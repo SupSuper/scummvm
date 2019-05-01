@@ -43,7 +43,6 @@ Scene::Scene(OrlandoEngine *vm, const Common::String &id) : _vm(vm), _id(id), _p
 
 Scene::~Scene() {
 	deleteArray(_hotspots);
-	deleteArray(_anims);
 	deleteArray(_items);
 	deleteArray(_objects);
 
@@ -56,6 +55,18 @@ Scene::~Scene() {
 	delete _pak;
 }
 
+GraphicsManager *Scene::getGraphicsManager() const {
+	return _vm->getGraphicsManager();
+}
+
+Sprite *Scene::getObject(const Common::String &id) {
+	for (Common::Array<Sprite*>::const_iterator i = _objects.begin(); i != _objects.end(); ++i) {
+		if ((*i)->getId() == id)
+			return *i;
+	}
+	return nullptr;
+}
+
 Common::File *Scene::loadFile(const Common::String &filename) {
 	Common::File *file = _vm->getResourceManager()->loadPakFile(*_pak, filename);
 	if (file == nullptr && _pakEx != nullptr) {
@@ -64,7 +75,7 @@ Common::File *Scene::loadFile(const Common::String &filename) {
 	return file;
 }
 
-void Scene::playMusic(const Common::String &filename) {
+bool Scene::playMusic(const Common::String &filename) {
 	ResourceManager *resources = _vm->getResourceManager();
 	const int kExt = 5;
 
@@ -86,10 +97,13 @@ void Scene::playMusic(const Common::String &filename) {
 
 	if (audio != nullptr) {
 		_vm->getSoundManager()->playFile(audio, Audio::Mixer::kMusicSoundType);
+		return true;
+	} else {
+		return false;
 	}
 }
 
-void Scene::playSfx(const Common::String &filename) {
+bool Scene::playSfx(const Common::String &filename) {
 	Common::File *audio = nullptr;
 	if (_vm->isVersionSP()) {
 		// Format is xxx.SND
@@ -104,10 +118,13 @@ void Scene::playSfx(const Common::String &filename) {
 
 	if (audio != nullptr) {
 		_vm->getSoundManager()->playFile(audio, Audio::Mixer::kSFXSoundType);
+		return true;
+	} else {
+		return false;
 	}
 }
 
-void Scene::playSpeech(const Common::String &filename) {
+bool Scene::playSpeech(const Common::String &filename) {
 	Common::File *audio = nullptr;
 	if (_vm->isVersionSP()) {
 		// Format is xxx.SND
@@ -119,6 +136,9 @@ void Scene::playSpeech(const Common::String &filename) {
 
 	if (audio != nullptr) {
 		_vm->getSoundManager()->playFile(audio, Audio::Mixer::kSpeechSoundType);
+		return true;
+	} else {
+		return false;
 	}
 }
 
@@ -141,6 +161,16 @@ bool Scene::initialize() {
 	if (!loadAce())
 		return false;
 
+	return true;
+}
+
+bool Scene::run() {
+	GraphicsManager *graphics = _vm->getGraphicsManager();
+
+	graphics->draw(*_background);
+	for (Common::Array<Sprite *>::const_iterator i = _objects.begin(); i != _objects.end(); ++i) {
+		(*i)->draw(graphics);
+	}
 	return true;
 }
 
@@ -176,24 +206,20 @@ bool Scene::loadCcg() {
 					parser.rewind();
 					break;
 				}
+
 				Sprite *sprite = new Sprite(id);
-				sprite->load(parser);
-
-				if (!id.hasPrefix("FLX")) {
-					Common::File *file = loadFile(id);
-					if (file == nullptr)
-						return false;
-					sprite->loadSurface(file, _vm->getGraphicsManager());
+				if (!sprite->load(parser, this)) {
+					delete sprite;
+					return false;
 				}
-
 				_objects.push_back(sprite);
 			}
 		} else if (section == "perspektywa") {
 			// perspective
 		} else if (section == "obszar_chodu") {
 			// walk areas
-			int num = parser.readInt();
-			for (int j = 0; j < num; j++) {
+			int n = parser.readInt();
+			for (int j = 0; j < n; j++) {
 				Triangle area;
 				for (int i = 0; i < area.kPoints; i++) {
 					area.p[i].x = parser.readInt();
@@ -213,14 +239,12 @@ bool Scene::loadCcg() {
 					parser.rewind();
 					break;
 				}
+
 				Sprite *sprite = new Sprite(id);
-				sprite->load(parser);
-
-				Common::File *file = loadFile(id);
-				if (file == nullptr)
+				if (!sprite->load(parser, this)) {
+					delete sprite;
 					return false;
-				sprite->loadSurface(file, _vm->getGraphicsManager());
-
+				}
 				_items.push_back(sprite);
 			}
 		} else {
@@ -237,6 +261,19 @@ bool Scene::loadAci() {
 		return true;
 	TextParser parser = TextParser(aci);
 
+	while (!parser.eof()) {
+		Common::String id = parser.readString();
+		if (id.empty())
+			break;
+		deleteFirstLast(id);
+		Animation *anim = new Animation(id);
+		if (!anim->load(parser, this)) {
+			delete anim;
+			return false;
+		}
+
+	}
+
 	return true;
 }
 
@@ -246,8 +283,8 @@ bool Scene::loadAce() {
 		return true;
 	TextParser parser = TextParser(ace);
 
-	int hotspots = parser.readInt();
-	for (int i = 0; i < hotspots; i++) {
+	int n = parser.readInt();
+	for (int i = 0; i < n; i++) {
 		Common::String id = parser.readString();
 		deleteFirstLast(id);
 
@@ -256,10 +293,6 @@ bool Scene::loadAce() {
 		_hotspots.push_back(hotspot);
 	}
 
-	return true;
-}
-
-bool Scene::run() {
 	return true;
 }
 

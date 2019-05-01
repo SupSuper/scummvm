@@ -27,17 +27,16 @@
 #include "common/rect.h"
 #include "orlando/util.h"
 
-namespace Common {
-	class SeekableReadStream;
-}
 namespace Graphics {
 	struct Surface;
 }
 
 namespace Orlando {
 
+class Animation;
 class TextParser;
 class GraphicsManager;
+class Scene;
 
 class Sprite {
 	Common::String _id;
@@ -46,12 +45,16 @@ class Sprite {
 	float _scaleX, _scaleY;
 	Quad _area;
 	Graphics::Surface *_surface;
+	Animation *_anim;
 
 public:
 	Sprite(const Common::String &id);
 	~Sprite();
-	void load(TextParser &parser);
-	void loadSurface(Common::SeekableReadStream *stream, GraphicsManager *graphics);
+	Common::String getId() const { return _id; }
+	void setAnimation(Animation *anim) { _anim = anim; }
+	bool load(TextParser &parser, Scene *scene);
+	Graphics::Surface *loadSurface(const Common::String &name, Scene *scene);
+	void draw(GraphicsManager *graphics) const;
 };
 
 } // End of namespace Orlando

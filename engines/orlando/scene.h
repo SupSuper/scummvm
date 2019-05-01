@@ -25,7 +25,6 @@
 
 #include "common/str.h"
 #include "common/array.h"
-
 #include "orlando/util.h"
 
 namespace Common {
@@ -39,8 +38,8 @@ namespace Graphics {
 namespace Orlando {
 
 class OrlandoEngine;
+class GraphicsManager;
 class Sprite;
-class Animation;
 class Hotspot;
 
 /**
@@ -58,10 +57,8 @@ protected:
 
 	Common::Array<Sprite*> _objects;
 	Common::Array<Sprite*> _items;
-	Common::Array<Animation*> _anims;
 	Common::Array<Hotspot*> _hotspots;
 
-	Common::File *loadFile(const Common::String &filename);
 	bool loadCcg();
 	bool loadAci();
 	bool loadAce();
@@ -70,12 +67,15 @@ public:
 	Scene(OrlandoEngine *vm, const Common::String &id);
 	~Scene();
 
+	GraphicsManager *getGraphicsManager() const;
+	Sprite *getObject(const Common::String &id);
+	Common::File *loadFile(const Common::String &filename);
+	bool playMusic(const Common::String &filename);
+	bool playSfx(const Common::String &filename);
+	bool playSpeech(const Common::String &filename);
+
 	virtual bool initialize();
 	virtual bool run();
-
-	void playMusic(const Common::String &filename);
-	void playSfx(const Common::String &filename);
-	void playSpeech(const Common::String &filename);
 };
 
 } // End of namespace Orlando

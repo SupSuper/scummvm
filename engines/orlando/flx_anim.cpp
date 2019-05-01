@@ -23,6 +23,7 @@
 #include "common/scummsys.h"
 #include "common/stream.h"
 #include "common/substream.h"
+#include "common/rect.h"
 #include "common/util.h"
 #include "graphics/surface.h"
 #include "orlando/flx_anim.h"
@@ -108,7 +109,7 @@ FlxAnimation::~FlxAnimation() {
 	delete _stream;
 }
 
-void FlxAnimation::nextFrame() {
+Graphics::Surface *FlxAnimation::nextFrame() {
 	enum FlxChunk {
 		kFlxBlank = 0,
 		kFlxFrame = 1,
@@ -141,6 +142,7 @@ void FlxAnimation::nextFrame() {
 			break;
 		case kFlxPalette:
 			_stream->read(_palette, dataSize);
+			_surface->fillRect(Common::Rect(0, 0, _surface->w, _surface->h), 0);
 			break;
 		}		
 
@@ -149,6 +151,7 @@ void FlxAnimation::nextFrame() {
 			_stream->seek(kHeaderSize);
 		}
 	}
+	return _surface;
 }
 
 void FlxAnimation::decodeFrame(Common::ReadStream *frame) {
