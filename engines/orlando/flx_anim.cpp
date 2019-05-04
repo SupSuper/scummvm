@@ -109,7 +109,7 @@ FlxAnimation::~FlxAnimation() {
 	delete _stream;
 }
 
-Graphics::Surface *FlxAnimation::nextFrame() {
+void FlxAnimation::nextFrame() {
 	enum FlxChunk {
 		kFlxBlank = 0,
 		kFlxFrame = 1,
@@ -142,7 +142,7 @@ Graphics::Surface *FlxAnimation::nextFrame() {
 			break;
 		case kFlxPalette:
 			_stream->read(_palette, dataSize);
-			_surface->fillRect(Common::Rect(0, 0, _surface->w, _surface->h), 0);
+			_surface->fillRect(Common::Rect(0, 0, _surface->w, _surface->h), 0); // Clear surface
 			break;
 		}		
 
@@ -151,7 +151,6 @@ Graphics::Surface *FlxAnimation::nextFrame() {
 			_stream->seek(kHeaderSize);
 		}
 	}
-	return _surface;
 }
 
 void FlxAnimation::decodeFrame(Common::ReadStream *frame) {

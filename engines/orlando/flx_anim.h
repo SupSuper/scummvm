@@ -75,9 +75,12 @@ public:
 	 * @li 2 - RLE frame.
 	 * @li 3 - Unused.
 	 * @li 4 - Palette, 16-bit RGB565 values.
-	 * @return Decoded frame contents.
 	 */
-	Graphics::Surface *nextFrame();
+	void nextFrame();
+	/**
+	 * Returns a pointer to the last decoded frame contents.
+	 */
+	Graphics::Surface *getSurface() const { return _surface; }
 };
 
 } // End of namespace Orlando

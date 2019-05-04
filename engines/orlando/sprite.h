@@ -42,7 +42,6 @@ class Sprite {
 	Common::String _id;
 	int _bpp;
 	Common::Point _pos;
-	float _scaleX, _scaleY;
 	Quad _area;
 	Graphics::Surface *_surface;
 	Animation *_anim;
@@ -54,7 +53,7 @@ public:
 	void setAnimation(Animation *anim) { _anim = anim; }
 	bool load(TextParser &parser, Scene *scene);
 	Graphics::Surface *loadSurface(const Common::String &name, Scene *scene);
-	void draw(GraphicsManager *graphics) const;
+	void draw(GraphicsManager *graphics, uint32 time) const;
 };
 
 } // End of namespace Orlando

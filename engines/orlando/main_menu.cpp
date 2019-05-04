@@ -107,7 +107,7 @@ bool MainMenu::run() {
 	graphics->draw(*_bg);
 	if (_drawTruck)
 		graphics->drawTransparent(*_truck, Common::Point(0, 323));
-	//graphics->drawTransparent(*_smoke->getSurface(), Common::Point(309, 39));
+	graphics->drawTransparent(*_smoke->getSurface(), Common::Point(309, 39));
 
 	const uint16 kColorYellow = graphics->RGBToColor(255, 255, 0);
 	const uint16 kColorBlack = graphics->RGBToColor(0, 0, 0);

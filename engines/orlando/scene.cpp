@@ -166,10 +166,11 @@ bool Scene::initialize() {
 
 bool Scene::run() {
 	GraphicsManager *graphics = _vm->getGraphicsManager();
+	uint32 time = _vm->getTotalPlayTime();
 
 	graphics->draw(*_background);
 	for (Common::Array<Sprite *>::const_iterator i = _objects.begin(); i != _objects.end(); ++i) {
-		(*i)->draw(graphics);
+		(*i)->draw(graphics, time);
 	}
 	return true;
 }

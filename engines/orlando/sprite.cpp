@@ -31,7 +31,7 @@
 
 namespace Orlando {
 
-Sprite::Sprite(const Common::String &id) : _id(id), _bpp(16), _scaleX(1.0), _scaleY(1.0), _surface(nullptr), _anim(nullptr) {
+Sprite::Sprite(const Common::String &id) : _id(id), _bpp(16), _surface(nullptr), _anim(nullptr) {
 }
 
 Sprite::~Sprite() {
@@ -46,8 +46,8 @@ bool Sprite::load(TextParser &parser, Scene *scene) {
 	_bpp = parser.readInt();
 	_pos.x = parser.readInt();
 	_pos.y = parser.readInt();
-	_scaleX = parser.readFloat();
-	_scaleY = parser.readFloat();
+	parser.readFloat();
+	parser.readFloat();
 	for (int i = 0; i < _area.kPoints; i++) {
 		_area.p[i].x = _pos.x + parser.readInt();
 		_area.p[i].y = _pos.y + parser.readInt();
@@ -78,9 +78,9 @@ Graphics::Surface *Sprite::loadSurface(const Common::String &name, Scene *scene)
 	}
 }
 
-void Sprite::draw(GraphicsManager *graphics) const {
+void Sprite::draw(GraphicsManager *graphics, uint32 time) const {
 	if (_anim != nullptr) {
-		Frame frame = _anim->nextFrame();
+		Frame frame = _anim->nextFrame(time);
 		graphics->drawTransparent(*frame.surface, _pos + frame.offset);
 	} else if (_surface != nullptr) {
 		graphics->drawTransparent(*_surface, _pos);

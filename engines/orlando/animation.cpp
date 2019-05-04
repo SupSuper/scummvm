@@ -32,16 +32,19 @@
 
 namespace Orlando {
 
-Animation::Animation(const Common::String &id) : _id(id), _delay(0), _current(0), _flx(nullptr) {
+Animation::Animation(const Common::String &id) : _id(id), _flx(nullptr), _curFrame(0), _time(0) {
 }
 
 Animation::~Animation() {
-	delete _flx;
-	for (Common::Array<Frame>::const_iterator i = _frames.begin(); i != _frames.end(); ++i) {
-		if (i->surface != nullptr) {
-			i->surface->free();
-			delete i->surface;
+	if (_flx == nullptr) {
+		for (Common::Array<Frame>::const_iterator i = _frames.begin(); i != _frames.end(); ++i) {
+			if (i->surface != nullptr) {
+				i->surface->free();
+				delete i->surface;
+			}
 		}
+	} else {
+		delete _flx;
 	}
 }
 
@@ -52,7 +55,7 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 		return false;
 	}
 
-	_delay = parser.readInt();
+	parser.readInt(); // unused
 	while (!parser.eof()) {
 		Common::String rec = parser.readString();
 		if (rec == "REC") {
@@ -88,7 +91,7 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 			if (flx == nullptr)
 				return false;
 			_flx = new FlxAnimation(flx, scene->getGraphicsManager()->kScreenFormat);
-			frame.surface = nullptr;
+			frame.surface = _flx->getSurface();
 		} else {
 			frame.surface = object->loadSurface(filename, scene);
 		}
@@ -97,23 +100,26 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 		_frames.push_back(frame);
 	}
 
+	if (_timeline.empty()) {
+		_timeline.push_back(1);
+	}
+
 	object->setAnimation(this);
 	return true;
 }
 
-Frame Animation::nextFrame() {
-	if (_flx == nullptr) {
-		if (_timeline.empty()) {
-			return _frames.back();
+const Frame &Animation::nextFrame(uint32 time) {
+	const int kDelay = 50;
+	if (time >= _time + kDelay) {
+		if (_flx == nullptr) {
+			_curFrame = (_curFrame + 1) % _timeline.size();
 		} else {
-			_current = (_current + 1) % _timeline.size();
-			int nextFrame = ABS(_timeline[_current]) - 1;
-			return _frames[nextFrame];
+			_flx->nextFrame();
 		}
-	} else {
-		Frame frame = { _flx->nextFrame(), Common::Point(0, 0) };
-		return frame;
+		_time = time;
 	}
+	int nextFrame = ABS(_timeline[_curFrame]) - 1;
+	return _frames[nextFrame];
 }
 
 } // End of namespace Orlando

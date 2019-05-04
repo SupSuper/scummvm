@@ -44,16 +44,17 @@ struct Frame {
 
 class Animation {
 	Common::String _id;
-	int _delay;
-	int _current;
 	Common::Array<int> _timeline;
 	Common::Array<Frame> _frames;
 	FlxAnimation *_flx;
+
+	int _curFrame;
+	uint32 _time;
 public:
 	Animation(const Common::String &id);
 	~Animation();
 	bool load(TextParser &parser, Scene *scene);
-	Frame nextFrame();
+	const Frame &nextFrame(uint32 time);
 };
 
 } // End of namespace Orlando
