@@ -32,7 +32,7 @@
 
 namespace Orlando {
 
-Animation::Animation(const Common::String &id) : _id(id), _flx(nullptr), _curFrame(0), _time(0) {
+Animation::Animation(const Common::String &id) : _id(id), _flx(nullptr), _curFrame(0), _curTimeline(0), _time(0) {
 }
 
 Animation::~Animation() {
@@ -59,12 +59,14 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 	while (!parser.eof()) {
 		Common::String rec = parser.readString();
 		if (rec == "REC") {
+			Common::Array<int> timeline;
 			while (!parser.eof()) {
 				Common::String frame = parser.readString();
 				if (frame == "END") {
+					_timelines.push_back(timeline);
 					break;
 				}
-				_timeline.push_back(atoi(frame.c_str()));
+				timeline.push_back(atoi(frame.c_str()));
 			}
 		} else {
 			parser.rewind();
@@ -100,8 +102,8 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 		_frames.push_back(frame);
 	}
 
-	if (_timeline.empty()) {
-		_timeline.push_back(1);
+	if (_timelines.empty()) {
+		_timelines.push_back(Common::Array<int>(1, 1));
 	}
 
 	element->setAnimation(this);
@@ -112,13 +114,13 @@ const Frame &Animation::nextFrame(uint32 time) {
 	const int kDelay = 50;
 	if (time >= _time + kDelay) {
 		if (_flx == nullptr) {
-			_curFrame = (_curFrame + 1) % _timeline.size();
+			_curFrame = (_curFrame + 1) % _timelines[_curTimeline].size();
 		} else {
 			_flx->nextFrame();
 		}
 		_time = time;
 	}
-	int nextFrame = ABS(_timeline[_curFrame]) - 1;
+	int nextFrame = ABS(_timelines[_curTimeline][_curFrame]) - 1;
 	return _frames[nextFrame];
 }
 

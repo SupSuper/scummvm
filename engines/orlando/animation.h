@@ -44,11 +44,11 @@ struct Frame {
 
 class Animation {
 	Common::String _id;
-	Common::Array<int> _timeline;
+	Common::Array< Common::Array<int> > _timelines;
 	Common::Array<Frame> _frames;
 	FlxAnimation *_flx;
 
-	int _curFrame;
+	int _curFrame, _curTimeline;
 	uint32 _time;
 public:
 	Animation(const Common::String &id);
