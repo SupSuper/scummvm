@@ -40,8 +40,8 @@ enum MouseState {
 };
 
 /**
-  * Represents the mouse cursor and handles associated events.
-  */
+ * Represents the mouse cursor and handles associated events.
+ */
 class Mouse {
 	OrlandoEngine *_vm;
 	MouseState _leftButton, _rightButton;
@@ -51,15 +51,12 @@ public:
 	~Mouse();
 	/**
 	 * Loads and sets up the various cursor modes.
+	 * @return False if a cursor graphic is missing.	
 	 */
 	bool initialize();
-	/**
-	 * Resets the mouse button states.
-	 */
+	/** Resets the mouse button states. */
 	void reset();
-	/**
-	 * Handles mouse events.
-	 */
+	/** Handles mouse events. */
 	void onEvent(const Common::Event &event);
 	/**
 	 * Gets the current mouse position.
@@ -72,15 +69,9 @@ public:
 	 * @return True if the mouse is inside.
 	 */
 	bool isOver(const Common::Rect &rect) const;
-	/**
-	 * Returns the state of the left mouse button.
-	 * @return Button state.
-	 */
+	/** Returns the state of the left mouse button. */
 	MouseState getLeftButton() const { return _leftButton; }
-	/**
-	 * Returns the state of the right mouse button.
-	 * @return Button state.
-	 */
+	/** Returns the state of the right mouse button. */
 	MouseState getRightButton() const { return _rightButton; }
 };
 

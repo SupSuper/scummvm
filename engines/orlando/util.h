@@ -69,6 +69,7 @@ inline Common::String replaceEnd(Common::String str, const Common::String &repla
 
 /**
  * Deletes the first and last character of a string.
+ * @param str Source string.
  */
 inline void deleteFirstLast(Common::String &str) {
 	str.deleteChar(0);

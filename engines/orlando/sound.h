@@ -38,8 +38,8 @@ namespace Orlando {
 class OrlandoEngine;
 
 /**
-  * Handles decoding and playback of all game audio.
-  */
+ * Handles decoding and playback of all game audio.
+ */
 class SoundManager {
 	OrlandoEngine *_vm;
 	Audio::SoundHandle *_handle;

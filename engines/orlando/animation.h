@@ -42,6 +42,9 @@ struct Frame {
 	Common::Point offset;
 };
 
+/**
+ * Represents an animation for a graphical element.
+ */
 class Animation {
 	Common::String _id;
 	Common::Array< Common::Array<int> > _timelines;

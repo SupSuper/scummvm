@@ -43,8 +43,8 @@ class Element;
 class Area;
 
 /**
-  * Represents a game room, screen, etc.
-  */
+ * Represents a game room, screen, etc.
+ */
 class Scene {
 protected:
 	OrlandoEngine *_vm;
@@ -58,8 +58,11 @@ protected:
 	Common::Array<Element*> _elements;
 	Common::Array<Area*> _areas;
 
+	/** Loads scene settings and graphics. */
 	bool loadCcg();
+	/** Loads scene animations. */
 	bool loadAci();
+	/** Loads scene areas. */
 	bool loadAce();
 
 public:
@@ -73,7 +76,15 @@ public:
 	bool playSfx(const Common::String &filename);
 	bool playSpeech(const Common::String &filename);
 
+	/**
+	 * Initializes the scene and its contents.
+	 * @return False if a resource is missing.
+	 */
 	virtual bool initialize();
+	/**
+	 * Executes scene logic every frame.
+	 * @return False if an error occurs.
+	 */
 	virtual bool run();
 };
 

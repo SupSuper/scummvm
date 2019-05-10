@@ -38,9 +38,9 @@ namespace Orlando {
 struct FontChar;
 
 /**
-  * Represents a variable-width bitmap font with border and fill.
-  * Assumes 16-bit colors.
-  */
+ * Represents a variable-width bitmap font with border and fill.
+ * Assumes 16-bit colors.
+ */
 class Font : public Graphics::Font {
 	static const int kNumChars = 256;
 	FontChar *_chars;
@@ -66,17 +66,17 @@ public:
 	int getCharWidth(uint32 chr) const override;
 	int getKerningOffset(uint32 left, uint32 right) const override { return 1; }
 	/**
-	* Draw a character at a specific point on a surface.
-	*
-	* Because of API limitations, the color includes both a
-	* 16-bit border color and a 16-bit fill color.
-	*
-	* @param dst The surface to drawn on.
-	* @param chr The character to draw.
-	* @param x   The x coordinate where to draw the character.
-	* @param y   The y coordinate where to draw the character.
-	* @param color The border color (high bits) and fill color (low bits) of the character.
-	*/
+	 * Draw a character at a specific point on a surface.
+	 *
+	 * Because of API limitations, the color includes both a
+	 * 16-bit border color and a 16-bit fill color.
+	 *
+	 * @param dst The surface to drawn on.
+	 * @param chr The character to draw.
+	 * @param x   The x coordinate where to draw the character.
+	 * @param y   The y coordinate where to draw the character.
+	 * @param color The border color (high bits) and fill color (low bits) of the character.
+	 */
 	void drawChar(Graphics::Surface *dst, uint32 chr, int x, int y, uint32 color) const override;
 };
 

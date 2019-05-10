@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ORLANDO_SPRITE_H
-#define ORLANDO_SPRITE_H
+#ifndef ORLANDO_ELEMENT_H
+#define ORLANDO_ELEMENT_H
 
 #include "common/str.h"
 #include "common/rect.h"

@@ -39,9 +39,7 @@ class TextParser {
 	Common::SeekableReadStream *_stream;
 	int _lastPos;
 
-	/**
-	 * Reads the next token in the text file.
-	 */
+	/** Reads the next token in the text file. */
 	Common::String nextToken();
 public:
 	/**
@@ -51,25 +49,15 @@ public:
 	 */
 	TextParser(Common::SeekableReadStream *stream, bool encrypted = true);
 	~TextParser();
-	/**
-	 * Returns the next string value in the file.
-	 */
+	/** Returns the next string value in the file. */
 	Common::String readString();
-	/**
-	 * Returns the next integer value in the file.
-	 */
+	/** Returns the next integer value in the file. */
 	int readInt();
-	/**
-	 * Returns the next float value in the file.
-	 */
+	/** Returns the next float value in the file. */
 	float readFloat();
-	/**
-	 *
-	 */
+	/** Have we reached the end of the file? */
 	bool eof();
-	/**
-	 * Moves the parser back to the previous value.
-	 */
+	/** Moves the parser back to the previous value. */
 	void rewind();
 };
 

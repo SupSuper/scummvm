@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ORLANDO_HOTSPOT_H
-#define ORLANDO_HOTSPOT_H
+#ifndef ORLANDO_AREA_H
+#define ORLANDO_AREA_H
 
 #include "common/str.h"
 #include "common/array.h"

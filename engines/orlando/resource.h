@@ -38,8 +38,8 @@ namespace Orlando {
 class OrlandoEngine;
 
 /**
-  * Manages global resources and resource acquisition.
-  */
+ * Manages global resources and resource acquisition.
+ */
 class ResourceManager {
 	OrlandoEngine *_vm;
 	Common::Archive *_globalPak, *_resourcePak;
