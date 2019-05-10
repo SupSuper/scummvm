@@ -23,7 +23,7 @@
 #include "common/scummsys.h"
 #include "common/file.h"
 #include "graphics/surface.h"
-#include "orlando/sprite.h"
+#include "orlando/element.h"
 #include "orlando/text_parser.h"
 #include "orlando/graphics.h"
 #include "orlando/scene.h"
@@ -31,10 +31,10 @@
 
 namespace Orlando {
 
-Sprite::Sprite(const Common::String &id) : _id(id), _bpp(16), _surface(nullptr), _anim(nullptr) {
+Element::Element(const Common::String &id) : _id(id), _bpp(16), _surface(nullptr), _anim(nullptr) {
 }
 
-Sprite::~Sprite() {
+Element::~Element() {
 	delete _anim;
 	if (_surface != nullptr) {
 		_surface->free();
@@ -42,15 +42,15 @@ Sprite::~Sprite() {
 	delete _surface;
 }
 
-bool Sprite::load(TextParser &parser, Scene *scene) {
+bool Element::load(TextParser &parser, Scene *scene) {
 	_bpp = parser.readInt();
 	_pos.x = parser.readInt();
 	_pos.y = parser.readInt();
 	parser.readFloat();
 	parser.readFloat();
-	for (int i = 0; i < _area.kPoints; i++) {
-		_area.p[i].x = _pos.x + parser.readInt();
-		_area.p[i].y = _pos.y + parser.readInt();
+	for (int i = 0; i < _region.kPoints; i++) {
+		_region.p[i].x = _pos.x + parser.readInt();
+		_region.p[i].y = _pos.y + parser.readInt();
 	}
 
 	if (!_id.hasPrefix("FLX")) {
@@ -61,7 +61,7 @@ bool Sprite::load(TextParser &parser, Scene *scene) {
 	return true;
 }
 
-Graphics::Surface *Sprite::loadSurface(const Common::String &name, Scene *scene) {
+Graphics::Surface *Element::loadSurface(const Common::String &name, Scene *scene) {
 	Common::File *file = scene->loadFile(name);
 	if (file == nullptr)
 		return nullptr;
@@ -73,12 +73,12 @@ Graphics::Surface *Sprite::loadSurface(const Common::String &name, Scene *scene)
 		// TODO: Figure out -8
 		return scene->getGraphicsManager()->loadPaletteBitmap(file);
 	default:
-		warning("Sprite: Unknown bpp '%d'", _bpp);
+		warning("Element: Unknown bpp '%d'", _bpp);
 		return nullptr;
 	}
 }
 
-void Sprite::draw(GraphicsManager *graphics, uint32 time) const {
+void Element::draw(GraphicsManager *graphics, uint32 time) const {
 	if (_anim != nullptr) {
 		Frame frame = _anim->nextFrame(time);
 		graphics->drawTransparent(*frame.surface, _pos + frame.offset);

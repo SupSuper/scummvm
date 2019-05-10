@@ -27,7 +27,7 @@
 #include "orlando/text_parser.h"
 #include "orlando/scene.h"
 #include "orlando/graphics.h"
-#include "orlando/sprite.h"
+#include "orlando/element.h"
 #include "orlando/flx_anim.h"
 
 namespace Orlando {
@@ -49,9 +49,9 @@ Animation::~Animation() {
 }
 
 bool Animation::load(TextParser &parser, Scene *scene) {
-	Sprite *object = scene->getObject(_id);
-	if (object == nullptr) {
-		warning("Animation: Missing object '%s'", _id.c_str());
+	Element *element = scene->getElement(_id);
+	if (element == nullptr) {
+		warning("Animation: Missing element '%s'", _id.c_str());
 		return false;
 	}
 
@@ -74,7 +74,7 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 
 	if (!_id.hasPrefix("FLX")) {
 		Frame frame;
-		frame.surface = object->loadSurface(_id, scene);
+		frame.surface = element->loadSurface(_id, scene);
 		frame.offset = Common::Point(0, 0);
 		_frames.push_back(frame);
 	}
@@ -93,7 +93,7 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 			_flx = new FlxAnimation(flx, scene->getGraphicsManager()->kScreenFormat);
 			frame.surface = _flx->getSurface();
 		} else {
-			frame.surface = object->loadSurface(filename, scene);
+			frame.surface = element->loadSurface(filename, scene);
 		}
 		frame.offset.x = parser.readInt();
 		frame.offset.y = parser.readInt();
@@ -104,7 +104,7 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 		_timeline.push_back(1);
 	}
 
-	object->setAnimation(this);
+	element->setAnimation(this);
 	return true;
 }
 

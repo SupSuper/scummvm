@@ -21,18 +21,18 @@
  */
 
 #include "common/scummsys.h"
-#include "orlando/hotspot.h"
+#include "orlando/area.h"
 #include "orlando/text_parser.h"
 
 namespace Orlando {
 
-Hotspot::Hotspot(const Common::String &id) : _id(id) {
+Area::Area(const Common::String &id) : _id(id) {
 }
 
-Hotspot::~Hotspot() {
+Area::~Area() {
 }
 
-void Hotspot::load(TextParser &parser) {
+void Area::load(TextParser &parser) {
 	int num = parser.readInt();
 	for (int j = 0; j < num; j++) {
 		Triangle area;
@@ -40,7 +40,7 @@ void Hotspot::load(TextParser &parser) {
 			area.p[i].x = parser.readInt();
 			area.p[i].y = parser.readInt();
 		}
-		_areas.push_back(area);
+		_regions.push_back(area);
 	}
 }
 

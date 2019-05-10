@@ -20,25 +20,43 @@
  *
  */
 
-#ifndef ORLANDO_HOTSPOT_H
-#define ORLANDO_HOTSPOT_H
+#ifndef ORLANDO_SPRITE_H
+#define ORLANDO_SPRITE_H
 
 #include "common/str.h"
-#include "common/array.h"
+#include "common/rect.h"
 #include "orlando/util.h"
+
+namespace Graphics {
+	struct Surface;
+}
 
 namespace Orlando {
 
+class Animation;
 class TextParser;
+class GraphicsManager;
+class Scene;
 
-class Hotspot {
+/**
+ * Represents a graphical element on a scene.
+ */
+class Element {
 	Common::String _id;
-	Common::Array<Triangle> _areas;
+	int _bpp;
+	Common::Point _pos;
+	Quad _region;
+	Graphics::Surface *_surface;
+	Animation *_anim;
 
 public:
-	Hotspot(const Common::String &id);
-	~Hotspot();
-	void load(TextParser &parser);
+	Element(const Common::String &id);
+	~Element();
+	Common::String getId() const { return _id; }
+	void setAnimation(Animation *anim) { _anim = anim; }
+	bool load(TextParser &parser, Scene *scene);
+	Graphics::Surface *loadSurface(const Common::String &name, Scene *scene);
+	void draw(GraphicsManager *graphics, uint32 time) const;
 };
 
 } // End of namespace Orlando

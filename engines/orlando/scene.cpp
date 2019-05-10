@@ -32,9 +32,9 @@
 #include "orlando/sound.h"
 #include "orlando/text_parser.h"
 #include "orlando/graphics.h"
-#include "orlando/sprite.h"
+#include "orlando/element.h"
 #include "orlando/animation.h"
-#include "orlando/hotspot.h"
+#include "orlando/area.h"
 
 namespace Orlando {
 
@@ -42,9 +42,8 @@ Scene::Scene(OrlandoEngine *vm, const Common::String &id) : _vm(vm), _id(id), _p
 }
 
 Scene::~Scene() {
-	deleteArray(_hotspots);
-	deleteArray(_items);
-	deleteArray(_objects);
+	deleteArray(_areas);
+	deleteArray(_elements);
 
 	if (_background != nullptr) {
 		_background->free();
@@ -59,8 +58,8 @@ GraphicsManager *Scene::getGraphicsManager() const {
 	return _vm->getGraphicsManager();
 }
 
-Sprite *Scene::getObject(const Common::String &id) {
-	for (Common::Array<Sprite*>::const_iterator i = _objects.begin(); i != _objects.end(); ++i) {
+Element *Scene::getElement(const Common::String &id) {
+	for (Common::Array<Element*>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
 		if ((*i)->getId() == id)
 			return *i;
 	}
@@ -169,7 +168,7 @@ bool Scene::run() {
 	uint32 time = _vm->getTotalPlayTime();
 
 	graphics->draw(*_background);
-	for (Common::Array<Sprite *>::const_iterator i = _objects.begin(); i != _objects.end(); ++i) {
+	for (Common::Array<Element *>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
 		(*i)->draw(graphics, time);
 	}
 	return true;
@@ -208,12 +207,12 @@ bool Scene::loadCcg() {
 					break;
 				}
 
-				Sprite *sprite = new Sprite(id);
-				if (!sprite->load(parser, this)) {
-					delete sprite;
+				Element *element = new Element(id);
+				if (!element->load(parser, this)) {
+					delete element;
 					return false;
 				}
-				_objects.push_back(sprite);
+				_elements.push_back(element);
 			}
 		} else if (section == "perspektywa") {
 			// perspective
@@ -226,7 +225,7 @@ bool Scene::loadCcg() {
 					area.p[i].x = parser.readInt();
 					area.p[i].y = parser.readInt();
 				}
-				_walkAreas.push_back(area);
+				_walkRegions.push_back(area);
 			}
 		} else if (section == "kolor_liter") {
 			// text color
@@ -241,12 +240,12 @@ bool Scene::loadCcg() {
 					break;
 				}
 
-				Sprite *sprite = new Sprite(id);
-				if (!sprite->load(parser, this)) {
-					delete sprite;
+				Element *element = new Element(id);
+				if (!element->load(parser, this)) {
+					delete element;
 					return false;
 				}
-				_items.push_back(sprite);
+				_elements.push_back(element);
 			}
 		} else {
 			break;
@@ -289,9 +288,9 @@ bool Scene::loadAce() {
 		Common::String id = parser.readString();
 		deleteFirstLast(id);
 
-		Hotspot *hotspot = new Hotspot(id);
-		hotspot->load(parser);
-		_hotspots.push_back(hotspot);
+		Area *area = new Area(id);
+		area->load(parser);
+		_areas.push_back(area);
 	}
 
 	return true;

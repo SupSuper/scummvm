@@ -39,8 +39,8 @@ namespace Orlando {
 
 class OrlandoEngine;
 class GraphicsManager;
-class Sprite;
-class Hotspot;
+class Element;
+class Area;
 
 /**
   * Represents a game room, screen, etc.
@@ -53,11 +53,10 @@ protected:
 
 	Graphics::Surface *_background;
 	int _scrollX;
-	Common::Array<Triangle> _walkAreas;
+	Common::Array<Triangle> _walkRegions;
 
-	Common::Array<Sprite*> _objects;
-	Common::Array<Sprite*> _items;
-	Common::Array<Hotspot*> _hotspots;
+	Common::Array<Element*> _elements;
+	Common::Array<Area*> _areas;
 
 	bool loadCcg();
 	bool loadAci();
@@ -68,7 +67,7 @@ public:
 	~Scene();
 
 	GraphicsManager *getGraphicsManager() const;
-	Sprite *getObject(const Common::String &id);
+	Element *getElement(const Common::String &id);
 	Common::File *loadFile(const Common::String &filename);
 	bool playMusic(const Common::String &filename);
 	bool playSfx(const Common::String &filename);

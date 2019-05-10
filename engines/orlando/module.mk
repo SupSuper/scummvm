@@ -16,8 +16,8 @@ MODULE_OBJS = \
 	text_parser.o \
 	scene.o \
 	animation.o \
-	sprite.o \
-	hotspot.o
+	element.o \
+	area.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_ORLANDO), DYNAMIC_PLUGIN)
