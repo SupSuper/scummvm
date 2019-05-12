@@ -44,6 +44,7 @@ void PakArchive::loadDosPak() {
 		_members[i].size = _stream->readUint32LE();
 		_stream->read(name, 13);
 		_members[i].filename = name;
+		_members[i].filename.toUppercase();
 	}
 }
 
@@ -59,12 +60,14 @@ void PakArchive::loadWindowsPak() {
 		int nameSize = _stream->readUint32LE();
 		_stream->read(name, nameSize);
 		_members[i].filename = name;
+		_members[i].filename.toUppercase();
 	}
 }
 
-const PakFile *PakArchive::findFile(const Common::String &name) const {
+const PakFile *PakArchive::findFile(Common::String name) const {
+	name.toUppercase();
 	for (int i = 0; i < _numMembers; i++) {
-		if (_members[i].filename.compareToIgnoreCase(name) == 0) {
+		if (_members[i].filename == name) {
 			return &_members[i];
 		}
 	}

@@ -81,7 +81,10 @@ Graphics::Surface *Element::loadSurface(const Common::String &name, Scene *scene
 void Element::draw(GraphicsManager *graphics, uint32 time) const {
 	if (_anim != nullptr) {
 		Frame frame = _anim->nextFrame(time);
-		graphics->drawTransparent(*frame.surface, _pos + frame.offset);
+		Graphics::Surface *surface = frame.surface;
+		if (surface != nullptr) {
+			graphics->drawTransparent(*surface, _pos + frame.offset);
+		}
 	} else if (_surface != nullptr) {
 		graphics->drawTransparent(*_surface, _pos);
 	}

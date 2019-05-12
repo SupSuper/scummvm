@@ -61,7 +61,13 @@ class PakArchive : public Common::Archive {
 	 * @li char[]: Zero-terminated filename.
 	 */
 	void loadWindowsPak();
-	const PakFile *findFile(const Common::String &name) const;
+	/**
+	 * Finds a given filename in the PAK, case-insensitive.
+	 * PAKs may contain duplicate files, if so the first found is returned.
+	 * @param name Filename to search.
+	 * @return File entry or NULL if not found.
+	 */
+	const PakFile *findFile(Common::String name) const;
 
 public:
 	/**

@@ -54,6 +54,8 @@ public:
 	~Element();
 	Common::String getId() const { return _id; }
 	void setAnimation(Animation *anim) { _anim = anim; }
+	void setPosition(const Common::Point &pos) { _pos = pos; }
+
 	bool load(TextParser &parser, Scene *scene);
 	Graphics::Surface *loadSurface(const Common::String &name, Scene *scene);
 	void draw(GraphicsManager *graphics, uint32 time) const;

@@ -36,21 +36,15 @@ namespace Graphics {
 namespace Orlando {
 
 class OrlandoEngine;
-class FlxAnimation;
 
 /**
  * Scene representing the menu when the game starts.
  */
 class MainMenu : public Scene {
-	Graphics::Surface *_bg, *_truck;
-	FlxAnimation *_smoke;
-	uint32 _truckTimer;
-	bool _drawTruck;
+	bool playMenuMusic();
 
-	void playMenuMusic();
 public:
 	MainMenu(OrlandoEngine *vm);
-	~MainMenu();
 
 	bool initialize() override;
 	bool run() override;

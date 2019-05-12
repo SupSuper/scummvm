@@ -30,6 +30,9 @@
 namespace Graphics {
 	struct Surface;
 }
+namespace Common {
+	class SeekableReadStream;
+}
 
 namespace Orlando {
 
@@ -42,12 +45,14 @@ struct Frame {
 	Common::Point offset;
 };
 
+typedef Common::Array<int> Timeline;
+
 /**
  * Represents an animation for a graphical element.
  */
 class Animation {
 	Common::String _id;
-	Common::Array< Common::Array<int> > _timelines;
+	Common::Array<Timeline> _timelines;
 	Common::Array<Frame> _frames;
 	FlxAnimation *_flx;
 
@@ -56,7 +61,11 @@ class Animation {
 public:
 	Animation(const Common::String &id);
 	~Animation();
+	void addTimeline(const Timeline &timeline) { _timelines.push_back(timeline); }
+	void addFrame(const Frame &frame) { _frames.push_back(frame); }
+
 	bool load(TextParser &parser, Scene *scene);
+	void loadFlx(Common::SeekableReadStream *flx, Scene *scene);
 	const Frame &nextFrame(uint32 time);
 };
 

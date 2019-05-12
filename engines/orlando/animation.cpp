@@ -55,11 +55,11 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 		return false;
 	}
 
-	parser.readInt(); // unused
+	parser.readInt();
 	while (!parser.eof()) {
 		Common::String rec = parser.readString();
 		if (rec == "REC") {
-			Common::Array<int> timeline;
+			Timeline timeline;
 			while (!parser.eof()) {
 				Common::String frame = parser.readString();
 				if (frame == "END") {
@@ -103,11 +103,18 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 	}
 
 	if (_timelines.empty()) {
-		_timelines.push_back(Common::Array<int>(1, 1));
+		_timelines.push_back(Timeline(1, 1));
 	}
 
 	element->setAnimation(this);
 	return true;
+}
+
+void Animation::loadFlx(Common::SeekableReadStream *flx, Scene *scene) {
+	_flx = new FlxAnimation(flx, scene->getGraphicsManager()->kScreenFormat);
+	Frame frame = { _flx->getSurface() };
+	_frames.push_back(frame);
+	_timelines.push_back(Timeline(1, 1));
 }
 
 const Frame &Animation::nextFrame(uint32 time) {
