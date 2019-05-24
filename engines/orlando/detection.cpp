@@ -21,37 +21,47 @@
  */
 
 #include "base/plugins.h"
-
+#include "common/translation.h"
 #include "engines/advancedDetector.h"
 
 #include "orlando/orlando.h"
+
+namespace Orlando {
 
 static const PlainGameDescriptor orlandoGames[] = {
 	{"orlando", "Jack Orlando"},
 	{0, 0}
 };
 
-namespace Orlando {
+#define GAMEOPTION_EASY_VERSION GUIO_GAMEOPTIONS1
+
+static const ADExtraGuiOptionsMap optionsList[] = {
+	{
+		GAMEOPTION_EASY_VERSION,
+		{
+			_s("Easy version"),
+			_s("Director's Cut easy difficulty (only applies to new games)"),
+			"easy",
+			false
+		}
+	},
+
+	AD_EXTRA_GUI_OPTIONS_TERMINATOR
+};
 
 enum {
 	GF_HIGHPERF = (1 << 0)
 };
 
-/**
- * Is this the Standard Performance version?
- */
+/** Is this the Standard Performance version? */
 bool OrlandoEngine::isVersionSP() const {
 	return _gameDescription->platform == Common::kPlatformDOS && (_gameDescription->flags & GF_HIGHPERF) == 0;
 }
-/**
- * Is this the High Performance version?
- */
+/** Is this the High Performance version? */
 bool OrlandoEngine::isVersionHP() const {
 	return _gameDescription->platform == Common::kPlatformDOS  && (_gameDescription->flags & GF_HIGHPERF) != 0;
 }
-/**
- * Is this the Director's Cut version?
- */
+/** Is this the Director's Cut version? */
 bool OrlandoEngine::isVersionDC() const {
 	return _gameDescription->platform == Common::kPlatformWindows;
 }
@@ -61,12 +71,12 @@ bool OrlandoEngine::isVersionDC() const {
  * @li 1997 DOS version: Standard Performance
  * @li 1997 DOS version: High Performance (higher quality audio)
  * @li 2001 Windows version: Director's Cut (different UI and puzzles)
- * Digital rereleases are the same as the Windows version without CD checks.
+ * Digital releases are the same as the Windows version without CD checks.
  *
- * TODO: Support different language versions (assuming English for now).
+ * TODO: Find localized versions of original DOS release.
  */
 static const ADGameDescription gameDescriptions[] = {
-	{
+	{ // Standard English
 		"orlando",
 		"Standard Performance",
 		{
@@ -79,7 +89,7 @@ static const ADGameDescription gameDescriptions[] = {
 		ADGF_NO_FLAGS,
 		GUIO0()
 	},
-	{
+	{ // High Performance English
 		"orlando",
 		"High Performance",
 		{
@@ -92,24 +102,49 @@ static const ADGameDescription gameDescriptions[] = {
 		GF_HIGHPERF,
 		GUIO0()
 	},
-	{
+	{ // Director's Cut English
 		"orlando",
 		"Director's Cut",
 		AD_ENTRY1s("MENU.PAK", "507574735545af15cc1e95ef58accb98", 4052566),
 		Common::EN_ANY,
 		Common::kPlatformWindows,
 		ADGF_NO_FLAGS,
-		GUIO0()
+		GUIO1(GAMEOPTION_EASY_VERSION)
+	},
+	{ // Director's Cut German
+		"orlando",
+		"Director's Cut",
+		AD_ENTRY1s("MENU.PAK", "25a8205e025f8a2fc38b7109feed5443", 4052566),
+		Common::DE_DEU,
+		Common::kPlatformWindows,
+		ADGF_NO_FLAGS,
+		GUIO1(GAMEOPTION_EASY_VERSION)
+	},
+	{ // Director's Cut Polish
+		"orlando",
+		"Director's Cut",
+		AD_ENTRY1s("MENU.PAK", "894181dc0d749a8a4df62077dc65403e", 4052566),
+		Common::PL_POL,
+		Common::kPlatformWindows,
+		ADGF_NO_FLAGS,
+		GUIO1(GAMEOPTION_EASY_VERSION)
+	},
+	{ // Director's Cut Russian
+		"orlando",
+		"Director's Cut",
+		AD_ENTRY1s("MENU.PAK", "4c8013d298f69b35fe45a493e881d73a", 4052566),
+		Common::RU_RUS,
+		Common::kPlatformWindows,
+		ADGF_NO_FLAGS,
+		GUIO1(GAMEOPTION_EASY_VERSION)
 	},
 
 	AD_TABLE_END_MARKER
 };
 
-} // End of namespace Orlando
-
 class OrlandoMetaEngine : public AdvancedMetaEngine {
 public:
-	OrlandoMetaEngine() : AdvancedMetaEngine(Orlando::gameDescriptions, sizeof(ADGameDescription), orlandoGames) {
+	OrlandoMetaEngine() : AdvancedMetaEngine(gameDescriptions, sizeof(ADGameDescription), orlandoGames, optionsList) {
 		_singleId = "orlando";
 		_guiOptions = GUIO1(GUIO_NOMIDI);
 	}
@@ -146,8 +181,10 @@ bool OrlandoMetaEngine::createInstance(OSystem *syst, Engine **engine, const ADG
 	return desc != nullptr;
 }
 
+} // End of namespace Orlando
+
 #if PLUGIN_ENABLED_DYNAMIC(ORLANDO)
-REGISTER_PLUGIN_DYNAMIC(ORLANDO, PLUGIN_TYPE_ENGINE, OrlandoMetaEngine);
+REGISTER_PLUGIN_DYNAMIC(ORLANDO, PLUGIN_TYPE_ENGINE, Orlando::OrlandoMetaEngine);
 #else
-REGISTER_PLUGIN_STATIC(ORLANDO, PLUGIN_TYPE_ENGINE, OrlandoMetaEngine);
+REGISTER_PLUGIN_STATIC(ORLANDO, PLUGIN_TYPE_ENGINE, Orlando::OrlandoMetaEngine);
 #endif
