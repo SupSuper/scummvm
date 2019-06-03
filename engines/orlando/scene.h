@@ -67,7 +67,7 @@ protected:
 
 public:
 	Scene(OrlandoEngine *vm, const Common::String &id);
-	~Scene();
+	virtual ~Scene();
 
 	GraphicsManager *getGraphicsManager() const;
 	Element *getElement(const Common::String &id);

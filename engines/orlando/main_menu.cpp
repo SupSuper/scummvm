@@ -35,6 +35,7 @@
 #include "orlando/sound.h"
 #include "orlando/element.h"
 #include "orlando/animation.h"
+#include "orlando/avx_video.h"
 
 namespace Orlando {
 
@@ -127,11 +128,11 @@ bool MainMenu::run() {
 	graphics->drawBlendedRect(kUiWindow, kColorBlack, 0.5f);
 	graphics->drawText("\x04=MAIN MENU=\x04", Common::Point(kUiWindow.left, kUiWindow.top + 16), kUiWindow.width(), kColorYellow, kColorBlack, Graphics::kTextAlignCenter);
 	if (graphics->drawButton("Introduction", kUiButton, kColorWhite, kColorBlue)) {
-		// TODO: Intro
+		_vm->gotoScene(new AvxVideo(_vm, _vm->getResourceManager()->loadRawFile("INTRO.AVX")));
 	}
 	kUiButton.translate(0, 38);
 	if (graphics->drawButton("New game", kUiButton, kColorWhite, kColorBlue)) {
-		_vm->gotoScene("SC001");
+		_vm->gotoScene(new Scene(_vm, "SC001"));
 	}
 	kUiButton.translate(0, 38);
 	if (graphics->drawButton("Load game", kUiButton, kColorWhite, kColorBlue)) {

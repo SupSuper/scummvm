@@ -62,7 +62,7 @@ bool Debugger::cmdSpeech(int argc, const char **argv) {
 
 bool Debugger::cmdScene(int argc, const char **argv) {
 	if (argc == 2) {
-		if (!_vm->gotoScene(argv[1])) {
+		if (!_vm->gotoScene(new Scene(_vm, argv[1]))) {
 			debugPrintf("File not found\n");
 			return true;
 		}

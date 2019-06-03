@@ -58,7 +58,7 @@ public:
 	SoundManager *getSoundManager() { return _sound; }
 	Mouse *getMouse() { return _mouse; }
 	Scene *getScene() { return _scene; }
-	bool gotoScene(const Common::String &id);
+	bool gotoScene(Scene *scene);
 
 	// Detection related functions
 	const ADGameDescription *_gameDescription;

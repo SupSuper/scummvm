@@ -25,6 +25,7 @@
 #include "common/substream.h"
 #include "common/rect.h"
 #include "common/util.h"
+#include "common\textconsole.h"
 #include "graphics/surface.h"
 #include "orlando/flx_anim.h"
 
@@ -51,11 +52,10 @@ public:
 		uint32 size = 0;
 		while (size < dataSize) {
 			if (_repeatLen > 0) {
-				int read = MIN(dataSize - size, _repeatLen);
-				memset(ptr, _repeatVal, read);
-				size += read;
-				_repeatLen -= read;
-				ptr += read;
+				*ptr = _repeatVal;
+				ptr++;
+				size++;
+				_repeatLen--;
 			} else {
 				uint8 byte = _parentStream->readByte();
 				if (eos())
@@ -81,35 +81,44 @@ public:
 	virtual bool seek(int32 offset, int whence = SEEK_SET) { return _parentStream->seek(offset, whence); }
 };
 
-FlxAnimation::FlxAnimation(Common::SeekableReadStream *stream, const Graphics::PixelFormat &format) : _stream(stream), _surface(nullptr) {
+FlxAnimation::FlxAnimation(Common::SeekableReadStream *stream, const Graphics::PixelFormat &format, DisposeAfterUse::Flag disposeAfterUse)
+	: _stream(stream), _disposeAfterUse(disposeAfterUse), _surface(nullptr), _surface8Bpp(nullptr), _16bit(true), _frameCurrent(0), _frameTotal(0) {
 	if (stream == nullptr)
 		return;
 
 	// Validate FLX header tag
 	const uint32 kFlxTag = MKTAG('F', 'L', 'X', '\0');
 	uint32 tag = _stream->readUint32BE();
-	if (tag != kFlxTag)
+	if (tag != kFlxTag) {
+		warning("FlxAnimation: Missing FLX tag");
 		return;
+	}
 
-	int frames = stream->readUint16LE();
+	_frameTotal = stream->readUint16LE();
 	int width = stream->readUint16LE();
 	int height = stream->readUint16LE();
 	_surface = new Graphics::Surface();
 	_surface->create(width, height, format);
+	_surface8Bpp = (byte*)calloc(width * height, sizeof(byte));
 
-	stream->seek(kHeaderSize);
+	stream->skip(4);
+	_16bit = stream->readByte() ? true : false;
+	stream->skip(5);
 	nextFrame();
 }
 
 FlxAnimation::~FlxAnimation() {
+	free(_surface8Bpp);
 	if (_surface) {
 		_surface->free();
 	}
 	delete _surface;
-	delete _stream;
+	if (_disposeAfterUse) {
+		delete _stream;
+	}
 }
 
-void FlxAnimation::nextFrame() {
+bool FlxAnimation::nextFrame() {
 	enum FlxChunk {
 		kFlxBlank = 0,
 		kFlxFrame = 1,
@@ -118,9 +127,20 @@ void FlxAnimation::nextFrame() {
 		kFlxPalette = 4
 	};
 
+	if (_frameCurrent == _frameTotal)
+		return false;
+
 	bool readFrame = false;
 	while (!readFrame) {
 		FlxChunk chunkType = (FlxChunk)_stream->readUint16LE();
+		if (_stream->eos())
+			break;
+
+		if (chunkType > 4) {
+			_stream->skip(2);
+			chunkType = (FlxChunk)_stream->readUint16LE();
+		}
+
 		int chunkSize = _stream->readUint32LE();
 		int dataSize = chunkSize - 6;
 
@@ -141,22 +161,38 @@ void FlxAnimation::nextFrame() {
 			_stream->skip(dataSize); // Not used by game
 			break;
 		case kFlxPalette:
-			_stream->read(_palette, dataSize);
-			_surface->fillRect(Common::Rect(0, 0, _surface->w, _surface->h), 0); // Clear surface
+			if (_16bit) {
+				_stream->read(_palette, dataSize);
+			} else {
+				int colors = dataSize / 3;
+				for (int i = 0; i < colors; i++) {
+					uint8 r = _stream->readByte();
+					uint8 g = _stream->readByte();
+					uint8 b = _stream->readByte();
+					_palette[i] = _surface->format.RGBToColor(r, g, b);
+				}
+			}
+			uint16 *pixel = (uint16 *)_surface->getPixels();
+			byte *pixel8 = _surface8Bpp;
+			for (int i = 0; i < _surface->w * _surface->h; i++) {
+				*pixel = _palette[*pixel8];
+				pixel++;
+				pixel8++;
+			}
 			break;
-		}		
-
-		// Rewind if we've reached the end
-		if (_stream->eos()) {
-			_stream->seek(kHeaderSize);
 		}
 	}
+
+	_frameCurrent++;
+	return true;
 }
 
 void FlxAnimation::decodeFrame(Common::ReadStream *frame) {
 	uint16 *pixel = (uint16*)_surface->getPixels();
+	byte *pixel8 = _surface8Bpp;
 	int bigSkip = frame->readUint32LE();
 	pixel += bigSkip;
+	pixel8 += bigSkip;
 	
 	while (!frame->eos()) {
 		int skip = frame->readByte();
@@ -164,12 +200,15 @@ void FlxAnimation::decodeFrame(Common::ReadStream *frame) {
 			break;
 		int write = frame->readByte();
 		pixel += skip;
+		pixel8 += skip;
         for (int j = 0; j < write; j++) {
-			int color = frame->readByte();
+			byte color = frame->readByte();
 			if (frame->eos())
 				break;
             *pixel = _palette[color];
+			*pixel8 = color;
 			pixel++;
+			pixel8++;
         }
 	}
 

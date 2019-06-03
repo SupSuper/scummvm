@@ -23,6 +23,7 @@
 #ifndef ORLANDO_FLX_ANIM_H
 #define ORLANDO_FLX_ANIM_H
 
+#include "common/types.h"
 #include "graphics/pixelformat.h"
 
 namespace Common {
@@ -38,21 +39,25 @@ namespace Orlando {
 
 /**
  * Represents a FLX animation file composed of a header and typed chunks containing frame data.
- * Known header format:
+ * Known header format (20 bytes):
  * @li char[]: "FLX\0" code.
- * @li int16: Number of frames in animation (unused).
+ * @li int16: Number of frames in animation.
  * @li int16: Width in pixels.
  * @li int16: Height in pixels.
+ * @li uint8: 16-bit or 24-bit colors.
  */
 class FlxAnimation {
-	const int kHeaderSize = 20;
 	Common::SeekableReadStream *_stream;
+	DisposeAfterUse::Flag _disposeAfterUse;
 	Graphics::Surface *_surface;
+	byte *_surface8Bpp;
 	uint16 _palette[256];
+	bool _16bit;
+	int _frameTotal, _frameCurrent;
 
 	/**
 	 * Decodes the given frame data to a surface:
-	 * @li uint16: Pixel to start at.
+	 * @li uint32: Pixel to start at.
 	 * Followed by chunks of pixels:
 	 * @li uint8: Amount of pixels to skip.
 	 * @li uint8: Amount of pixels to write.
@@ -63,9 +68,11 @@ class FlxAnimation {
 public:
 	/**
 	 * Loads a FLX animation from a stream. If an error occurs, the animation will be empty.
-	 * @param stream Pointer to file stream. The animation takes ownership of the stream.
+	 * @param stream Pointer to file stream to read from.
+	 * @param format Pixel format for rendering.
+	 * @param disposeAfterUse The animation takes ownership of the stream.
 	 */
-	FlxAnimation(Common::SeekableReadStream *stream, const Graphics::PixelFormat &format);
+	FlxAnimation(Common::SeekableReadStream *stream, const Graphics::PixelFormat &format, DisposeAfterUse::Flag disposeAfterUse = DisposeAfterUse::YES);
 	~FlxAnimation();
 	/**
 	 * Moves to the next frame chunk in the animation sequence.
@@ -74,9 +81,10 @@ public:
 	 * @li 1 - Frame.
 	 * @li 2 - RLE frame.
 	 * @li 3 - Unused.
-	 * @li 4 - Palette, 16-bit RGB565 values.
+	 * @li 4 - Palette (16-bit 565 or 24-bit 888 values).
+	 * @return False when there's no more frames.
 	 */
-	void nextFrame();
+	bool nextFrame();
 	/**
 	 * Returns a pointer to the last decoded frame contents.
 	 */

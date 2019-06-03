@@ -13,6 +13,7 @@ MODULE_OBJS = \
 	sound.o \
 	libgsm.o \
 	flx_anim.o \
+	avx_video.o \
 	text_parser.o \
 	scene.o \
 	animation.o \

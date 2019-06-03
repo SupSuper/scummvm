@@ -106,11 +106,10 @@ Common::Error OrlandoEngine::run() {
 	return Common::kNoError;
 }
 
-bool OrlandoEngine::gotoScene(const Common::String &id) {
-	Scene *scene = new Scene(this, id);
+bool OrlandoEngine::gotoScene(Scene *scene) {
 	bool success = scene->initialize();
 	if (success) {
-		delete _scene;
+		//delete _scene;
 		_scene = scene;
 	}
 	return success;
