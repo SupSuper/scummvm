@@ -48,7 +48,7 @@ struct Quad : Polygon<4> {};
  */
 template <typename T>
 inline void deleteArray(Common::Array<T*> &array) {
-	for (Common::Array<T*>::const_iterator i = array.begin(); i != array.end(); ++i) {
+	for (typename Common::Array<T*>::const_iterator i = array.begin(); i != array.end(); ++i) {
 		delete *i;
 	}
 }
