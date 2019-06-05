@@ -25,7 +25,7 @@
 #include "common/substream.h"
 #include "common/rect.h"
 #include "common/util.h"
-#include "common\textconsole.h"
+#include "common/textconsole.h"
 #include "graphics/surface.h"
 #include "orlando/flx_anim.h"
 
@@ -79,6 +79,47 @@ public:
 	virtual int32 pos() const { return _parentStream->pos(); }
 	virtual int32 size() const { return _parentStream->size(); }
 	virtual bool seek(int32 offset, int whence = SEEK_SET) { return _parentStream->seek(offset, whence); }
+};
+
+/**
+ * Wrapper for iterating through two surfaces simultaneously.
+ */
+class PixelIterator
+{
+	FlxAnimation *_flx;
+	uint16 *_pixel;
+	uint8 *_pixel8;
+public:
+	PixelIterator(FlxAnimation *flx) : _flx(flx) {
+		_pixel = (uint16 *)flx->_surface->getPixels();
+		_pixel8 = flx->_surface8Bpp;
+	}
+
+	/** Increment iterators */
+	void skip(int skip) {
+		_pixel += skip;
+		_pixel8 += skip;
+	}
+
+	/** Set pixel on both surfaces */
+	void set(uint8 color) {
+		*_pixel = _flx->_palette[color];
+		*_pixel8 = color;
+		skip(1);
+	}
+
+	/** Copy 8bpp surface to 16bpp */
+	void copy() {
+		while (!end()) {
+			*_pixel = _flx->_palette[*_pixel8];
+			skip(1);
+		}
+	}
+
+	/** Is iterator at the end */
+	bool end() {
+		return _pixel >= _flx->_surface->getBasePtr(0, _flx->_surface->h);
+	}
 };
 
 FlxAnimation::FlxAnimation(Common::SeekableReadStream *stream, const Graphics::PixelFormat &format, DisposeAfterUse::Flag disposeAfterUse)
@@ -136,6 +177,7 @@ bool FlxAnimation::nextFrame() {
 		if (_stream->eos())
 			break;
 
+		// Hack
 		if (chunkType > 4) {
 			_stream->skip(2);
 			chunkType = (FlxChunk)_stream->readUint16LE();
@@ -143,6 +185,7 @@ bool FlxAnimation::nextFrame() {
 
 		int chunkSize = _stream->readUint32LE();
 		int dataSize = chunkSize - 6;
+		int frameSkip = 0;
 
 		switch (chunkType) {
 		case kFlxBlank:
@@ -150,11 +193,16 @@ bool FlxAnimation::nextFrame() {
 			readFrame = true;
 			break;
 		case kFlxFrame:
-			decodeFrame(new Common::SeekableSubReadStream(_stream, _stream->pos(), _stream->pos() + dataSize));
+			frameSkip = _stream->readUint32LE();
+			dataSize -= 4;
+			decodeFrame(frameSkip, new Common::SeekableSubReadStream(_stream, _stream->pos(), _stream->pos() + dataSize));
 			readFrame = true;
 			break;
 		case kFlxRleFrame:
-			decodeFrame(new SeekableRleReadStream(new Common::SeekableSubReadStream(_stream, _stream->pos() + 4, _stream->pos() + dataSize), DisposeAfterUse::YES));
+			_stream->skip(4);
+			frameSkip = _stream->readUint32LE();
+			dataSize -= 8;
+			decodeFrame(frameSkip, new SeekableRleReadStream(new Common::SeekableSubReadStream(_stream, _stream->pos(), _stream->pos() + dataSize), DisposeAfterUse::YES));
 			readFrame = true;
 			break;
 		case kFlxUnknown:
@@ -172,13 +220,9 @@ bool FlxAnimation::nextFrame() {
 					_palette[i] = _surface->format.RGBToColor(r, g, b);
 				}
 			}
-			uint16 *pixel = (uint16 *)_surface->getPixels();
-			byte *pixel8 = _surface8Bpp;
-			for (int i = 0; i < _surface->w * _surface->h; i++) {
-				*pixel = _palette[*pixel8];
-				pixel++;
-				pixel8++;
-			}
+			// We need to update 16bpp surface after a palette change occurs
+			PixelIterator pixel(this);
+			pixel.copy();
 			break;
 		}
 	}
@@ -187,28 +231,22 @@ bool FlxAnimation::nextFrame() {
 	return true;
 }
 
-void FlxAnimation::decodeFrame(Common::ReadStream *frame) {
-	uint16 *pixel = (uint16*)_surface->getPixels();
-	byte *pixel8 = _surface8Bpp;
-	int bigSkip = frame->readUint32LE();
-	pixel += bigSkip;
-	pixel8 += bigSkip;
+void FlxAnimation::decodeFrame(int pixelStart, Common::ReadStream *frame) {
+	PixelIterator pixel(this);
+	pixel.skip(pixelStart);
 	
 	while (!frame->eos()) {
 		int skip = frame->readByte();
 		if (frame->eos())
 			break;
 		int write = frame->readByte();
-		pixel += skip;
-		pixel8 += skip;
+		pixel.skip(skip);
         for (int j = 0; j < write; j++) {
 			byte color = frame->readByte();
-			if (frame->eos())
+			// Hack
+			if (frame->eos() || pixel.end())
 				break;
-            *pixel = _palette[color];
-			*pixel8 = color;
-			pixel++;
-			pixel8++;
+			pixel.set(color);
         }
 	}
 

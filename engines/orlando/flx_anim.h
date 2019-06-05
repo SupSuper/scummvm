@@ -55,6 +55,8 @@ class FlxAnimation {
 	bool _16bit;
 	int _frameTotal, _frameCurrent;
 
+	friend class PixelIterator;
+
 	/**
 	 * Decodes the given frame data to a surface:
 	 * @li uint32: Pixel to start at.
@@ -64,7 +66,7 @@ class FlxAnimation {
 	 * @li uint8[]: Palette indices of pixels.
 	 * @param frame Stream to frame data.
 	 */
-	void decodeFrame(Common::ReadStream *frame);
+	void decodeFrame(int pixelStart, Common::ReadStream *frame);
 public:
 	/**
 	 * Loads a FLX animation from a stream. If an error occurs, the animation will be empty.
