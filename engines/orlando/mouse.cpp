@@ -89,4 +89,8 @@ bool Mouse::isOver(const Common::Rect &rect) const {
 	return rect.contains(getPosition());
 }
 
+void Mouse::show(bool visible) const {
+	CursorMan.showMouse(visible);
+}
+
 } // End of namespace Orlando

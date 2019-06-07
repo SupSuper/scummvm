@@ -87,10 +87,10 @@ public:
 	 * @return False when there's no more frames.
 	 */
 	bool nextFrame();
-	/**
-	 * Returns a pointer to the last decoded frame contents.
-	 */
+	/** Returns a pointer to the last decoded frame contents. */
 	Graphics::Surface *getSurface() const { return _surface; }
+	/** Returns the current frame number. */
+	int getFrame() const { return _frameCurrent; }
 };
 
 } // End of namespace Orlando

@@ -33,6 +33,7 @@
 #include "orlando/graphics.h"
 #include "orlando/resource.h"
 #include "orlando/sound.h"
+#include "orlando/mouse.h"
 #include "orlando/element.h"
 #include "orlando/animation.h"
 #include "orlando/avx_video.h"
@@ -107,6 +108,8 @@ bool MainMenu::initialize() {
 	if (!playMenuMusic())
 		return false;
 
+	_vm->getMouse()->show(true);
+
 	return true;
 }
 
@@ -128,7 +131,7 @@ bool MainMenu::run() {
 	graphics->drawBlendedRect(kUiWindow, kColorBlack, 0.5f);
 	graphics->drawText("\x04=MAIN MENU=\x04", Common::Point(kUiWindow.left, kUiWindow.top + 16), kUiWindow.width(), kColorYellow, kColorBlack, Graphics::kTextAlignCenter);
 	if (graphics->drawButton("Introduction", kUiButton, kColorWhite, kColorBlue)) {
-		_vm->gotoScene(new AvxVideo(_vm, _vm->getResourceManager()->loadRawFile("INTRO.AVX")));
+		_vm->gotoScene(new AvxVideo(_vm, "INTRO"));
 	}
 	kUiButton.translate(0, 38);
 	if (graphics->drawButton("New game", kUiButton, kColorWhite, kColorBlue)) {

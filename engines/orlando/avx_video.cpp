@@ -21,14 +21,20 @@
  */
 
 #include "common/scummsys.h"
+#include "common/file.h"
 #include "common/stream.h"
 #include "common/system.h"
+#include "common/config-manager.h"
+#include "graphics/surface.h"
 
 #include "orlando/avx_video.h"
 #include "orlando/flx_anim.h"
 #include "orlando/orlando.h"
+#include "orlando/resource.h"
 #include "orlando/graphics.h"
 #include "orlando/sound.h"
+#include "orlando/mouse.h"
+#include "orlando/main_menu.h"
 
 namespace Orlando {
 
@@ -96,18 +102,88 @@ public:
 	virtual void clearErr() override { _eos = false; }
 };
 
-AvxVideo::AvxVideo(OrlandoEngine *vm, Common::SeekableReadStream *stream) : Scene(vm, "MOVIE"), _stream(stream), _audio(nullptr),
-	_flx(nullptr), _flxTotal(0), _flxCurrent(0) {
-	_audioBuffer = new byte[kAudioStart];
+AvxSubtitles::AvxSubtitles(Common::SeekableReadStream *stream, const Graphics::PixelFormat &format) : _stream(stream), _format(format), _surface(nullptr) {
+	nextFrame();
+}
+
+AvxSubtitles::~AvxSubtitles() {
+	if (_surface != nullptr) {
+		_surface->free();
+	}
+	delete _surface;
+	delete _stream;
+}
+
+bool AvxSubtitles::nextFrame() {
+	if (_surface != nullptr) {
+		_surface->free();
+	}
+	delete _surface;
+
+	int width = _stream->readUint16LE();
+	if (_stream->eos())
+		return false;
+	int height = _stream->readUint16LE();
+	_surface = new Graphics::Surface();
+	_surface->create(width, height, _format);
+
+	_pos.x = _stream->readUint16LE();
+	_pos.y = _stream->readUint16LE();
+	_frameStart = _stream->readUint16LE();
+	_frameEnd = _stream->readUint16LE();
+	_flx = _stream->readUint16LE();
+
+	uint8 r = _stream->readByte();
+	uint8 g = _stream->readByte();
+	uint8 b = _stream->readByte();
+	uint16 color = _format.RGBToColor(r, g, b);
+	_stream->skip(7);
+
+	uint16 *pixel = (uint16 *)_surface->getPixels();
+	for (int i = 0; i < width * height; i++) {
+		byte data = _stream->readByte();
+		if (data == 0x00) {
+			*pixel = 1;
+		} else if (data == 0xFF) {
+			*pixel = color;
+		}
+		pixel++;
+	}
+	return true;
+}
+
+void AvxSubtitles::draw(GraphicsManager *graphics, int frame, int flx) {
+	if (_flx == flx && frame >= _frameStart && frame < _frameEnd) {
+		graphics->drawTransparent(*_surface, _pos);
+	}
+	if ((_flx == flx && frame >= _frameEnd) || (flx > _flx)) {
+		nextFrame();
+	}
+}
+
+AvxVideo::AvxVideo(OrlandoEngine *vm, const Common::String &id) : Scene(vm, id), _audio(nullptr), _audioBuffer(new byte[kAudioStart]),
+	_flx(nullptr), _flxTotal(0), _flxCurrent(0), _subtitles(nullptr) {
 }
 
 AvxVideo::~AvxVideo() {
-	if (_flx != nullptr)
-		delete _flx;
+	delete _subtitles;
+	delete _flx;
 	delete[] _audioBuffer;
 }
 
-bool AvxVideo::initialize() {
+bool AvxVideo::initialize() {	
+	_stream = _vm->getResourceManager()->loadRawFile(_id + ".AVX");
+	if (_stream == nullptr) {
+		return false;
+	}
+
+	if (ConfMan.getBool("subtitles")) {
+		Common::File *dlg = _vm->getResourceManager()->loadRawFile(_id + ".DLG");
+		if (dlg != nullptr) {
+			_subtitles = new AvxSubtitles(dlg, _vm->getGraphicsManager()->kScreenFormat);
+		}
+	}
+
 	_flxTotal = _stream->readUint16LE();
 	_stream->readByte();
 	byte tag = _stream->readByte();
@@ -129,11 +205,17 @@ bool AvxVideo::initialize() {
 	_flx = new FlxAnimation(_stream, _vm->getGraphicsManager()->kScreenFormat, DisposeAfterUse::NO);
 	_flxCurrent++;
 
+	_vm->getMouse()->show(false);
+
 	return true;
 }
 
 bool AvxVideo::run() {
 	_vm->getGraphicsManager()->draw(*_flx->getSurface());
+
+	if (_subtitles != nullptr) {
+		_subtitles->draw(_vm->getGraphicsManager(), _flx->getFrame() - 1, _flxCurrent - 1);
+	}
 
 	uint32 chunk = _stream->readUint32LE();
 	if (!_stream->eos()) {
@@ -144,6 +226,9 @@ bool AvxVideo::run() {
 			_flx = new FlxAnimation(_stream, _vm->getGraphicsManager()->kScreenFormat, DisposeAfterUse::NO);
 			_flxCurrent++;
 		}
+	}
+	else if (_stream->eos() || _vm->getMouse()->getLeftButton() == kButtonReleased) {
+		_vm->gotoScene(new MainMenu(_vm));
 	}
 
 	_vm->_system->delayMillis(25);

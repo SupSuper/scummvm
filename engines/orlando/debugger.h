@@ -42,6 +42,7 @@ public:
 	bool cmdSfx(int argc, const char **argv);
 	bool cmdSpeech(int argc, const char **argv);
 	bool cmdScene(int argc, const char **argv);
+	bool cmdMovie(int argc, const char **argv);
 };
 
 } // End of namespace Orlando

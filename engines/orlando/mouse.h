@@ -73,6 +73,8 @@ public:
 	MouseState getLeftButton() const { return _leftButton; }
 	/** Returns the state of the right mouse button. */
 	MouseState getRightButton() const { return _rightButton; }
+	/** Toggles the mouse visiblity state. */
+	void show(bool visible) const;
 };
 
 } // End of namespace Orlando

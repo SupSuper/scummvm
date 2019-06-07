@@ -25,6 +25,7 @@
 #include "orlando/debugger.h"
 #include "orlando/orlando.h"
 #include "orlando/scene.h"
+#include "orlando/avx_video.h"
 
 namespace Orlando {
 
@@ -33,6 +34,7 @@ Debugger::Debugger(OrlandoEngine *vm) : GUI::Debugger(), _vm(vm) {
 	registerCmd("sound", WRAP_METHOD(Debugger, cmdSfx));
 	registerCmd("voice", WRAP_METHOD(Debugger, cmdSpeech));
 	registerCmd("scene", WRAP_METHOD(Debugger, cmdScene));
+	registerCmd("movie", WRAP_METHOD(Debugger, cmdMovie));
 }
 
 bool Debugger::cmdMusic(int argc, const char **argv) {
@@ -63,6 +65,16 @@ bool Debugger::cmdSpeech(int argc, const char **argv) {
 bool Debugger::cmdScene(int argc, const char **argv) {
 	if (argc == 2) {
 		if (!_vm->gotoScene(new Scene(_vm, argv[1]))) {
+			debugPrintf("File not found\n");
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Debugger::cmdMovie(int argc, const char **argv) {
+	if (argc == 2) {
+		if (!_vm->gotoScene(new AvxVideo(_vm, argv[1]))) {
 			debugPrintf("File not found\n");
 			return true;
 		}

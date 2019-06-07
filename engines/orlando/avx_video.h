@@ -24,16 +24,47 @@
 #define ORLANDO_AVX_VIDEO_H
 
 #include "orlando/scene.h"
+#include "graphics/pixelformat.h"
 
 namespace Common {
 	class SeekableReadStream;
+}
+
+namespace Graphics {
+	struct Surface;
 }
 
 namespace Orlando {
 
 class OrlandoEngine;
 class FlxAnimation;
+class GraphicsManager;
 class MemoryAudioStream;
+
+/**
+ * Represents a DLG subtitle file composed of a header and subtitle frames.
+ * Known header format (24 bytes):
+ * @li int16: Width in pixels.
+ * @li int16: Height in pixels.
+ * @li int16: X position in pixels.
+ * @li int16: Y position in pixels.
+ * @li int16: Start frame.
+ * @li int16: End frame.
+ * @li int16: FLX index.
+ * @li int24: 24-bit text color.
+ */
+class AvxSubtitles {
+	Common::SeekableReadStream *_stream;
+	Graphics::PixelFormat _format;
+	Common::Point _pos;
+	int _frameStart, _frameEnd, _flx;
+	Graphics::Surface *_surface;
+public:
+	AvxSubtitles(Common::SeekableReadStream *stream, const Graphics::PixelFormat &format);
+	~AvxSubtitles();
+	bool nextFrame();
+	void draw(GraphicsManager *graphics, int frame, int flx);
+};
 
 /**
  * Player for AVX video files, composed of a series of FLX animation
@@ -47,9 +78,10 @@ class AvxVideo : public Scene {
 	byte *_audioBuffer;
 	FlxAnimation *_flx;
 	int _flxTotal, _flxCurrent;
+	AvxSubtitles *_subtitles;
 
 public:
-	AvxVideo(OrlandoEngine *vm, Common::SeekableReadStream *stream);
+	AvxVideo(OrlandoEngine *vm, const Common::String &id);
 	virtual ~AvxVideo();
 
 	bool initialize() override;
