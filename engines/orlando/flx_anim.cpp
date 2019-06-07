@@ -123,7 +123,7 @@ public:
 };
 
 FlxAnimation::FlxAnimation(Common::SeekableReadStream *stream, const Graphics::PixelFormat &format, DisposeAfterUse::Flag disposeAfterUse)
-	: _stream(stream), _disposeAfterUse(disposeAfterUse), _surface(nullptr), _surface8Bpp(nullptr), _16bit(true), _frameCurrent(0), _frameTotal(0) {
+	: _stream(stream), _disposeAfterUse(disposeAfterUse), _surface(nullptr), _surface8Bpp(nullptr), _bpp16(true), _frameCurrent(0), _frameTotal(0) {
 	if (stream == nullptr)
 		return;
 
@@ -143,7 +143,7 @@ FlxAnimation::FlxAnimation(Common::SeekableReadStream *stream, const Graphics::P
 	_surface8Bpp = (byte*)calloc(width * height, sizeof(byte));
 
 	stream->skip(4);
-	_16bit = stream->readByte() ? true : false;
+	_bpp16 = stream->readByte() ? true : false;
 	stream->skip(5);
 	nextFrame();
 }
@@ -209,7 +209,7 @@ bool FlxAnimation::nextFrame() {
 			_stream->skip(dataSize); // Not used by game
 			break;
 		case kFlxPalette:
-			if (_16bit) {
+			if (_bpp16) {
 				_stream->read(_palette, dataSize);
 			} else {
 				int colors = dataSize / 3;

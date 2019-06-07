@@ -56,11 +56,15 @@ class MemoryAudioStream;
 class AvxSubtitles {
 	Common::SeekableReadStream *_stream;
 	Graphics::PixelFormat _format;
+	bool _bpp16;
 	Common::Point _pos;
 	int _frameStart, _frameEnd, _flx;
 	Graphics::Surface *_surface;
+
+	bool decodeFrame16();
+	bool decodeFrame24();
 public:
-	AvxSubtitles(Common::SeekableReadStream *stream, const Graphics::PixelFormat &format);
+	AvxSubtitles(Common::SeekableReadStream *stream, const Graphics::PixelFormat &format, bool bpp16);
 	~AvxSubtitles();
 	bool nextFrame();
 	void draw(GraphicsManager *graphics, int frame, int flx);
@@ -79,6 +83,8 @@ class AvxVideo : public Scene {
 	FlxAnimation *_flx;
 	int _flxTotal, _flxCurrent;
 	AvxSubtitles *_subtitles;
+	Graphics::Surface *_surfaceOutro, *_surfaceCredits;
+	Graphics::Surface *_surfaceCykl[3];
 
 public:
 	AvxVideo(OrlandoEngine *vm, const Common::String &id);

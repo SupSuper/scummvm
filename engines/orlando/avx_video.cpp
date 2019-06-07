@@ -102,7 +102,8 @@ public:
 	virtual void clearErr() override { _eos = false; }
 };
 
-AvxSubtitles::AvxSubtitles(Common::SeekableReadStream *stream, const Graphics::PixelFormat &format) : _stream(stream), _format(format), _surface(nullptr) {
+AvxSubtitles::AvxSubtitles(Common::SeekableReadStream *stream, const Graphics::PixelFormat &format, bool bpp16) : _stream(stream), _format(format), _bpp16(bpp16),
+	_surface(nullptr) {
 	nextFrame();
 }
 
@@ -115,15 +116,43 @@ AvxSubtitles::~AvxSubtitles() {
 }
 
 bool AvxSubtitles::nextFrame() {
+	if (_bpp16)
+		return decodeFrame16();
+	else
+		return decodeFrame24();
+}
+
+bool AvxSubtitles::decodeFrame16() {
+	_frameStart = _stream->readUint16LE();
+	if (_stream->eos())
+		return false;
+	_frameEnd = _stream->readUint16LE();
+	_pos.x = _stream->readUint16LE();
+	_pos.y = _stream->readUint16LE();
+	_flx = _stream->readUint16LE();
+
+	int width = _stream->readUint16LE();
+	int height = _stream->readUint16LE();
 	if (_surface != nullptr) {
 		_surface->free();
 	}
 	delete _surface;
+	_surface = new Graphics::Surface();
+	_surface->create(width, height, _format);
+	_stream->read(_surface->getPixels(), width * height * _format.bytesPerPixel);
 
+	return true;
+}
+
+bool AvxSubtitles::decodeFrame24() {
 	int width = _stream->readUint16LE();
 	if (_stream->eos())
 		return false;
 	int height = _stream->readUint16LE();
+	if (_surface != nullptr) {
+		_surface->free();
+	}
+	delete _surface;
 	_surface = new Graphics::Surface();
 	_surface->create(width, height, _format);
 
@@ -171,17 +200,13 @@ AvxVideo::~AvxVideo() {
 	delete[] _audioBuffer;
 }
 
-bool AvxVideo::initialize() {	
-	_stream = _vm->getResourceManager()->loadRawFile(_id + ".AVX");
+bool AvxVideo::initialize() {
+	ResourceManager *resources = _vm->getResourceManager();
+	GraphicsManager *graphics = _vm->getGraphicsManager();
+
+	_stream = resources->loadRawFile(_id + ".AVX");
 	if (_stream == nullptr) {
 		return false;
-	}
-
-	if (ConfMan.getBool("subtitles")) {
-		Common::File *dlg = _vm->getResourceManager()->loadRawFile(_id + ".DLG");
-		if (dlg != nullptr) {
-			_subtitles = new AvxSubtitles(dlg, _vm->getGraphicsManager()->kScreenFormat);
-		}
 	}
 
 	_flxTotal = _stream->readUint16LE();
@@ -199,22 +224,54 @@ bool AvxVideo::initialize() {
 	const int kRingBuffer = 1 * 1024 * 1024;
 	_audio = new MemoryAudioStream(kRingBuffer, audioSize, DisposeAfterUse::YES);
 	_audio->write(_audioBuffer, _stream->read(_audioBuffer, kAudioStart));
-	_vm->getSoundManager()->playFile(_audio, Audio::Mixer::kMusicSoundType);
 
 	_stream->skip(8);
-	_flx = new FlxAnimation(_stream, _vm->getGraphicsManager()->kScreenFormat, DisposeAfterUse::NO);
+	_flx = new FlxAnimation(_stream, graphics->kScreenFormat, DisposeAfterUse::NO);
 	_flxCurrent++;
 
+	if (ConfMan.getBool("subtitles")) {
+		Common::File *dlg = resources->loadRawFile(_id + ".DLG");
+		if (dlg != nullptr) {
+			_subtitles = new AvxSubtitles(dlg, graphics->kScreenFormat, _flx->is16Bpp());
+		}
+	}
+
+	if (_id == "OUTRO16") {
+		_surfaceOutro = graphics->loadRawBitmap(resources->loadRawFile("OUTRO16.BM"));
+		_surfaceCredits = graphics->loadPaletteBitmap(resources->loadRawFile("CREDITS.PBM"));
+		_surfaceCykl[0] = graphics->loadPaletteBitmap(resources->loadRawFile("CYKL1.BM"));
+		_surfaceCykl[1] = graphics->loadPaletteBitmap(resources->loadRawFile("CYKL2.BM"));
+		_surfaceCykl[2] = graphics->loadPaletteBitmap(resources->loadRawFile("CYKL3.BM"));
+	}
+
 	_vm->getMouse()->show(false);
+	_vm->getSoundManager()->playFile(_audio, Audio::Mixer::kMusicSoundType);
 
 	return true;
 }
 
 bool AvxVideo::run() {
-	_vm->getGraphicsManager()->draw(*_flx->getSurface());
+	GraphicsManager *graphics = _vm->getGraphicsManager();
+
+	int flx = _flxCurrent - 1;
+	int frame = _flx->getFrame() - 1;
+	if (_id == "OUTRO16") {
+		if (flx >= 0 && flx < 4) {
+			graphics->draw(*_surfaceOutro);
+		} else if (flx >= 5 && flx < 19) {
+			graphics->draw(*_surfaceCredits);
+		}
+		if (flx >= 7 && flx < 19) {
+			int step = frame % 3;
+			graphics->draw(*_surfaceCykl[step], Common::Point(35, 0));
+		}
+		graphics->drawTransparent(*_flx->getSurface());
+	} else {
+		graphics->draw(*_flx->getSurface());
+	}
 
 	if (_subtitles != nullptr) {
-		_subtitles->draw(_vm->getGraphicsManager(), _flx->getFrame() - 1, _flxCurrent - 1);
+		_subtitles->draw(graphics, frame, flx);
 	}
 
 	uint32 chunk = _stream->readUint32LE();
@@ -223,11 +280,11 @@ bool AvxVideo::run() {
 		_stream->skip(4);
 		if (!_flx->nextFrame() && _flxCurrent < _flxTotal) {
 			delete _flx;
-			_flx = new FlxAnimation(_stream, _vm->getGraphicsManager()->kScreenFormat, DisposeAfterUse::NO);
+			_flx = new FlxAnimation(_stream, graphics->kScreenFormat, DisposeAfterUse::NO);
 			_flxCurrent++;
 		}
 	}
-	else if (_stream->eos() || _vm->getMouse()->getLeftButton() == kButtonReleased) {
+	if (_stream->eos() || _vm->getMouse()->getLeftButton() == kButtonReleased) {
 		_vm->gotoScene(new MainMenu(_vm));
 	}
 

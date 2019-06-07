@@ -52,7 +52,7 @@ class FlxAnimation {
 	Graphics::Surface *_surface;
 	byte *_surface8Bpp;
 	uint16 _palette[256];
-	bool _16bit;
+	bool _bpp16;
 	int _frameTotal, _frameCurrent;
 
 	friend class PixelIterator;
@@ -91,6 +91,8 @@ public:
 	Graphics::Surface *getSurface() const { return _surface; }
 	/** Returns the current frame number. */
 	int getFrame() const { return _frameCurrent; }
+	/** True for 16bpp, false for 24bpp */
+	bool is16Bpp() const { return _bpp16; }
 };
 
 } // End of namespace Orlando
