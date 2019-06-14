@@ -84,6 +84,7 @@ bool MainMenu::initialize() {
 		};
 		anim->addFrame(frames[0]);
 		anim->addFrame(frames[1]);
+		anim->setLoop(true);
 
 		Element *element = new Element("TRUCK");
 		element->setPosition(Common::Point(0, 323));
@@ -96,6 +97,7 @@ bool MainMenu::initialize() {
 	if (Common::File *file = loadFile("D1.FLX")) {
 		Animation *anim = new Animation("SMOKE");
 		anim->loadFlx(file, this);
+		anim->setLoop(true);
 
 		Element *element = new Element("SMOKE");
 		element->setPosition(Common::Point(309, 39));

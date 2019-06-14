@@ -159,7 +159,7 @@ FlxAnimation::~FlxAnimation() {
 	}
 }
 
-bool FlxAnimation::nextFrame() {
+bool FlxAnimation::nextFrame(bool loop) {
 	enum FlxChunk {
 		kFlxBlank = 0,
 		kFlxFrame = 1,
@@ -168,8 +168,14 @@ bool FlxAnimation::nextFrame() {
 		kFlxPalette = 4
 	};
 
-	if (_frameCurrent == _frameTotal)
-		return false;
+	if (_frameCurrent == _frameTotal) {
+		if (!loop) {
+			return false;
+		} else {
+			_stream->seek(20);
+			_frameCurrent = 0;
+		}
+	}
 
 	bool readFrame = false;
 	while (!readFrame) {

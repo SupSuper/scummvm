@@ -84,9 +84,10 @@ public:
 	 * @li 2 - RLE frame.
 	 * @li 3 - Unused.
 	 * @li 4 - Palette (16-bit 565 or 24-bit 888 values).
+	 * @param Looping animation (requires a continuous stream).
 	 * @return False when there's no more frames.
 	 */
-	bool nextFrame();
+	bool nextFrame(bool loop = false);
 	/** Returns a pointer to the last decoded frame contents. */
 	Graphics::Surface *getSurface() const { return _surface; }
 	/** Returns the current frame number. */

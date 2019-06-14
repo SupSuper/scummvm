@@ -32,7 +32,7 @@
 
 namespace Orlando {
 
-Animation::Animation(const Common::String &id) : _id(id), _flx(nullptr), _curFrame(0), _curTimeline(0), _time(0) {
+Animation::Animation(const Common::String &id) : _id(id), _flx(nullptr), _curFrame(0), _curTimeline(0), _time(0), _loop(false) {
 }
 
 Animation::~Animation() {
@@ -121,9 +121,15 @@ const Frame &Animation::nextFrame(uint32 time) {
 	const int kDelay = 50;
 	if (time >= _time + kDelay) {
 		if (_flx == nullptr) {
-			_curFrame = (_curFrame + 1) % _timelines[_curTimeline].size();
+			_curFrame++;
+			if (_curFrame == _timelines[_curTimeline].size()) {
+				if (_loop)
+					_curFrame = 0;
+				else
+					_curFrame--;
+			}
 		} else {
-			_flx->nextFrame();
+			_flx->nextFrame(_loop);
 		}
 		_time = time;
 	}
