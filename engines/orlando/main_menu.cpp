@@ -128,7 +128,7 @@ bool MainMenu::run() {
 	Common::Rect kUiButton = Common::Rect(0, 0, 180, 34);
 	kUiButton.translate(kUiWindow.left + 25, kUiWindow.top + 60);
 
-	graphics->drawBlendedRect(kUiWindow, kColorBlack, 0.5f);
+	graphics->drawShadowRect(kUiWindow, 0.5f, 5);
 	graphics->drawText("\x04=MAIN MENU=\x04", Common::Point(kUiWindow.left, kUiWindow.top + 16), kUiWindow.width(), kColorYellow, kColorBlack, Graphics::kTextAlignCenter);
 	if (graphics->drawButton("Introduction", kUiButton, kColorWhite, kColorBlue)) {
 		_vm->gotoScene(new AvxVideo(_vm, "INTRO"));

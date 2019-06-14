@@ -53,6 +53,15 @@ class GraphicsManager {
 	OrlandoEngine *_vm;
 	Graphics::ManagedSurface *_screenBuffer;
 
+	/** Alpha-blends a color. */
+	inline uint16 colorAlpha(uint16 color, float alpha) {
+		uint8 r, g, b;
+		colorToRGB(color, r, g, b);
+		r *= alpha;
+		g *= alpha;
+		b *= alpha;
+		return RGBToColor(r, g, b);
+	}
 public:
 	static const Graphics::PixelFormat kScreenFormat;
 
@@ -96,7 +105,9 @@ public:
 	 * @param b Blue component (0-255).
 	 * @return 16-bit color.
 	 */
-	uint16 RGBToColor(uint8 r, uint8 g, uint8 b) const;
+	inline uint16 RGBToColor(uint8 r, uint8 g, uint8 b) const {
+		return kScreenFormat.RGBToColor(r, g, b);
+	}
 	/**
 	* Converts a color in the screen format to a RGB value.
 	* @param color Source color.
@@ -104,7 +115,9 @@ public:
 	* @param g Green component (0-255).
 	* @param b Blue component (0-255).
 	*/
-	void colorToRGB(uint16 color, uint8 &r, uint8 &g, uint8 &b) const;
+	inline void colorToRGB(uint16 color, uint8 &r, uint8 &g, uint8 &b) const {
+		kScreenFormat.colorToRGB(color, r, g, b);
+	}
 	/**
 	 * Draws a surface to the screen.
 	 * @param surface Source surface.
@@ -128,12 +141,12 @@ public:
 	 */
 	void drawText(const Common::String &text, const Common::Point &pos, int width, uint16 fill, uint16 border, Graphics::TextAlign align = Graphics::kTextAlignLeft);
 	/**
-	 * Draws a filled rectangle with color blending.
+	 * Draws a filled rectangle with shadow color.
 	 * @param rect Rectangle coordinates.
-	 * @param color Source color to blend.
-	 * @param alpha Amount to blend.
+	 * @param shadow Amount to darken (0 black - 1 unchanged).
+	 * @param bevel Amount of bevel in pixels.
 	 */
-	void drawBlendedRect(const Common::Rect &rect, uint16 color, float alpha);
+	void drawShadowRect(const Common::Rect &rect, float shadow, int bevel = 0);
 	/**
 	 * Draws a clickable button on screen.
 	 * @param text Button text.

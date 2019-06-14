@@ -110,14 +110,6 @@ Graphics::Surface *GraphicsManager::loadPaletteBitmap(Common::SeekableReadStream
 	return surface;
 }
 
-uint16 GraphicsManager::RGBToColor(uint8 r, uint8 g, uint8 b) const {
-	return kScreenFormat.RGBToColor(r, g, b);
-}
-
-void GraphicsManager::colorToRGB(uint16 color, uint8 &r, uint8 &g, uint8 &b) const {
-	kScreenFormat.colorToRGB(color, r, g, b);
-}
-
 void GraphicsManager::draw(const Graphics::Surface &surface, const Common::Point &pos) {
 	_screenBuffer->blitFrom(surface, pos);
 }
@@ -131,22 +123,25 @@ void GraphicsManager::drawText(const Common::String &text, const Common::Point &
 	_vm->getResourceManager()->getFont()->drawString(_screenBuffer, text, pos.x, pos.y, width, color, align);
 }
 
-void GraphicsManager::drawBlendedRect(const Common::Rect &rect, uint16 color, float alpha) {
+void GraphicsManager::drawShadowRect(const Common::Rect &rect, float shadow, int bevel) {
 	// TODO: Figure out the original game blending formula
-	uint8 srcR, srcG, srcB;
-	colorToRGB(color, srcR, srcG, srcB);
-	srcR *= alpha;
-	srcG *= alpha;
-	srcB *= alpha;
+	Common::Rect fill(rect);
+	fill.grow(-bevel);
 	for (int y = rect.top; y < rect.bottom; ++y) {
 		for (int x = rect.left; x < rect.right; ++x) {
+			float alpha = shadow;
+			if (!fill.contains(x, y)) {
+				if ((x <= rect.left + bevel && y < rect.bottom - (x - rect.left)) ||
+					(y <= rect.top + bevel && x < rect.right - (y - rect.top))) {
+					// Top-left bevel (brighter)
+					alpha += shadow / 2;
+				} else {
+					// Bottom-right bevel (darker)
+					alpha -= shadow / 2;
+				}
+			}
 			uint16 *pixel = (uint16*)_screenBuffer->getBasePtr(x, y);
-			uint8 dstR, dstG, dstB;
-			colorToRGB(*pixel, dstR, dstG, dstB);
-			dstR = srcR + dstR * (1 - alpha);
-			dstG = srcG + dstG * (1 - alpha);
-			dstB = srcB + dstB * (1 - alpha);
-			*pixel = RGBToColor(dstR, dstG, dstB);
+			*pixel = colorAlpha(*pixel, alpha);
 		}
 	}
 }
@@ -155,10 +150,14 @@ bool GraphicsManager::drawButton(const Common::String &text, const Common::Rect 
 	Mouse *mouse = _vm->getMouse();
 
 	// Draw background
-	drawBlendedRect(rect, 0xFFFF, 0.2f);
+	int bevel = 5;
+	if (mouse->getLeftButton() == kButtonPressed && mouse->isOver(rect)) {
+		bevel = 2;
+	}
+	drawShadowRect(rect, 1.5f, bevel);
 
 	// Draw label
-	int y = (rect.height() - _vm->getResourceManager()->getFont()->getFontHeight()) / 2;
+	int y = (rect.height() - _vm->getResourceManager()->getFont()->getFontHeight()) / 2 + 2;
 	Common::Point pos = Common::Point(rect.left, rect.top + y);
 	if (mouse->getLeftButton() == kButtonPressed && mouse->isOver(rect)) {
 		pos += Common::Point(1, 1);
