@@ -81,8 +81,9 @@ public:
 	 * The DOS version uses raw PCM while the Windows version uses encoded audio.
 	 * @param stream Stream to load data from. Freed after usage.
 	 * @param type Mixer channel.
+	 * @param loop Looping track.
 	 */
-	void playFile(Common::SeekableReadStream *stream, Audio::Mixer::SoundType type);
+	void playFile(Common::SeekableReadStream *stream, Audio::Mixer::SoundType type, bool loop = false);
 };
 
 } // End of namespace Orlando

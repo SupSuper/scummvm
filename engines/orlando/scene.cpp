@@ -95,7 +95,7 @@ bool Scene::playMusic(const Common::String &filename) {
 	}
 
 	if (audio != nullptr) {
-		_vm->getSoundManager()->playFile(audio, Audio::Mixer::kMusicSoundType);
+		_vm->getSoundManager()->playFile(audio, Audio::Mixer::kMusicSoundType, true);
 		return true;
 	} else {
 		return false;

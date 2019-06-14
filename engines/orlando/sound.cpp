@@ -224,7 +224,7 @@ Audio::SeekableAudioStream *SoundManager::loadHeaderAudio(Common::SeekableReadSt
 	return audio;
 }
 
-void SoundManager::playFile(Common::SeekableReadStream *stream, Audio::Mixer::SoundType type) {
+void SoundManager::playFile(Common::SeekableReadStream *stream, Audio::Mixer::SoundType type, bool loop) {
 	Audio::SeekableAudioStream *audio = loadHeaderAudio(stream, type);
 	if (audio == nullptr)
 		return;
@@ -235,7 +235,7 @@ void SoundManager::playFile(Common::SeekableReadStream *stream, Audio::Mixer::So
 	}
 	_handle = new Audio::SoundHandle();
 	// Music should loop infinitely
-	if (type == Audio::Mixer::kMusicSoundType) {
+	if (loop) {
 		_vm->_mixer->playStream(type, _handle, Audio::makeLoopingAudioStream(audio, 0));
 	} else {
 		_vm->_mixer->playStream(type, _handle, audio);

@@ -56,7 +56,7 @@ bool MainMenu::playMenuMusic() {
 	}
 
 	if (music != nullptr) {
-		_vm->getSoundManager()->playFile(music, Audio::Mixer::kMusicSoundType);
+		_vm->getSoundManager()->playFile(music, Audio::Mixer::kMusicSoundType, true);
 	} else {
 		return false;
 	}
