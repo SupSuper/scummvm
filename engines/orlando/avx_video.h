@@ -82,7 +82,9 @@ class AvxVideo : public Scene {
 	byte *_audioBuffer;
 	FlxAnimation *_flx;
 	int _flxTotal, _flxCurrent;
+	uint32 _time;
 	AvxSubtitles *_subtitles;
+	bool _outro;
 	Graphics::Surface *_surfaceOutro, *_surfaceCredits;
 	Graphics::Surface *_surfaceCykl[3];
 

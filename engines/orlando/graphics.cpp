@@ -148,10 +148,11 @@ void GraphicsManager::drawShadowRect(const Common::Rect &rect, float shadow, int
 
 bool GraphicsManager::drawButton(const Common::String &text, const Common::Rect &rect, uint16 fill, uint16 border) {
 	Mouse *mouse = _vm->getMouse();
+	bool isPressed = (mouse->getLeftButton() == kButtonPressed && mouse->isOver(rect));
 
 	// Draw background
 	int bevel = 5;
-	if (mouse->getLeftButton() == kButtonPressed && mouse->isOver(rect)) {
+	if (isPressed) {
 		bevel = 2;
 	}
 	drawShadowRect(rect, 1.5f, bevel);
@@ -159,7 +160,7 @@ bool GraphicsManager::drawButton(const Common::String &text, const Common::Rect 
 	// Draw label
 	int y = (rect.height() - _vm->getResourceManager()->getFont()->getFontHeight()) / 2 + 2;
 	Common::Point pos = Common::Point(rect.left, rect.top + y);
-	if (mouse->getLeftButton() == kButtonPressed && mouse->isOver(rect)) {
+	if (isPressed) {
 		pos += Common::Point(1, 1);
 	}
 	drawText(text, pos, rect.width(), fill, border, Graphics::kTextAlignCenter);

@@ -129,7 +129,7 @@ bool AvxSubtitles::decodeFrame16() {
 	_frameEnd = _stream->readUint16LE();
 	_pos.x = _stream->readUint16LE();
 	_pos.y = _stream->readUint16LE();
-	_flx = _stream->readUint16LE();
+	_stream->skip(2);
 
 	int width = _stream->readUint16LE();
 	int height = _stream->readUint16LE();
@@ -182,16 +182,17 @@ bool AvxSubtitles::decodeFrame24() {
 }
 
 void AvxSubtitles::draw(GraphicsManager *graphics, int frame, int flx) {
-	if (_flx == flx && frame >= _frameStart && frame < _frameEnd) {
+	int flxSub = _bpp16 ? flx : _flx;
+	if (flxSub == flx && frame >= _frameStart && frame < _frameEnd) {
 		graphics->drawTransparent(*_surface, _pos);
 	}
-	if ((_flx == flx && frame >= _frameEnd) || (flx > _flx)) {
+	if ((flxSub == flx && frame == _frameEnd) || (flx > flxSub)) {
 		nextFrame();
 	}
 }
 
 AvxVideo::AvxVideo(OrlandoEngine *vm, const Common::String &id) : Scene(vm, id), _audio(nullptr), _audioBuffer(new byte[kAudioStart]),
-	_flx(nullptr), _flxTotal(0), _flxCurrent(0), _subtitles(nullptr) {
+	_flx(nullptr), _flxTotal(0), _flxCurrent(0), _time(0), _subtitles(nullptr), _outro(false) {
 }
 
 AvxVideo::~AvxVideo() {
@@ -221,7 +222,7 @@ bool AvxVideo::initialize() {
 	int audioSize = _stream->readUint32LE();
 
 	_stream->seek(4);
-	const int kRingBuffer = 1 * 1024 * 1024;
+	const int kRingBuffer = 10 * 1024 * 1024;
 	_audio = new MemoryAudioStream(kRingBuffer, audioSize, DisposeAfterUse::YES);
 	_audio->write(_audioBuffer, _stream->read(_audioBuffer, kAudioStart));
 
@@ -237,6 +238,7 @@ bool AvxVideo::initialize() {
 	}
 
 	if (_id == "OUTRO16") {
+		_outro = true;
 		_surfaceOutro = graphics->loadRawBitmap(resources->loadRawFile("OUTRO16.BM"));
 		_surfaceCredits = graphics->loadPaletteBitmap(resources->loadRawFile("CREDITS.PBM"));
 		_surfaceCykl[0] = graphics->loadPaletteBitmap(resources->loadRawFile("CYKL1.BM"));
@@ -252,43 +254,49 @@ bool AvxVideo::initialize() {
 
 bool AvxVideo::run() {
 	GraphicsManager *graphics = _vm->getGraphicsManager();
+	uint32 time = _vm->getTotalPlayTime();
+	// TODO: Should be 1000 / fps but then audio stutters
+	uint32 delay = 900 / _flx->getFps();
 
-	int flx = _flxCurrent - 1;
-	int frame = _flx->getFrame() - 1;
-	if (_id == "OUTRO16") {
-		if (flx >= 0 && flx < 4) {
-			graphics->draw(*_surfaceOutro);
-		} else if (flx >= 5 && flx < 19) {
-			graphics->draw(*_surfaceCredits);
+	if (time >= _time + delay) {
+		_time = time;
+
+		int flx = _flxCurrent - 1;
+		int frame = _flx->getFrame() - 1;
+		if (_outro) {
+			if (flx >= 0 && flx < 4) {
+				graphics->draw(*_surfaceOutro);
+			} else if (flx >= 5 && flx < 19) {
+				graphics->draw(*_surfaceCredits);
+			}
+			if (flx >= 7 && flx < 19) {
+				int step = frame % 3;
+				graphics->draw(*_surfaceCykl[step], Common::Point(35, 0));
+			}
+			graphics->drawTransparent(*_flx->getSurface());
+		} else {
+			graphics->draw(*_flx->getSurface());
 		}
-		if (flx >= 7 && flx < 19) {
-			int step = frame % 3;
-			graphics->draw(*_surfaceCykl[step], Common::Point(35, 0));
+
+		if (_subtitles != nullptr) {
+			_subtitles->draw(graphics, frame, flx);
 		}
-		graphics->drawTransparent(*_flx->getSurface());
-	} else {
-		graphics->draw(*_flx->getSurface());
+
+		uint32 chunk = _stream->readUint32LE();
+		if (!_stream->eos()) {
+			_audio->write(_audioBuffer, _stream->read(_audioBuffer, chunk - 4));
+			_stream->skip(4);
+			if (!_flx->nextFrame() && _flxCurrent < _flxTotal) {
+				delete _flx;
+				_flx = new FlxAnimation(_stream, graphics->kScreenFormat, DisposeAfterUse::NO);
+				_flxCurrent++;
+			}
+		}
 	}
 
-	if (_subtitles != nullptr) {
-		_subtitles->draw(graphics, frame, flx);
-	}
-
-	uint32 chunk = _stream->readUint32LE();
-	if (!_stream->eos()) {
-		_audio->write(_audioBuffer, _stream->read(_audioBuffer, chunk - 4));
-		_stream->skip(4);
-		if (!_flx->nextFrame() && _flxCurrent < _flxTotal) {
-			delete _flx;
-			_flx = new FlxAnimation(_stream, graphics->kScreenFormat, DisposeAfterUse::NO);
-			_flxCurrent++;
-		}
-	}
 	if (_stream->eos() || _vm->getMouse()->getLeftButton() == kButtonReleased) {
 		_vm->gotoScene(new MainMenu(_vm));
 	}
-
-	_vm->_system->delayMillis(25);
 
 	return true;
 }

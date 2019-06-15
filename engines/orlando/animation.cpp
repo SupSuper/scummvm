@@ -32,7 +32,7 @@
 
 namespace Orlando {
 
-Animation::Animation(const Common::String &id) : _id(id), _flx(nullptr), _curFrame(0), _curTimeline(0), _time(0), _loop(false) {
+Animation::Animation(const Common::String &id) : _id(id), _flx(nullptr), _curFrame(0), _curTimeline(0), _time(0), _delay(80), _loop(true) {
 }
 
 Animation::~Animation() {
@@ -94,6 +94,7 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 				return false;
 			_flx = new FlxAnimation(flx, scene->getGraphicsManager()->kScreenFormat);
 			frame.surface = _flx->getSurface();
+			_delay = 1000 / _flx->getFps();
 		} else {
 			frame.surface = element->loadSurface(filename, scene);
 		}
@@ -115,11 +116,11 @@ void Animation::loadFlx(Common::SeekableReadStream *flx, Scene *scene) {
 	Frame frame = { _flx->getSurface() };
 	_frames.push_back(frame);
 	_timelines.push_back(Timeline(1, 1));
+	_delay = 1000 / _flx->getFps();
 }
 
 const Frame &Animation::nextFrame(uint32 time) {
-	const int kDelay = 50;
-	if (time >= _time + kDelay) {
+	if (time >= _time + _delay) {
 		if (_flx == nullptr) {
 			_curFrame++;
 			if (_curFrame == _timelines[_curTimeline].size()) {

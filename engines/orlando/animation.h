@@ -57,14 +57,13 @@ class Animation {
 	FlxAnimation *_flx;
 
 	int _curFrame, _curTimeline;
-	uint32 _time;
+	uint32 _time, _delay;
 	bool _loop;
 public:
 	Animation(const Common::String &id);
 	~Animation();
 	void addTimeline(const Timeline &timeline) { _timelines.push_back(timeline); }
 	void addFrame(const Frame &frame) { _frames.push_back(frame); }
-	void setLoop(bool loop) { _loop = loop; }
 
 	bool load(TextParser &parser, Scene *scene);
 	void loadFlx(Common::SeekableReadStream *flx, Scene *scene);

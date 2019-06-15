@@ -116,6 +116,13 @@ public:
 		}
 	}
 
+	/** Clear surfaces */
+	void clear() {
+		int size = _flx->_surface->w * _flx->_surface->h;
+		memset(_pixel, 0, size * _flx->_surface->format.bytesPerPixel);
+		memset(_pixel8, 0, size);
+	}
+
 	/** Is iterator at the end */
 	bool end() {
 		return _pixel >= _flx->_surface->getBasePtr(0, _flx->_surface->h);
@@ -123,7 +130,7 @@ public:
 };
 
 FlxAnimation::FlxAnimation(Common::SeekableReadStream *stream, const Graphics::PixelFormat &format, DisposeAfterUse::Flag disposeAfterUse)
-	: _stream(stream), _disposeAfterUse(disposeAfterUse), _surface(nullptr), _surface8Bpp(nullptr), _bpp16(true), _frameCurrent(0), _frameTotal(0) {
+	: _stream(stream), _disposeAfterUse(disposeAfterUse), _surface(nullptr), _surface8Bpp(nullptr), _frameCurrent(0) {
 	if (stream == nullptr)
 		return;
 
@@ -142,7 +149,8 @@ FlxAnimation::FlxAnimation(Common::SeekableReadStream *stream, const Graphics::P
 	_surface->create(width, height, format);
 	_surface8Bpp = (byte*)calloc(width * height, sizeof(byte));
 
-	stream->skip(4);
+	_fps = stream->readUint16LE();
+	stream->skip(2);
 	_bpp16 = stream->readByte() ? true : false;
 	stream->skip(5);
 	nextFrame();
@@ -174,6 +182,8 @@ bool FlxAnimation::nextFrame(bool loop) {
 		} else {
 			_stream->seek(20);
 			_frameCurrent = 0;
+			PixelIterator pixel(this);
+			pixel.clear();
 		}
 	}
 
