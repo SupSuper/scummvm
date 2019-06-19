@@ -249,17 +249,18 @@ bool AvxVideo::initialize() {
 	_vm->getMouse()->show(false);
 	_vm->getSoundManager()->playFile(_audio, Audio::Mixer::kMusicSoundType);
 
+	_time = _vm->getTotalPlayTime();
+	_delay = kMsPerFrame / _flx->getFps();
+
 	return true;
 }
 
 bool AvxVideo::run() {
 	GraphicsManager *graphics = _vm->getGraphicsManager();
 	uint32 time = _vm->getTotalPlayTime();
-	// TODO: Should be 1000 / fps but then audio stutters
-	uint32 delay = 900 / _flx->getFps();
 
-	if (time >= _time + delay) {
-		_time = time;
+	while (time >= _time + _delay) {
+		_time += _delay;
 
 		int flx = _flxCurrent - 1;
 		int frame = _flx->getFrame() - 1;
@@ -290,6 +291,7 @@ bool AvxVideo::run() {
 				delete _flx;
 				_flx = new FlxAnimation(_stream, graphics->kScreenFormat, DisposeAfterUse::NO);
 				_flxCurrent++;
+				_delay = kMsPerFrame / _flx->getFps();
 			}
 		}
 	}

@@ -76,13 +76,15 @@ public:
  */
 class AvxVideo : public Scene {
 	static const uint32 kAudioStart = 110272;
+	// TODO: Should be 1000 but this seems to sync better?
+	static const uint32 kMsPerFrame = 980;
 
 	Common::SeekableReadStream *_stream;
 	Orlando::MemoryAudioStream *_audio;
 	byte *_audioBuffer;
 	FlxAnimation *_flx;
 	int _flxTotal, _flxCurrent;
-	uint32 _time;
+	uint32 _time, _delay;
 	AvxSubtitles *_subtitles;
 	bool _outro;
 	Graphics::Surface *_surfaceOutro, *_surfaceCredits;
