@@ -20,27 +20,32 @@
  *
  */
 
-#ifndef ORLANDO_AREA_H
-#define ORLANDO_AREA_H
+#ifndef ORLANDO_DIALOG_H
+#define ORLANDO_DIALOG_H
 
 #include "common/str.h"
 #include "common/array.h"
-#include "orlando/polygon.h"
 
 namespace Orlando {
 
 class TextParser;
 
+struct DialogChoice {
+	Common::String text;
+	int width;
+	Common::String sound;
+};
+
 /**
- * Represents an interactive hotspot on a scene.
+ * Represents a conversation dialog.
  */
-class Area {
-	Common::String _id;
-	Common::Array<Triangle> _regions;
+class Dialog {
+	int _id;
+	Common::Array<DialogChoice> _choices;
 
 public:
-	Area(const Common::String &id);
-	void load(TextParser &parser);
+	Dialog(int id);
+	void load(TextParser &parser, bool multiple);
 };
 
 } // End of namespace Orlando

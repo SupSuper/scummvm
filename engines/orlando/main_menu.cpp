@@ -74,7 +74,8 @@ bool MainMenu::initialize() {
 	}
 
 	if (Common::File *file = loadFile("_SAMOCH1.BM")) {
-		Animation *anim = new Animation("TRUCK");
+		const char id[] = "_SAMOCH1.BM";
+		Animation *anim = new Animation(id);
 		int timeline[] = { 1, 2 };
 		anim->addTimeline(Timeline(timeline, ARRAYSIZE(timeline)));
 
@@ -85,22 +86,23 @@ bool MainMenu::initialize() {
 		anim->addFrame(frames[0]);
 		anim->addFrame(frames[1]);
 
-		Element *element = new Element("TRUCK");
+		Element *element = new Element(id);
 		element->setPosition(Common::Point(0, 323));
 		element->setAnimation(anim);
-		_elements.push_back(element);
+		_elements[id] = element;
 	} else {
 		return false;
 	}
 
 	if (Common::File *file = loadFile("D1.FLX")) {
-		Animation *anim = new Animation("SMOKE");
+		const char id[] = "D1.FLX";
+		Animation *anim = new Animation(id);
 		anim->loadFlx(file, this);
 
-		Element *element = new Element("SMOKE");
+		Element *element = new Element(id);
 		element->setPosition(Common::Point(309, 39));
 		element->setAnimation(anim);
-		_elements.push_back(element);
+		_elements[id] = element;
 	} else {
 		return false;
 	}

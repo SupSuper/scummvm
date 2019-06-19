@@ -16,9 +16,10 @@ MODULE_OBJS = \
 	avx_video.o \
 	text_parser.o \
 	scene.o \
-	animation.o \
 	element.o \
-	area.o
+	dialog.o \
+	area.o \
+	animation.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_ORLANDO), DYNAMIC_PLUGIN)

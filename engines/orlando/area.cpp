@@ -29,9 +29,6 @@ namespace Orlando {
 Area::Area(const Common::String &id) : _id(id) {
 }
 
-Area::~Area() {
-}
-
 void Area::load(TextParser &parser) {
 	int num = parser.readInt();
 	for (int j = 0; j < num; j++) {

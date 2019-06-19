@@ -42,7 +42,7 @@ namespace Orlando {
 
 OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),
 	_graphics(new GraphicsManager(this)), _resources(new ResourceManager(this)), _sound(new SoundManager(this)),
-	_debugger(nullptr), _mouse(nullptr), _scene(nullptr), _gameDescription(gameDesc) {
+	_mouse(new Mouse(this)), _debugger(nullptr), _scene(nullptr), _gameDescription(gameDesc) {
 
 	// Search in subfolders
 	const Common::FSNode gameDataDir(ConfMan.get("path"));
@@ -55,8 +55,8 @@ OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) :
 
 OrlandoEngine::~OrlandoEngine() {
 	delete _scene;
-	delete _mouse;
 	delete _debugger;
+	delete _mouse;
 	delete _sound;
 	delete _resources;
 	delete _graphics;
@@ -70,7 +70,6 @@ Common::Error OrlandoEngine::run() {
 		return Common::kNoGameDataFoundError;
 
 	_debugger = new Debugger(this);
-	_mouse = new Mouse(this);
 	_scene = new MainMenu(this);
 
 	if (!_mouse->initialize())

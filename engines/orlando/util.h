@@ -25,33 +25,8 @@
 
 #include "common/scummsys.h"
 #include "common/str.h"
-#include "common/rect.h"
-#include "common/array.h"
 
 namespace Orlando {
-
-/**
- * Wrapper for common polygon maths.
- */
-template <uint N>
-struct Polygon {
-	static const uint kPoints = N;
-	Common::Point p[N];
-	int16 &x(unsigned int i) { return p[i].x; }
-	int16 &y(unsigned int i) { return p[i].y; }
-};
-struct Triangle : Polygon<3> {};
-struct Quad : Polygon<4> {};
-
-/**
- * Deletes all pointers in an array.
- */
-template <typename T>
-inline void deleteArray(Common::Array<T*> &array) {
-	for (typename Common::Array<T*>::const_iterator i = array.begin(); i != array.end(); ++i) {
-		delete *i;
-	}
-}
 
 /**
  * Replaces the end of a string with another string.
@@ -74,6 +49,19 @@ inline Common::String replaceEnd(Common::String str, const Common::String &repla
 inline void deleteFirstLast(Common::String &str) {
 	str.deleteChar(0);
 	str.deleteLastChar();
+}
+
+/**
+ * Replaces every character in a string.
+ * @param str Source string.
+ * @param find Character to find.
+ * @param replace Character to replace with.
+ */
+inline void replaceChar(Common::String &str, char find, char replace) {
+	for (char *c = str.begin(); c != str.end(); c++) {
+		if (*c == find)
+			*c = replace;
+	}
 }
 
 } // End of namespace Orlando

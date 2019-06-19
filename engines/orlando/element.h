@@ -25,7 +25,7 @@
 
 #include "common/str.h"
 #include "common/rect.h"
-#include "orlando/util.h"
+#include "orlando/polygon.h"
 
 namespace Graphics {
 	struct Surface;

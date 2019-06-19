@@ -33,17 +33,27 @@
 #include "orlando/text_parser.h"
 #include "orlando/graphics.h"
 #include "orlando/element.h"
-#include "orlando/animation.h"
+#include "orlando/dialog.h"
 #include "orlando/area.h"
+#include "orlando/animation.h"
+#include "orlando/util.h"
 
 namespace Orlando {
+
+/** Deletes all pointers in a container. */
+template <typename T>
+inline void deleteAll(Common::HashMap<Common::String, T*> &container) {
+	for (typename Common::HashMap<Common::String, T*>::const_iterator i = container.begin(); i != container.end(); ++i) {
+		delete i->_value;
+	}
+}
 
 Scene::Scene(OrlandoEngine *vm, const Common::String &id) : _vm(vm), _id(id), _pak(nullptr), _pakEx(nullptr), _background(nullptr), _scrollX(0) {
 }
 
 Scene::~Scene() {
-	deleteArray(_areas);
-	deleteArray(_elements);
+	deleteAll(_areas);
+	deleteAll(_elements);
 
 	if (_background != nullptr) {
 		_background->free();
@@ -56,14 +66,6 @@ Scene::~Scene() {
 
 GraphicsManager *Scene::getGraphicsManager() const {
 	return _vm->getGraphicsManager();
-}
-
-Element *Scene::getElement(const Common::String &id) {
-	for (Common::Array<Element*>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
-		if ((*i)->getId() == id)
-			return *i;
-	}
-	return nullptr;
 }
 
 Common::File *Scene::loadFile(const Common::String &filename) {
@@ -155,9 +157,11 @@ bool Scene::initialize() {
 
 	if (!loadCcg())
 		return false;
-	if (!loadAci())
+	if (!loadDcn())
 		return false;
 	if (!loadAce())
+		return false;
+	if (!loadAci())
 		return false;
 
 	return true;
@@ -168,8 +172,8 @@ bool Scene::run() {
 	uint32 time = _vm->getTotalPlayTime();
 
 	graphics->draw(*_background);
-	for (Common::Array<Element *>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
-		(*i)->draw(graphics, time);
+	for (Common::HashMap<Common::String, Element*>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
+		i->_value->draw(graphics, time);
 	}
 	return true;
 }
@@ -212,7 +216,7 @@ bool Scene::loadCcg() {
 					delete element;
 					return false;
 				}
-				_elements.push_back(element);
+				_elements[id] = element;
 			}
 		} else if (section == "perspektywa") {
 			// perspective
@@ -245,11 +249,58 @@ bool Scene::loadCcg() {
 					delete element;
 					return false;
 				}
-				_elements.push_back(element);
+				_elements[id] = element;
 			}
 		} else {
 			break;
 		}
+	}
+
+	return true;
+}
+
+bool Scene::loadDcn() {
+	Common::File *dcn = loadFile(_id + ".DCN");
+	if (dcn == nullptr)
+		return true;
+	TextParser parser = TextParser(dcn);
+
+	while (!parser.eof()) {
+		Common::String type = parser.readString();
+		if (type.empty())
+			break;
+		bool multiple;
+		if (type == "Q" || type == "R") {
+			multiple = true;
+		} else {
+			multiple = false;
+			parser.rewind();
+		}
+
+		int id = parser.readInt();
+
+		Dialog *dialog = new Dialog(id);
+		dialog->load(parser, multiple);
+		_dialogs[id] = dialog;
+	}
+
+	return true;
+}
+
+bool Scene::loadAce() {
+	Common::File *ace = loadFile(_id + ".ACE");
+	if (ace == nullptr)
+		return true;
+	TextParser parser = TextParser(ace);
+
+	int n = parser.readInt();
+	for (int i = 0; i < n; i++) {
+		Common::String id = parser.readString();
+		deleteFirstLast(id);
+
+		Area *area = new Area(id);
+		area->load(parser);
+		_areas[id] = area;
 	}
 
 	return true;
@@ -272,25 +323,6 @@ bool Scene::loadAci() {
 			return false;
 		}
 
-	}
-
-	return true;
-}
-
-bool Scene::loadAce() {
-	Common::File *ace = loadFile(_id + ".ACE");
-	if (ace == nullptr)
-		return true;
-	TextParser parser = TextParser(ace);
-
-	int n = parser.readInt();
-	for (int i = 0; i < n; i++) {
-		Common::String id = parser.readString();
-		deleteFirstLast(id);
-
-		Area *area = new Area(id);
-		area->load(parser);
-		_areas.push_back(area);
 	}
 
 	return true;

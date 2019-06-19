@@ -25,7 +25,8 @@
 
 #include "common/str.h"
 #include "common/array.h"
-#include "orlando/util.h"
+#include "common/hash-str.h"
+#include "orlando/polygon.h"
 
 namespace Common {
 	class Archive;
@@ -40,6 +41,9 @@ namespace Orlando {
 class OrlandoEngine;
 class GraphicsManager;
 class Element;
+class Dialog;
+class Face;
+class Person;
 class Area;
 
 /**
@@ -55,22 +59,37 @@ protected:
 	int _scrollX;
 	Common::Array<Triangle> _walkRegions;
 
-	Common::Array<Element*> _elements;
-	Common::Array<Area*> _areas;
+	Common::HashMap<Common::String, Element*> _elements;
+	Common::HashMap<int, Dialog*> _dialogs;
+	Common::HashMap<Common::String, Area*> _areas;
 
-	/** Loads scene settings and graphics. */
+	/** Loads configurations and graphics. */
 	bool loadCcg();
-	/** Loads scene animations. */
-	bool loadAci();
-	/** Loads scene areas. */
+	/** Loads dialogs. */
+	bool loadDcn();
+	/** Loads faces. */
+	bool loadFcc();
+	/** Loads persons. */
+	bool loadPcs();
+	/** Loads areas. */
 	bool loadAce();
+	/** Loads animations. */
+	bool loadAci();
+	/** Loads sounds. */
+	bool loadSsd();
+	/** Loads insertions. */
+	bool loadIcs();
+	/** Loads films. */
+	bool loadFcm();
+	/** Loads script macros. */
+	bool loadMcc();
 
 public:
 	Scene(OrlandoEngine *vm, const Common::String &id);
 	virtual ~Scene();
 
 	GraphicsManager *getGraphicsManager() const;
-	Element *getElement(const Common::String &id);
+	Element *getElement(const Common::String &id) { return _elements[id]; }
 	Common::File *loadFile(const Common::String &filename);
 	bool playMusic(const Common::String &filename);
 	bool playSfx(const Common::String &filename);

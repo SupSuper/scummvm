@@ -40,11 +40,12 @@ class Scene;
  * Engine for the Jack Orlando adventure game.
  */
 class OrlandoEngine : public Engine {
-	Debugger *_debugger;
 	GraphicsManager *_graphics;
 	ResourceManager *_resources;
 	SoundManager *_sound;
 	Mouse *_mouse;
+
+	Debugger *_debugger;
 	Scene *_scene;
 
 public:

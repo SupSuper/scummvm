@@ -20,28 +20,24 @@
  *
  */
 
-#ifndef ORLANDO_AREA_H
-#define ORLANDO_AREA_H
+#ifndef ORLANDO_POLYGON_H
+#define ORLANDO_POLYGON_H
 
-#include "common/str.h"
-#include "common/array.h"
-#include "orlando/polygon.h"
+#include "common/scummsys.h"
+#include "common/rect.h"
 
 namespace Orlando {
 
-class TextParser;
-
-/**
- * Represents an interactive hotspot on a scene.
- */
-class Area {
-	Common::String _id;
-	Common::Array<Triangle> _regions;
-
-public:
-	Area(const Common::String &id);
-	void load(TextParser &parser);
+/** Wrapper for common polygon maths. */
+template <uint N>
+struct Polygon {
+	static const uint kPoints = N;
+	Common::Point p[N];
+	int16 &x(unsigned int i) { return p[i].x; }
+	int16 &y(unsigned int i) { return p[i].y; }
 };
+struct Triangle : Polygon<3> {};
+struct Quad : Polygon<4> {};
 
 } // End of namespace Orlando
 

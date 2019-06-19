@@ -20,29 +20,29 @@
  *
  */
 
-#ifndef ORLANDO_AREA_H
-#define ORLANDO_AREA_H
-
-#include "common/str.h"
-#include "common/array.h"
-#include "orlando/polygon.h"
+#include "common/scummsys.h"
+#include "orlando/dialog.h"
+#include "orlando/text_parser.h"
+#include "orlando/util.h"
 
 namespace Orlando {
 
-class TextParser;
+Dialog::Dialog(int id) : _id(id) {
+}
 
-/**
- * Represents an interactive hotspot on a scene.
- */
-class Area {
-	Common::String _id;
-	Common::Array<Triangle> _regions;
-
-public:
-	Area(const Common::String &id);
-	void load(TextParser &parser);
-};
+void Dialog::load(TextParser &parser, bool multiple) {
+	int num = 1;
+	if (multiple) {
+		num = parser.readInt();
+	}
+	for (int i = 0; i < num; i++) {
+		DialogChoice choice;
+		choice.text = parser.readString();
+		replaceChar(choice.text, '_', ' ');
+		choice.width = parser.readInt();
+		choice.sound = parser.readString();
+		_choices.push_back(choice);
+	}
+}
 
 } // End of namespace Orlando
-
-#endif
