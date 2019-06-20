@@ -34,6 +34,7 @@
 #include "orlando/graphics.h"
 #include "orlando/element.h"
 #include "orlando/dialog.h"
+#include "orlando/face.h"
 #include "orlando/area.h"
 #include "orlando/animation.h"
 #include "orlando/util.h"
@@ -52,6 +53,7 @@ Scene::Scene(OrlandoEngine *vm, const Common::String &id) : _vm(vm), _id(id), _p
 }
 
 Scene::~Scene() {
+	deleteAll(_faces);
 	deleteAll(_areas);
 	deleteAll(_elements);
 
@@ -74,6 +76,24 @@ Common::File *Scene::loadFile(const Common::String &filename) {
 		file = _vm->getResourceManager()->loadPakFile(*_pakEx, filename);
 	}
 	return file;
+}
+
+Graphics::Surface *Scene::loadSurface(const Common::String &filename, int bpp) {
+	Common::File *file = loadFile(filename);
+	if (file == nullptr)
+		return nullptr;
+
+	switch (bpp) {
+	case 16:
+		return _vm->getGraphicsManager()->loadRawBitmap(file);
+	case 8:
+	case -8:
+		// TODO: Figure out -8
+		return _vm->getGraphicsManager()->loadPaletteBitmap(file);
+	default:
+		warning("GraphicsManager: Unknown bpp '%d'", bpp);
+		return nullptr;
+	}
 }
 
 bool Scene::playMusic(const Common::String &filename) {
@@ -158,6 +178,8 @@ bool Scene::initialize() {
 	if (!loadCcg())
 		return false;
 	if (!loadDcn())
+		return false;
+	if (!loadFcc())
 		return false;
 	if (!loadAce())
 		return false;
@@ -282,6 +304,28 @@ bool Scene::loadDcn() {
 		Dialog *dialog = new Dialog(id);
 		dialog->load(parser, multiple);
 		_dialogs[id] = dialog;
+	}
+
+	return true;
+}
+
+bool Scene::loadFcc() {
+	Common::File *fcc = loadFile(_id + ".FCC");
+	if (fcc == nullptr)
+		return true;
+	TextParser parser = TextParser(fcc);
+
+	while (!parser.eof()) {
+		Common::String id = parser.readString();
+		if (id.empty())
+			break;
+		deleteFirstLast(id);
+		Face *face = new Face(id);
+		if (!face->load(parser, this)) {
+			delete face;
+			return false;
+		}
+		_faces[id] = face;
 	}
 
 	return true;

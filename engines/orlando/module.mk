@@ -18,6 +18,7 @@ MODULE_OBJS = \
 	scene.o \
 	element.o \
 	dialog.o \
+	face.o \
 	area.o \
 	animation.o
 

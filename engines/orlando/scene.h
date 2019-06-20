@@ -61,6 +61,7 @@ protected:
 
 	Common::HashMap<Common::String, Element*> _elements;
 	Common::HashMap<int, Dialog*> _dialogs;
+	Common::HashMap<Common::String, Face*> _faces;
 	Common::HashMap<Common::String, Area*> _areas;
 
 	/** Loads configurations and graphics. */
@@ -90,7 +91,9 @@ public:
 
 	GraphicsManager *getGraphicsManager() const;
 	Element *getElement(const Common::String &id) { return _elements[id]; }
+
 	Common::File *loadFile(const Common::String &filename);
+	Graphics::Surface *loadSurface(const Common::String &filename, int bpp);
 	bool playMusic(const Common::String &filename);
 	bool playSfx(const Common::String &filename);
 	bool playSpeech(const Common::String &filename);

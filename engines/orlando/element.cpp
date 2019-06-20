@@ -62,20 +62,7 @@ bool Element::load(TextParser &parser, Scene *scene) {
 }
 
 Graphics::Surface *Element::loadSurface(const Common::String &name, Scene *scene) {
-	Common::File *file = scene->loadFile(name);
-	if (file == nullptr)
-		return nullptr;
-	switch (_bpp) {
-	case 16:
-		return scene->getGraphicsManager()->loadRawBitmap(file);
-	case 8:
-	case -8:
-		// TODO: Figure out -8
-		return scene->getGraphicsManager()->loadPaletteBitmap(file);
-	default:
-		warning("Element: Unknown bpp '%d'", _bpp);
-		return nullptr;
-	}
+	return scene->loadSurface(name, _bpp);
 }
 
 void Element::draw(GraphicsManager *graphics, uint32 time) const {
