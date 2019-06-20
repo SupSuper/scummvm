@@ -19,6 +19,7 @@ MODULE_OBJS = \
 	element.o \
 	dialog.o \
 	face.o \
+	person.o \
 	area.o \
 	animation.o
 

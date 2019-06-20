@@ -69,16 +69,18 @@ public:
 	* Loads a file contained in a PAK archive.
 	* @param archive Archive to search.
 	* @param filename File to load.
+	* @param optional True to ignore missing file.
 	* @return Loaded resource, or nullptr if an error occured.
 	*/
-	Common::File *loadPakFile(Common::Archive &archive, const Common::String &filename) const;
+	Common::File *loadPakFile(Common::Archive &archive, const Common::String &filename, bool optional = false) const;
 	/**
 	 * Loads a file contained in a PAK archive.
 	 * @param pakName PAK to search in.
 	 * @param fileName File to load.
+	 * @param optional True to ignore missing file.
 	 * @return Loaded resource, or nullptr if an error occured.
 	 */
-	Common::File *loadPakFile(const Common::String &pakName, const Common::String &fileName) const;
+	Common::File *loadPakFile(const Common::String &pakName, const Common::String &fileName, bool optional = false) const;
 	/**
 	 * Loads a file from GLOBAL.PAK.
 	 * @param filename File to load.

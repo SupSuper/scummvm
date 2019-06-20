@@ -35,16 +35,16 @@
 #include "orlando/element.h"
 #include "orlando/dialog.h"
 #include "orlando/face.h"
+#include "orlando/person.h"
 #include "orlando/area.h"
 #include "orlando/animation.h"
-#include "orlando/util.h"
 
 namespace Orlando {
 
 /** Deletes all pointers in a container. */
-template <typename T>
-inline void deleteAll(Common::HashMap<Common::String, T*> &container) {
-	for (typename Common::HashMap<Common::String, T*>::const_iterator i = container.begin(); i != container.end(); ++i) {
+template <typename K, typename V>
+inline void deleteAll(Common::HashMap<K, V*> &container) {
+	for (typename Common::HashMap<K, V*>::const_iterator i = container.begin(); i != container.end(); ++i) {
 		delete i->_value;
 	}
 }
@@ -53,8 +53,10 @@ Scene::Scene(OrlandoEngine *vm, const Common::String &id) : _vm(vm), _id(id), _p
 }
 
 Scene::~Scene() {
-	deleteAll(_faces);
 	deleteAll(_areas);
+	deleteAll(_persons);
+	deleteAll(_faces);
+	deleteAll(_dialogs);
 	deleteAll(_elements);
 
 	if (_background != nullptr) {
@@ -70,10 +72,10 @@ GraphicsManager *Scene::getGraphicsManager() const {
 	return _vm->getGraphicsManager();
 }
 
-Common::File *Scene::loadFile(const Common::String &filename) {
-	Common::File *file = _vm->getResourceManager()->loadPakFile(*_pak, filename);
+Common::File *Scene::loadFile(const Common::String &filename, bool optional) {
+	Common::File *file = _vm->getResourceManager()->loadPakFile(*_pak, filename, optional);
 	if (file == nullptr && _pakEx != nullptr) {
-		file = _vm->getResourceManager()->loadPakFile(*_pakEx, filename);
+		file = _vm->getResourceManager()->loadPakFile(*_pakEx, filename, optional);
 	}
 	return file;
 }
@@ -83,14 +85,11 @@ Graphics::Surface *Scene::loadSurface(const Common::String &filename, int bpp) {
 	if (file == nullptr)
 		return nullptr;
 
-	switch (bpp) {
-	case 16:
+	if (bpp == 16) {
 		return _vm->getGraphicsManager()->loadRawBitmap(file);
-	case 8:
-	case -8:
-		// TODO: Figure out -8
+	} else if (bpp == 8) {
 		return _vm->getGraphicsManager()->loadPaletteBitmap(file);
-	default:
+	} else {
 		warning("GraphicsManager: Unknown bpp '%d'", bpp);
 		return nullptr;
 	}
@@ -164,13 +163,15 @@ bool Scene::playSpeech(const Common::String &filename) {
 }
 
 bool Scene::initialize() {
+	Common::String actionExt = ".PHK";
+	Common::String dataExt = ".PH2";
 	if (_vm->isVersionSP()) {
-		_pak = _vm->getResourceManager()->loadPakArchive(_id + ".PAK");
-		_pakEx = _vm->getResourceManager()->loadPakArchive(_id + ".PA2");
-	} else {
-		_pak = _vm->getResourceManager()->loadPakArchive(_id + ".PHK");
-		_pakEx = _vm->getResourceManager()->loadPakArchive(_id + ".PH2");
+		actionExt = ".PAK";
+		dataExt = ".PA2";
 	}
+	_pak = _vm->getResourceManager()->loadPakArchive(_id + actionExt);
+	if (Common::File::exists(_id + dataExt))
+		_pakEx = _vm->getResourceManager()->loadPakArchive(_id + dataExt);
 
 	if (_pak == nullptr)
 		return false;
@@ -180,6 +181,8 @@ bool Scene::initialize() {
 	if (!loadDcn())
 		return false;
 	if (!loadFcc())
+		return false;
+	if (!loadPcs())
 		return false;
 	if (!loadAce())
 		return false;
@@ -282,7 +285,7 @@ bool Scene::loadCcg() {
 }
 
 bool Scene::loadDcn() {
-	Common::File *dcn = loadFile(_id + ".DCN");
+	Common::File *dcn = loadFile(_id + ".DCN", true);
 	if (dcn == nullptr)
 		return true;
 	TextParser parser = TextParser(dcn);
@@ -310,7 +313,7 @@ bool Scene::loadDcn() {
 }
 
 bool Scene::loadFcc() {
-	Common::File *fcc = loadFile(_id + ".FCC");
+	Common::File *fcc = loadFile(_id + ".FCC", true);
 	if (fcc == nullptr)
 		return true;
 	TextParser parser = TextParser(fcc);
@@ -331,8 +334,30 @@ bool Scene::loadFcc() {
 	return true;
 }
 
+bool Scene::loadPcs() {
+	Common::File *pcs = loadFile(_id + ".PCS", true);
+	if (pcs == nullptr)
+		return true;
+	TextParser parser = TextParser(pcs);
+
+	while (!parser.eof()) {
+		Common::String id = parser.readString();
+		if (id.empty())
+			break;
+		deleteFirstLast(id);
+		Person *person = new Person(id);
+		if (!person->load(parser, this)) {
+			delete person;
+			return false;
+		}
+		_persons[id] = person;
+	}
+
+	return true;
+}
+
 bool Scene::loadAce() {
-	Common::File *ace = loadFile(_id + ".ACE");
+	Common::File *ace = loadFile(_id + ".ACE", true);
 	if (ace == nullptr)
 		return true;
 	TextParser parser = TextParser(ace);
@@ -351,7 +376,7 @@ bool Scene::loadAce() {
 }
 
 bool Scene::loadAci() {
-	Common::File *aci = loadFile(_id + ".ACI");
+	Common::File *aci = loadFile(_id + ".ACI", true);
 	if (aci == nullptr)
 		return true;
 	TextParser parser = TextParser(aci);

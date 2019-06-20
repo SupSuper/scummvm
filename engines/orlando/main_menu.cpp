@@ -79,7 +79,7 @@ bool MainMenu::initialize() {
 		int timeline[] = { 1, 2 };
 		anim->addTimeline(Timeline(timeline, ARRAYSIZE(timeline)));
 
-		Frame frames[] = {
+		AFrame frames[] = {
 			{ _vm->getGraphicsManager()->loadRawBitmap(file) },
 			{ nullptr } // Blank frame
 		};

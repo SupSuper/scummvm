@@ -85,10 +85,11 @@ Common::Archive *ResourceManager::loadPakArchive(Common::File *file) const {
 	return archive;
 }
 
-Common::File *ResourceManager::loadPakFile(Common::Archive &archive, const Common::String &filename) const {
+Common::File *ResourceManager::loadPakFile(Common::Archive &archive, const Common::String &filename, bool optional) const {
 	Common::File *file = new Common::File();
 	if (!file->open(filename, archive)) {
-		warning("ResourceManager: File not found in PAK: %s", filename.c_str());
+		if (!optional)
+			warning("ResourceManager: File not found in PAK: %s", filename.c_str());
 		delete file;
 		return nullptr;
 	}
@@ -96,12 +97,12 @@ Common::File *ResourceManager::loadPakFile(Common::Archive &archive, const Commo
 	return file;
 }
 
-Common::File *ResourceManager::loadPakFile(const Common::String &pakName, const Common::String &fileName) const {
+Common::File *ResourceManager::loadPakFile(const Common::String &pakName, const Common::String &fileName, bool optional) const {
 	Common::Archive *archive = loadPakArchive(pakName);
 	if (archive == nullptr) {
 		return nullptr;
 	}
-	Common::File *file = loadPakFile(*archive, fileName);
+	Common::File *file = loadPakFile(*archive, fileName, optional);
 	return file;
 }
 

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ORLANDO_ANIMATION_H
-#define ORLANDO_ANIMATION_H
+#ifndef ORLANDO_PERSON_H
+#define ORLANDO_PERSON_H
 
 #include "common/str.h"
 #include "common/rect.h"
@@ -30,44 +30,28 @@
 namespace Graphics {
 	struct Surface;
 }
-namespace Common {
-	class SeekableReadStream;
-}
 
 namespace Orlando {
 
 class TextParser;
-class FlxAnimation;
 class Scene;
 
-struct AFrame {
+struct PFrame {
 	Graphics::Surface *surface;
-	Common::Point offset;
+	int16 offsetX, offsetFlipX, offsetY;
 };
 
-typedef Common::Array<int> Timeline;
-
 /**
- * Represents an animation for a graphical element.
+ * Represents a walkable character on a scene.
  */
-class Animation {
+class Person {
 	Common::String _id;
-	Common::Array<Timeline> _timelines;
-	Common::Array<AFrame> _frames;
-	FlxAnimation *_flx;
+	Common::Array<PFrame> _frames;
 
-	int _curFrame, _curTimeline;
-	uint32 _time, _delay;
-	bool _loop;
 public:
-	Animation(const Common::String &id);
-	~Animation();
-	void addTimeline(const Timeline &timeline) { _timelines.push_back(timeline); }
-	void addFrame(const AFrame &frame) { _frames.push_back(frame); }
-
+	Person(const Common::String &id);
+	~Person();
 	bool load(TextParser &parser, Scene *scene);
-	void loadFlx(Common::SeekableReadStream *flx, Scene *scene);
-	const AFrame &nextFrame(uint32 time);
 };
 
 } // End of namespace Orlando

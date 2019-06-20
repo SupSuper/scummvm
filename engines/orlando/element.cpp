@@ -62,12 +62,13 @@ bool Element::load(TextParser &parser, Scene *scene) {
 }
 
 Graphics::Surface *Element::loadSurface(const Common::String &name, Scene *scene) {
-	return scene->loadSurface(name, _bpp);
+	// TODO: Figure out -8, seems to make the sprite half-transparent
+	return scene->loadSurface(name, ABS(_bpp));
 }
 
 void Element::draw(GraphicsManager *graphics, uint32 time) const {
 	if (_anim != nullptr) {
-		Frame frame = _anim->nextFrame(time);
+		AFrame frame = _anim->nextFrame(time);
 		Graphics::Surface *surface = frame.surface;
 		if (surface != nullptr) {
 			graphics->drawTransparent(*surface, _pos + frame.offset);

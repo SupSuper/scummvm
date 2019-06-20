@@ -37,7 +37,7 @@ Animation::Animation(const Common::String &id) : _id(id), _flx(nullptr), _curFra
 
 Animation::~Animation() {
 	if (_flx == nullptr) {
-		for (Common::Array<Frame>::const_iterator i = _frames.begin(); i != _frames.end(); ++i) {
+		for (Common::Array<AFrame>::const_iterator i = _frames.begin(); i != _frames.end(); ++i) {
 			if (i->surface != nullptr) {
 				i->surface->free();
 				delete i->surface;
@@ -75,7 +75,7 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 	}
 
 	if (!_id.hasPrefix("FLX")) {
-		Frame frame;
+		AFrame frame;
 		frame.surface = element->loadSurface(_id, scene);
 		frame.offset = Common::Point(0, 0);
 		_frames.push_back(frame);
@@ -87,7 +87,7 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 			parser.rewind();
 			break;
 		}
-		Frame frame;
+		AFrame frame;
 		if (filename.hasSuffix(".FLX")) {
 			Common::File *flx = scene->loadFile(filename);
 			if (flx == nullptr)
@@ -113,13 +113,13 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 
 void Animation::loadFlx(Common::SeekableReadStream *flx, Scene *scene) {
 	_flx = new FlxAnimation(flx, scene->getGraphicsManager()->kScreenFormat);
-	Frame frame = { _flx->getSurface() };
+	AFrame frame = { _flx->getSurface() };
 	_frames.push_back(frame);
 	_timelines.push_back(Timeline(1, 1));
 	_delay = 1000 / _flx->getFps();
 }
 
-const Frame &Animation::nextFrame(uint32 time) {
+const AFrame &Animation::nextFrame(uint32 time) {
 	if (time >= _time + _delay) {
 		if (_flx == nullptr) {
 			_curFrame++;
