@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ORLANDO_PERSON_H
-#define ORLANDO_PERSON_H
+#ifndef ORLANDO_FILM_H
+#define ORLANDO_FILM_H
 
 #include "common/str.h"
 #include "common/array.h"
@@ -35,21 +35,17 @@ namespace Orlando {
 class TextParser;
 class Scene;
 
-struct PFrame {
-	Graphics::Surface *surface;
-	int16 offsetX, offsetFlipX, offsetY;
-};
-
 /**
- * Represents a walkable character on a scene.
+ * Represents a stand-alone animation.
  */
-class Person {
+class Film {
 	Common::String _id;
-	Common::Array<PFrame> _frames;
+	Graphics::Surface *_background;
+	Common::Array<Graphics::Surface*> _frames;
 
 public:
-	Person(const Common::String &id);
-	~Person();
+	Film(const Common::String &id);
+	~Film();
 	bool load(TextParser &parser, Scene *scene);
 };
 

@@ -45,6 +45,8 @@ class Dialog;
 class Face;
 class Person;
 class Area;
+class Insertion;
+class Film;
 
 /**
  * Represents a game room, screen, etc.
@@ -64,6 +66,8 @@ protected:
 	Common::HashMap<Common::String, Face*> _faces;
 	Common::HashMap<Common::String, Person*> _persons;
 	Common::HashMap<Common::String, Area*> _areas;
+	Common::HashMap<Common::String, Insertion*> _insertions;
+	Common::HashMap<Common::String, Film*> _films;
 
 	/** Loads configurations and graphics. */
 	bool loadCcg();

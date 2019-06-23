@@ -23,17 +23,17 @@
 #include "common/scummsys.h"
 #include "common/file.h"
 #include "graphics/surface.h"
-#include "orlando/person.h"
+#include "orlando/insertion.h"
 #include "orlando/text_parser.h"
 #include "orlando/scene.h"
 
 namespace Orlando {
 
-Person::Person(const Common::String &id) : _id(id) {
+Insertion::Insertion(const Common::String &id) : _id(id) {
 }
 
-Person::~Person() {
-	for (Common::Array<PFrame>::const_iterator i = _frames.begin(); i != _frames.end(); ++i) {
+Insertion::~Insertion() {
+	for (Common::Array<IFrame>::const_iterator i = _frames.begin(); i != _frames.end(); ++i) {
 		if (i->surface != nullptr) {
 			i->surface->free();
 			delete i->surface;
@@ -41,26 +41,30 @@ Person::~Person() {
 	}
 }
 
-bool Person::load(TextParser &parser, Scene *scene) {
-	parser.readInt();
-	int frames = parser.readInt();
-	parser.readInt();
-	parser.readFloat();
-	parser.readInt();
+bool Insertion::load(TextParser &parser, Scene *scene) {
 	while (!parser.eof()) {
 		Common::String id = parser.readString();
 		if (id.empty() || id.firstChar() == '[') {
 			parser.rewind();
 			break;
 		}
-		for (int i = 0; i < frames; i++) {
-			PFrame frame;
-			frame.surface = scene->loadSurface(parser.readString(), 8);
+		if (id.equalsIgnoreCase("EFFECT")) {
+			parser.readString();
+			parser.readInt();
+			parser.readInt();
+			parser.readInt();
+		} else {
+			IFrame frame;
+			frame.surface = scene->loadSurface(id, 8);
 			if (!frame.surface)
 				return false;
 			frame.offsetX = parser.readInt();
 			frame.offsetFlipX = parser.readInt();
 			frame.offsetY = parser.readInt();
+			parser.readInt();
+			parser.readInt();
+			parser.readInt();
+			parser.readInt();
 			_frames.push_back(frame);
 		}
 	}

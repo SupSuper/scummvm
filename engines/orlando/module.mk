@@ -21,7 +21,9 @@ MODULE_OBJS = \
 	face.o \
 	person.o \
 	area.o \
-	animation.o
+	animation.o \
+	insertion.o \
+	film.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_ORLANDO), DYNAMIC_PLUGIN)

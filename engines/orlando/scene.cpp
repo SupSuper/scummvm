@@ -38,6 +38,8 @@
 #include "orlando/person.h"
 #include "orlando/area.h"
 #include "orlando/animation.h"
+#include "orlando/insertion.h"
+#include "orlando/film.h"
 
 namespace Orlando {
 
@@ -53,6 +55,7 @@ Scene::Scene(OrlandoEngine *vm, const Common::String &id) : _vm(vm), _id(id), _p
 }
 
 Scene::~Scene() {
+	deleteAll(_insertions);
 	deleteAll(_areas);
 	deleteAll(_persons);
 	deleteAll(_faces);
@@ -187,6 +190,10 @@ bool Scene::initialize() {
 	if (!loadAce())
 		return false;
 	if (!loadAci())
+		return false;
+	if (!loadIcs())
+		return false;
+	if (!loadFcm())
 		return false;
 
 	return true;
@@ -392,6 +399,50 @@ bool Scene::loadAci() {
 			return false;
 		}
 
+	}
+
+	return true;
+}
+
+bool Scene::loadIcs() {
+	Common::File *ics = loadFile(_id + ".ICS", true);
+	if (ics == nullptr)
+		return true;
+	TextParser parser = TextParser(ics);
+
+	while (!parser.eof()) {
+		Common::String id = parser.readString();
+		if (id.empty())
+			break;
+		deleteFirstLast(id);
+		Insertion *insertion = new Insertion(id);
+		if (!insertion->load(parser, this)) {
+			delete insertion;
+			return false;
+		}
+		_insertions[id] = insertion;
+	}
+
+	return true;
+}
+
+bool Scene::loadFcm() {
+	Common::File *fcm = loadFile(_id + ".FCM", true);
+	if (fcm == nullptr)
+		return true;
+	TextParser parser = TextParser(fcm);
+
+	while (!parser.eof()) {
+		Common::String id = parser.readString();
+		if (id.empty())
+			break;
+		deleteFirstLast(id);
+		Film *film = new Film(id);
+		if (!film->load(parser, this)) {
+			delete film;
+			return false;
+		}
+		_films[id] = film;
 	}
 
 	return true;

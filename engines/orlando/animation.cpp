@@ -97,6 +97,8 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 			_delay = 1000 / _flx->getFps();
 		} else {
 			frame.surface = element->loadSurface(filename, scene);
+			if (!frame.surface)
+				return false;
 		}
 		frame.offset.x = parser.readInt();
 		frame.offset.y = parser.readInt();

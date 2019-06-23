@@ -23,45 +23,49 @@
 #include "common/scummsys.h"
 #include "common/file.h"
 #include "graphics/surface.h"
-#include "orlando/person.h"
+#include "orlando/film.h"
 #include "orlando/text_parser.h"
 #include "orlando/scene.h"
 
 namespace Orlando {
 
-Person::Person(const Common::String &id) : _id(id) {
+Film::Film(const Common::String &id) : _id(id), _background(nullptr) {
 }
 
-Person::~Person() {
-	for (Common::Array<PFrame>::const_iterator i = _frames.begin(); i != _frames.end(); ++i) {
-		if (i->surface != nullptr) {
-			i->surface->free();
-			delete i->surface;
+Film::~Film() {
+	for (Common::Array<Graphics::Surface*>::const_iterator i = _frames.begin(); i != _frames.end(); ++i) {
+		if ((*i) != nullptr) {
+			(*i)->free();
+			delete (*i);
 		}
+	}
+	if (_background != nullptr) {
+		_background->free();
+		delete _background;
 	}
 }
 
-bool Person::load(TextParser &parser, Scene *scene) {
+bool Film::load(TextParser &parser, Scene *scene) {
 	parser.readInt();
-	int frames = parser.readInt();
-	parser.readInt();
-	parser.readFloat();
-	parser.readInt();
+	_background = scene->loadSurface(parser.readString(), 8);
+	if (!_background)
+		return false;
 	while (!parser.eof()) {
 		Common::String id = parser.readString();
 		if (id.empty() || id.firstChar() == '[') {
 			parser.rewind();
 			break;
 		}
-		for (int i = 0; i < frames; i++) {
-			PFrame frame;
-			frame.surface = scene->loadSurface(parser.readString(), 8);
-			if (!frame.surface)
+		if (id.equalsIgnoreCase("EFFECT")) {
+			parser.readString();
+			parser.readInt();
+			parser.readInt();
+			parser.readInt();
+		} else {
+			Graphics::Surface *surface = scene->loadSurface(id, 8);
+			if (!surface)
 				return false;
-			frame.offsetX = parser.readInt();
-			frame.offsetFlipX = parser.readInt();
-			frame.offsetY = parser.readInt();
-			_frames.push_back(frame);
+			_frames.push_back(surface);
 		}
 	}
 	return true;

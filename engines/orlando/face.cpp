@@ -44,16 +44,23 @@ Face::~Face() {
 }
 
 bool Face::load(TextParser &parser, Scene *scene) {
-	if (!(_head = scene->loadSurface(parser.readString(), 8)))
+	_head = scene->loadSurface(parser.readString(), 8);
+	if (!_head)
 		return false;
 	_eyesPos.x = parser.readInt();
 	_eyesPos.y = parser.readInt();
-	for (int i = 0; i < ARRAYSIZE(_eyes); i++)
+	for (int i = 0; i < ARRAYSIZE(_eyes); i++) {
 		_eyes[i] = scene->loadSurface(parser.readString(), 8);
+		if (!_eyes[i])
+			return false;
+	}
 	_mouthPos.x = parser.readInt();
 	_mouthPos.y = parser.readInt();
-	for (int i = 0; i < ARRAYSIZE(_mouth); i++)
+	for (int i = 0; i < ARRAYSIZE(_mouth); i++) {
 		_mouth[i] = scene->loadSurface(parser.readString(), 8);
+		if (!_mouth[i])
+			return false;
+	}
 	return true;
 }
 
