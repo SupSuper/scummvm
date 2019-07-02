@@ -24,6 +24,7 @@
 #define ORLANDO_TEXT_PARSER_H
 
 #include "common/str.h"
+#include "common/array.h"
 
 namespace Common {
 	class SeekableReadStream;
@@ -39,8 +40,11 @@ class TextParser {
 	Common::SeekableReadStream *_stream;
 	int _lastPos;
 
-	/** Reads the next token in the text file. */
-	Common::String nextToken();
+	/**
+	 * Reads the next token in the text file.
+	 * @param line Stop when a linebreak is reached.
+	 */
+	Common::String nextToken(bool line = false);
 public:
 	/**
 	 * Loads the text from a specified stream.
@@ -50,13 +54,15 @@ public:
 	TextParser(Common::SeekableReadStream *stream, bool encrypted = true);
 	~TextParser();
 	/** Returns the next string value in the file. */
-	Common::String readString();
+	Common::String readString(bool upper = true);
 	/** Returns the next integer value in the file. */
 	int readInt();
 	/** Returns the next float value in the file. */
 	float readFloat();
+	/** Returns all string values in a line. */
+	Common::Array<Common::String> readLine(bool upper = true);
 	/** Have we reached the end of the file? */
-	bool eof();
+	bool eof() const;
 	/** Moves the parser back to the previous value. */
 	void rewind();
 };

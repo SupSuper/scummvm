@@ -145,11 +145,10 @@ public:
 	}
 };
 
-SoundManager::SoundManager(OrlandoEngine *vm) : _vm(vm), _handle(nullptr) {
+SoundManager::SoundManager(OrlandoEngine *vm) : _vm(vm) {
 }
 
 SoundManager::~SoundManager() {
-	delete _handle;
 }
 
 Common::SeekableReadStream *SoundManager::makeHeaderless(Common::SeekableReadStream *stream, int headerSize) const {
@@ -229,16 +228,12 @@ void SoundManager::playFile(Common::SeekableReadStream *stream, Audio::Mixer::So
 	if (audio == nullptr)
 		return;
 
-	if (_handle != nullptr) {
-		_vm->_mixer->stopHandle(*_handle);
-		delete _handle;
-	}
-	_handle = new Audio::SoundHandle();
+	_vm->_mixer->stopHandle(_handle);
 	// Music should loop infinitely
 	if (loop) {
-		_vm->_mixer->playStream(type, _handle, Audio::makeLoopingAudioStream(audio, 0));
+		_vm->_mixer->playStream(type, &_handle, Audio::makeLoopingAudioStream(audio, 0));
 	} else {
-		_vm->_mixer->playStream(type, _handle, audio);
+		_vm->_mixer->playStream(type, &_handle, audio);
 	}
 }
 

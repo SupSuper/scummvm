@@ -23,7 +23,8 @@ MODULE_OBJS = \
 	area.o \
 	animation.o \
 	insertion.o \
-	film.o
+	film.o \
+	macro.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_ORLANDO), DYNAMIC_PLUGIN)

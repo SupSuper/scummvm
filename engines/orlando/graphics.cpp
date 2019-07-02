@@ -59,9 +59,12 @@ bool GraphicsManager::setupScreen() {
 void GraphicsManager::updateScreen() {
 	OSystem *system = _vm->_system;
 
+	system->copyRectToScreen(_screenBuffer->getPixels(), _screenBuffer->pitch, 0, 0, _screenBuffer->w, _screenBuffer->h);
+	/*
 	Graphics::Surface *screen = system->lockScreen();
 	screen->copyRectToSurface(*_screenBuffer, 0, 0, Common::Rect(0, 0, _screenBuffer->w, _screenBuffer->h));
 	system->unlockScreen();
+	*/
 
 	system->updateScreen();
 }

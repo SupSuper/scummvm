@@ -40,6 +40,7 @@
 #include "orlando/animation.h"
 #include "orlando/insertion.h"
 #include "orlando/film.h"
+#include "orlando/macro.h"
 
 namespace Orlando {
 
@@ -76,9 +77,13 @@ GraphicsManager *Scene::getGraphicsManager() const {
 }
 
 Common::File *Scene::loadFile(const Common::String &filename, bool optional) {
-	Common::File *file = _vm->getResourceManager()->loadPakFile(*_pak, filename, optional);
-	if (file == nullptr && _pakEx != nullptr) {
+	Common::File *file = nullptr;
+	if (_pak->hasFile(filename)) {
+		file = _vm->getResourceManager()->loadPakFile(*_pak, filename, optional);
+	} else if (_pakEx != nullptr) {
 		file = _vm->getResourceManager()->loadPakFile(*_pakEx, filename, optional);
+	} else {
+		warning("ResourceManager: File not found in PAK: %s", filename.c_str());
 	}
 	return file;
 }
@@ -179,24 +184,18 @@ bool Scene::initialize() {
 	if (_pak == nullptr)
 		return false;
 
-	if (!loadCcg())
-		return false;
-	if (!loadDcn())
-		return false;
-	if (!loadFcc())
-		return false;
-	if (!loadPcs())
-		return false;
-	if (!loadAce())
-		return false;
-	if (!loadAci())
-		return false;
-	if (!loadIcs())
-		return false;
-	if (!loadFcm())
-		return false;
+	if (loadCcg() &&
+		loadDcn() &&
+		loadFcc() &&
+		loadPcs() &&
+		loadAce() &&
+		loadAci() &&
+		loadIcs() &&
+		loadFcm() &&
+		loadMcc())
+		return true;
 
-	return true;
+	return false;
 }
 
 bool Scene::run() {
@@ -222,7 +221,7 @@ bool Scene::loadCcg() {
 			continue;
 		deleteFirstLast(section);
 
-		if (section == "grafiki") {
+		if (section == "GRAFIKI") {
 			// graphics
 			Common::String bg = parser.readString();
 
@@ -250,9 +249,9 @@ bool Scene::loadCcg() {
 				}
 				_elements[id] = element;
 			}
-		} else if (section == "perspektywa") {
+		} else if (section == "PERSPEKTYWA") {
 			// perspective
-		} else if (section == "obszar_chodu") {
+		} else if (section == "OBSZAR_CHODU") {
 			// walk areas
 			int n = parser.readInt();
 			for (int j = 0; j < n; j++) {
@@ -263,11 +262,11 @@ bool Scene::loadCcg() {
 				}
 				_walkRegions.push_back(area);
 			}
-		} else if (section == "kolor_liter") {
+		} else if (section == "KOLOR_LITER") {
 			// text color
-		} else if (section == "swiatlo") {
+		} else if (section == "SWIATLO") {
 			// light
-		} else if (section == "elementy") {
+		} else if (section == "ELEMENTY") {
 			// items
 			while (!parser.eof()) {
 				Common::String id = parser.readString();
@@ -443,6 +442,25 @@ bool Scene::loadFcm() {
 			return false;
 		}
 		_films[id] = film;
+	}
+
+	return true;
+}
+
+bool Scene::loadMcc() {
+	Common::File *mcc = loadFile(_id + ".MCC", false);
+	if (mcc == nullptr)
+		return false;
+	TextParser parser = TextParser(mcc);
+
+	while (!parser.eof()) {
+		Common::String id = parser.readString();
+		if (id.empty())
+			break;
+		deleteFirstLast(id);
+		Macro *macro = new Macro(id);
+		macro->load(parser);
+		_macros[id] = macro;
 	}
 
 	return true;

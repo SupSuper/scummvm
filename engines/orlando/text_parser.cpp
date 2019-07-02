@@ -68,7 +68,7 @@ TextParser::~TextParser() {
 	delete _stream;
 }
 
-Common::String TextParser::nextToken() {
+Common::String TextParser::nextToken(bool line) {
 	Common::String token;
 	_lastPos = _stream->pos();
 
@@ -83,6 +83,9 @@ Common::String TextParser::nextToken() {
 			if (c == '/') {
 				// Ignore comments / like this /
 				comment = !comment;
+			} else if (line && c == '\n') {
+				// Stop at linebreak
+				end = true;
 			} else if (comment || Common::isSpace(c)) {
 				// Skip whitespace
 				end = tokenRead;
@@ -95,8 +98,10 @@ Common::String TextParser::nextToken() {
 	return token;
 }
 
-Common::String TextParser::readString() {
+Common::String TextParser::readString(bool upper) {
 	Common::String token = nextToken();
+	if (upper)
+		token.toUppercase();
 	return token;
 }
 
@@ -110,7 +115,22 @@ float TextParser::readFloat() {
 	return atof(token.c_str());
 }
 
-bool TextParser::eof() {
+Common::Array<Common::String> TextParser::readLine(bool upper) {
+	Common::Array<Common::String> arr;
+	while (!eof()) {
+		Common::String token = nextToken(!arr.empty());
+		if (token.empty()) {
+			break;
+		} else {
+			if (upper)
+				token.toUppercase();
+			arr.push_back(token);
+		}
+	}
+	return arr;
+}
+
+bool TextParser::eof() const {
 	return (_stream->eos() || _stream->err());
 }
 

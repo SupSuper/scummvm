@@ -47,6 +47,7 @@ class Person;
 class Area;
 class Insertion;
 class Film;
+class Macro;
 
 /**
  * Represents a game room, screen, etc.
@@ -68,6 +69,7 @@ protected:
 	Common::HashMap<Common::String, Area*> _areas;
 	Common::HashMap<Common::String, Insertion*> _insertions;
 	Common::HashMap<Common::String, Film*> _films;
+	Common::HashMap<Common::String, Macro*> _macros;
 
 	/** Loads configurations and graphics. */
 	bool loadCcg();

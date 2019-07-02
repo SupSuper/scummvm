@@ -42,7 +42,7 @@ class OrlandoEngine;
  */
 class SoundManager {
 	OrlandoEngine *_vm;
-	Audio::SoundHandle *_handle;
+	Audio::SoundHandle _handle;
 
 	/**
 	 * Removes the header from a stream. Shortcut for substream since most decoders expect an audio stream to start with data.
