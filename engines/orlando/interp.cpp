@@ -20,30 +20,14 @@
  *
  */
 
-#ifndef ORLANDO_DEBUGGER_H
-#define ORLANDO_DEBUGGER_H
+#include "common/scummsys.h"
 
-#include "gui/debugger.h"
+#include "orlando/interp.h"
+#include "orlando/orlando.h"
 
 namespace Orlando {
 
-class OrlandoEngine;
-
-/**
- * Console debugger.
- */
-class Debugger : public GUI::Debugger {
-	OrlandoEngine *_vm;
-
-public:
-	Debugger(OrlandoEngine *vm);
-	bool cmdMusic(int argc, const char **argv);
-	bool cmdSfx(int argc, const char **argv);
-	bool cmdSpeech(int argc, const char **argv);
-	bool cmdScene(int argc, const char **argv);
-	bool cmdMovie(int argc, const char **argv);
-};
+ScriptInterpreter::ScriptInterpreter(OrlandoEngine *vm) : _vm(vm) {
+}
 
 } // End of namespace Orlando
-
-#endif

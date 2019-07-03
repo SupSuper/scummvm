@@ -20,10 +20,8 @@
  *
  */
 
-#ifndef ORLANDO_DEBUGGER_H
-#define ORLANDO_DEBUGGER_H
-
-#include "gui/debugger.h"
+#ifndef ORLANDO_INTERP_H
+#define ORLANDO_INTERP_H
 
 namespace Orlando {
 
@@ -32,16 +30,11 @@ class OrlandoEngine;
 /**
  * Console debugger.
  */
-class Debugger : public GUI::Debugger {
+class ScriptInterpreter {
 	OrlandoEngine *_vm;
 
 public:
-	Debugger(OrlandoEngine *vm);
-	bool cmdMusic(int argc, const char **argv);
-	bool cmdSfx(int argc, const char **argv);
-	bool cmdSpeech(int argc, const char **argv);
-	bool cmdScene(int argc, const char **argv);
-	bool cmdMovie(int argc, const char **argv);
+	ScriptInterpreter(OrlandoEngine *vm);
 };
 
 } // End of namespace Orlando

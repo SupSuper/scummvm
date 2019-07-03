@@ -75,7 +75,6 @@ class SoundManager {
 	Audio::SeekableAudioStream *loadHeaderAudio(Common::SeekableReadStream *stream, Audio::Mixer::SoundType type) const;
 public:
 	SoundManager(OrlandoEngine *vm);
-	~SoundManager();
 	/**
 	 * Plays a sound file. The format is automatically determined.
 	 * The DOS version uses raw PCM while the Windows version uses encoded audio.

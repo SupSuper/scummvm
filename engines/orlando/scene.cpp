@@ -80,9 +80,9 @@ Common::File *Scene::loadFile(const Common::String &filename, bool optional) {
 	Common::File *file = nullptr;
 	if (_pak->hasFile(filename)) {
 		file = _vm->getResourceManager()->loadPakFile(*_pak, filename, optional);
-	} else if (_pakEx != nullptr) {
+	} else if (_pakEx != nullptr && _pakEx->hasFile(filename)) {
 		file = _vm->getResourceManager()->loadPakFile(*_pakEx, filename, optional);
-	} else {
+	} else if (!optional) {
 		warning("ResourceManager: File not found in PAK: %s", filename.c_str());
 	}
 	return file;
@@ -90,7 +90,7 @@ Common::File *Scene::loadFile(const Common::String &filename, bool optional) {
 
 Graphics::Surface *Scene::loadSurface(const Common::String &filename, int bpp) {
 	Common::File *file = loadFile(filename);
-	if (file == nullptr)
+	if (file == nullptr || file->size() <= 1)
 		return nullptr;
 
 	if (bpp == 16) {

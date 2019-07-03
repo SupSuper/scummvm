@@ -33,6 +33,7 @@ namespace Orlando {
 class GraphicsManager;
 class ResourceManager;
 class SoundManager;
+class ScriptInterpreter;
 class Mouse;
 class Scene;
 
@@ -43,6 +44,7 @@ class OrlandoEngine : public Engine {
 	GraphicsManager *_graphics;
 	ResourceManager *_resources;
 	SoundManager *_sound;
+	ScriptInterpreter *_script;
 	Mouse *_mouse;
 
 	Debugger *_debugger;
@@ -57,6 +59,7 @@ public:
 	GraphicsManager *getGraphicsManager() { return _graphics; }
 	ResourceManager *getResourceManager() { return _resources; }
 	SoundManager *getSoundManager() { return _sound; }
+	ScriptInterpreter *getScriptInterpreter() { return _script; }
 	Mouse *getMouse() { return _mouse; }
 	Scene *getScene() { return _scene; }
 	bool gotoScene(Scene *scene);

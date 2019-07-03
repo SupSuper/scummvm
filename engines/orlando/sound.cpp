@@ -148,9 +148,6 @@ public:
 SoundManager::SoundManager(OrlandoEngine *vm) : _vm(vm) {
 }
 
-SoundManager::~SoundManager() {
-}
-
 Common::SeekableReadStream *SoundManager::makeHeaderless(Common::SeekableReadStream *stream, int headerSize) const {
 	return new Common::SeekableSubReadStream(stream, headerSize, stream->size() - headerSize, DisposeAfterUse::YES);
 }
