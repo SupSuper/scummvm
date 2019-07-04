@@ -23,12 +23,14 @@
 #include "common/scummsys.h"
 #include "common/file.h"
 #include "graphics/surface.h"
+
 #include "orlando/animation.h"
 #include "orlando/text_parser.h"
 #include "orlando/scene.h"
 #include "orlando/graphics.h"
 #include "orlando/element.h"
 #include "orlando/flx_anim.h"
+#include "orlando/util.h"
 
 namespace Orlando {
 
@@ -66,7 +68,7 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 					_timelines.push_back(timeline);
 					break;
 				}
-				timeline.push_back(atoi(frame.c_str()));
+				timeline.push_back(toInt(frame));
 			}
 		} else {
 			parser.rewind();

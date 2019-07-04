@@ -9,7 +9,7 @@
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -25,166 +25,167 @@
 
 #include "orlando/interp.h"
 #include "orlando/orlando.h"
+#include "orlando/util.h"
 
 namespace Orlando {
 
 const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
-	&ScriptInterpreter::unknown,
-	&ScriptInterpreter::unknown, // kChWindow,
-	&ScriptInterpreter::unknown, // kSetPosition,
-	&ScriptInterpreter::unknown, // kInitFirst,
-	&ScriptInterpreter::unknown, // kSetPersonData,
-	&ScriptInterpreter::unknown, // kAnima,
-	&ScriptInterpreter::unknown, // kStopAnima,
-	&ScriptInterpreter::unknown, // kWalkTo,
-	&ScriptInterpreter::unknown, // kRunInsertion,
-	&ScriptInterpreter::unknown, // kRunFilm,
-	&ScriptInterpreter::unknown, // kHide,
-	&ScriptInterpreter::unknown, // kTalk,
-	&ScriptInterpreter::unknown, // kDialog,
-	&ScriptInterpreter::unknown, // kActiveMacro,
-	&ScriptInterpreter::unknown, // kIfAnswer,
-	&ScriptInterpreter::unknown, // kEndIf,
-	&ScriptInterpreter::unknown, // kShowFrame,
-	&ScriptInterpreter::unknown, // kHideTalk,
-	&ScriptInterpreter::unknown, // kShadowBy,
-	&ScriptInterpreter::unknown, // kSetShadow,
-	&ScriptInterpreter::unknown, // kGotoScene,
-	&ScriptInterpreter::unknown, // kPUnderP,
-	&ScriptInterpreter::unknown, // kPUnderE,
-	&ScriptInterpreter::unknown, // kWalkToDir,
-	&ScriptInterpreter::unknown, // kShowFace,
-	&ScriptInterpreter::unknown, // kHideFace,
-	&ScriptInterpreter::unknown, // kLet,
-	&ScriptInterpreter::unknown, // kIf,
-	&ScriptInterpreter::unknown, // kShowAnimaFrame,
-	&ScriptInterpreter::unknown, // kPOverE,
-	&ScriptInterpreter::unknown, // kEffect,
-	&ScriptInterpreter::unknown, // kEffectVolume,
-	&ScriptInterpreter::unknown, // kTalkRandom,
-	&ScriptInterpreter::unknown, // kTake,
-	&ScriptInterpreter::unknown, // kRunFilmP,
-	&ScriptInterpreter::unknown, // kExtra,
-	&ScriptInterpreter::unknown, // kMoveAr,
-	&ScriptInterpreter::unknown, // kSetFrame,
-	&ScriptInterpreter::unknown, // kNoHave,
-	&ScriptInterpreter::unknown, // kHideE,
-	&ScriptInterpreter::unknown, // kShowE,
-	&ScriptInterpreter::unknown, // kSetShiftX,
-	&ScriptInterpreter::unknown, // kSetPositionE,
-	&ScriptInterpreter::unknown, // kSetPositionEv,
-	&ScriptInterpreter::unknown, // kIfMouseXM,
-	&ScriptInterpreter::unknown, // kIfMouseXW,
-	&ScriptInterpreter::unknown, // kScrollLeft,
-	&ScriptInterpreter::unknown, // kScrollRight,
-	&ScriptInterpreter::unknown, // kSetScrollX1,
-	&ScriptInterpreter::unknown, // kSetScrollX2,
-	&ScriptInterpreter::unknown, // kSetPosXY,
-	&ScriptInterpreter::unknown, // kSetChkPrior,
-	&ScriptInterpreter::unknown, // kBrightness,
-	&ScriptInterpreter::unknown, // kSetPerspY,
-	&ScriptInterpreter::unknown, // kMoveP,
-	&ScriptInterpreter::unknown, // kStopAnimaFrame,
-	&ScriptInterpreter::unknown, // kSetDialog,
-	&ScriptInterpreter::unknown, // kStopAnimaNeg,
-	&ScriptInterpreter::unknown, // kSetAnimaFrame,
-	&ScriptInterpreter::unknown, // kDeactiveSelf,
-	&ScriptInterpreter::unknown, // kEOverE,
-	&ScriptInterpreter::unknown, // kMusic,
-	&ScriptInterpreter::unknown, // kMoveE,
-	&ScriptInterpreter::unknown, // kBrightnessE,
-	&ScriptInterpreter::unknown, // kWalkEffect,
-	&ScriptInterpreter::unknown, // kHaveGun,
-	&ScriptInterpreter::unknown, // kNoHaveGun,
-	&ScriptInterpreter::unknown, // kActiveMacroAt,
-	&ScriptInterpreter::unknown, // kHaveTool,
-	&ScriptInterpreter::unknown, // kNoHaveTool,
-	&ScriptInterpreter::unknown, // kInc,
-	&ScriptInterpreter::unknown, // kWaitWhile,
-	&ScriptInterpreter::unknown, // kStay,
-	&ScriptInterpreter::unknown, // kGameOver,
-	&ScriptInterpreter::unknown, // kMoveEp,
-	&ScriptInterpreter::unknown, // kWaitWhileAnima,
-	&ScriptInterpreter::unknown, // kShowFrameDir,
-	&ScriptInterpreter::unknown, // kStayDef,
-	&ScriptInterpreter::unknown, // kUnlock,
-	&ScriptInterpreter::unknown, // kCursorAs,
-	&ScriptInterpreter::unknown, // kAnimaEffect,
-	&ScriptInterpreter::unknown, // kSetArea,
-	&ScriptInterpreter::unknown, // kSetSpecArea,
-	&ScriptInterpreter::unknown, // kWaitToAnimaFrame,
-	&ScriptInterpreter::unknown, // kScrollMarginL,
-	&ScriptInterpreter::unknown, // kScrollMarginR,
-	&ScriptInterpreter::unknown, // kOutMacro,
-	&ScriptInterpreter::unknown, // kNormalMacro,
-	&ScriptInterpreter::unknown, // kIfF,
-	&ScriptInterpreter::unknown, // kAutoIncRange,
-	&ScriptInterpreter::unknown, // kLock,
-	&ScriptInterpreter::unknown, // kHideFaceAt,
-	&ScriptInterpreter::unknown, // kInclude,
-	&ScriptInterpreter::unknown, // kLookTo,
-	&ScriptInterpreter::unknown, // kGetPersonX,
-	&ScriptInterpreter::unknown, // kGetPersonY,
-	&ScriptInterpreter::unknown, // kIncC,
-	&ScriptInterpreter::unknown, // kContinueAnima,
-	&ScriptInterpreter::unknown, // kLockWalk,
-	&ScriptInterpreter::unknown, // kUnlockWalk,
-	&ScriptInterpreter::unknown, // kWaitWhileEffect,
-	&ScriptInterpreter::unknown, // kSetDarknessAnima,
-	&ScriptInterpreter::unknown, // kSetDirWalk,
-	&ScriptInterpreter::unknown, // kMessage,
-	&ScriptInterpreter::unknown, // kPointRotate,
-	&ScriptInterpreter::unknown, // kRunGlobalFilmP,
-	&ScriptInterpreter::unknown, // kDoNothing,
-	&ScriptInterpreter::unknown, // kSlap,
-	&ScriptInterpreter::unknown, // kShoot,
-	&ScriptInterpreter::unknown, // kActiveMacroAnima,
-	&ScriptInterpreter::unknown, // kPause,
-	&ScriptInterpreter::unknown, // kExitGame,
-	&ScriptInterpreter::unknown, // kRotateTo,
-	&ScriptInterpreter::unknown, // kMacroDestructor,
-	&ScriptInterpreter::unknown, // kBlockMacro,
-	&ScriptInterpreter::unknown, // kUnblockMacro,
-	&ScriptInterpreter::unknown, // kPinArea,
-	&ScriptInterpreter::unknown, // kAnimaDelay,
-	&ScriptInterpreter::unknown, // kRandom,
-	&ScriptInterpreter::unknown, // kDeactiveMacro,
-	&ScriptInterpreter::unknown, // kMixing,
-	&ScriptInterpreter::unknown, // kRefreshScreen,
-	&ScriptInterpreter::unknown, // kClearAnimaBuffer,
-	&ScriptInterpreter::unknown, // kRunAvx,
-	&ScriptInterpreter::unknown, // kJackTempo,
-	&ScriptInterpreter::unknown, // kClearMenuBar,
-	&ScriptInterpreter::unknown, // kUnlockCanal,
-	&ScriptInterpreter::unknown, // kPointInSecArea,
-	&ScriptInterpreter::unknown, // kTalkRandomIndex,
-	&ScriptInterpreter::unknown, // kMouseToTool,
-	&ScriptInterpreter::unknown, // kRelativeMulP,
-	&ScriptInterpreter::unknown, // kMinShadow,
-	&ScriptInterpreter::unknown, // kMaxShadow,
-	&ScriptInterpreter::unknown, // kPutShadow,
-	&ScriptInterpreter::unknown, // kAnimaShadow,
-	&ScriptInterpreter::unknown, // kShiftShadowP,
-	&ScriptInterpreter::unknown, // kPickup,
-	&ScriptInterpreter::unknown, // kMusicVolume,
-	&ScriptInterpreter::unknown, // kGive,
-	&ScriptInterpreter::unknown, // kSlapF,
-	&ScriptInterpreter::unknown, // kShootF,
-	&ScriptInterpreter::unknown, // kReactiveSelf,
-	&ScriptInterpreter::unknown, // kSetPosScroll,
-	&ScriptInterpreter::unknown, // kChkDistance,
-	&ScriptInterpreter::unknown, // kPointInWalkArea,
-	&ScriptInterpreter::unknown, // kSetScroll,
-	&ScriptInterpreter::unknown, // kSetSpecShadow,
-	&ScriptInterpreter::unknown, // kShowShadow,
-	&ScriptInterpreter::unknown, // kShadowStatus,
-	&ScriptInterpreter::unknown, // kHideShadow,
-	&ScriptInterpreter::unknown, // kShadowOne,
-	&ScriptInterpreter::unknown, // kItemPresent,
-	&ScriptInterpreter::unknown, // kIgnoreArea,
-	&ScriptInterpreter::unknown, // kSaveable,
-	&ScriptInterpreter::unknown, // kExitToDos,
-	&ScriptInterpreter::unknown, // kAnyKey
+	&ScriptInterpreter::cmdUnknown,
+	&ScriptInterpreter::cmdUnknown, // ChWindow
+	&ScriptInterpreter::cmdUnknown, // SetPosition
+	&ScriptInterpreter::cmdUnknown, // InitFirst
+	&ScriptInterpreter::cmdUnknown, // SetPersonData
+	&ScriptInterpreter::cmdUnknown, // Anima
+	&ScriptInterpreter::cmdUnknown, // StopAnima
+	&ScriptInterpreter::cmdUnknown, // WalkTo
+	&ScriptInterpreter::cmdUnknown, // RunInsertion
+	&ScriptInterpreter::cmdUnknown, // RunFilm: unused
+	&ScriptInterpreter::cmdUnknown, // Hide
+	&ScriptInterpreter::cmdUnknown, // Talk
+	&ScriptInterpreter::cmdUnknown, // Dialog
+	&ScriptInterpreter::cmdUnknown, // ActiveMacro
+	&ScriptInterpreter::cmdUnknown, // IfAnswer
+	&ScriptInterpreter::cmdEndIf,
+	&ScriptInterpreter::cmdUnknown, // ShowFrame: unused
+	&ScriptInterpreter::cmdUnknown, // HideTalk: unused
+	&ScriptInterpreter::cmdUnknown, // ShadowBy
+	&ScriptInterpreter::cmdUnknown, // SetShadow
+	&ScriptInterpreter::cmdUnknown, // GoToScene
+	&ScriptInterpreter::cmdUnknown, // PUnderP
+	&ScriptInterpreter::cmdUnknown, // PUnderE
+	&ScriptInterpreter::cmdUnknown, // WalkToDir
+	&ScriptInterpreter::cmdUnknown, // ShowFace
+	&ScriptInterpreter::cmdUnknown, // HideFace
+	&ScriptInterpreter::cmdLet,
+	&ScriptInterpreter::cmdIf,
+	&ScriptInterpreter::cmdUnknown, // ShowAnimaFrame
+	&ScriptInterpreter::cmdUnknown, // POverE
+	&ScriptInterpreter::cmdUnknown, // Effect
+	&ScriptInterpreter::cmdUnknown, // EffectVolume
+	&ScriptInterpreter::cmdUnknown, // TalkRandom
+	&ScriptInterpreter::cmdUnknown, // Take
+	&ScriptInterpreter::cmdUnknown, // RunFilmP
+	&ScriptInterpreter::cmdUnknown, // Extra
+	&ScriptInterpreter::cmdUnknown, // MoveAR: unsed
+	&ScriptInterpreter::cmdUnknown, // SetFrame
+	&ScriptInterpreter::cmdUnknown, // NoHave
+	&ScriptInterpreter::cmdUnknown, // HideE
+	&ScriptInterpreter::cmdUnknown, // ShowE
+	&ScriptInterpreter::cmdUnknown, // SetShiftX
+	&ScriptInterpreter::cmdUnknown, // SetPositionE
+	&ScriptInterpreter::cmdUnknown, // SetPositionEV
+	&ScriptInterpreter::cmdUnknown, // IfMouseXM
+	&ScriptInterpreter::cmdUnknown, // IfMouseXW
+	&ScriptInterpreter::cmdUnknown, // ScrollLeft: unused
+	&ScriptInterpreter::cmdUnknown, // ScrollRight: unsed
+	&ScriptInterpreter::cmdUnknown, // SetScrollX1
+	&ScriptInterpreter::cmdUnknown, // SetScrollX2
+	&ScriptInterpreter::cmdUnknown, // SetPosXY
+	&ScriptInterpreter::cmdUnknown, // SetChkPrior
+	&ScriptInterpreter::cmdUnknown, // Brightness
+	&ScriptInterpreter::cmdUnknown, // SetPerspY
+	&ScriptInterpreter::cmdUnknown, // MoveP
+	&ScriptInterpreter::cmdUnknown, // StopAnimaFrame: unused
+	&ScriptInterpreter::cmdUnknown, // SetDialog
+	&ScriptInterpreter::cmdUnknown, // StopAnimaNeg
+	&ScriptInterpreter::cmdUnknown, // SetAnimaFrame
+	&ScriptInterpreter::cmdUnknown, // DeactiveSelf
+	&ScriptInterpreter::cmdUnknown, // EOverE
+	&ScriptInterpreter::cmdUnknown, // Music
+	&ScriptInterpreter::cmdUnknown, // MoveE
+	&ScriptInterpreter::cmdUnknown, // BrightnessE
+	&ScriptInterpreter::cmdUnknown, // WalkEffect
+	&ScriptInterpreter::cmdUnknown, // HaveGun
+	&ScriptInterpreter::cmdUnknown, // NoHaveGun
+	&ScriptInterpreter::cmdUnknown, // ActiveMacroAt
+	&ScriptInterpreter::cmdUnknown, // HaveTool
+	&ScriptInterpreter::cmdUnknown, // NoHaveTool
+	&ScriptInterpreter::cmdInc,
+	&ScriptInterpreter::cmdUnknown, // WaitWhile
+	&ScriptInterpreter::cmdUnknown, // Stay
+	&ScriptInterpreter::cmdUnknown, // GameOver: unused
+	&ScriptInterpreter::cmdUnknown, // MoveEP
+	&ScriptInterpreter::cmdUnknown, // WaitWhileAnima
+	&ScriptInterpreter::cmdUnknown, // ShowFrameDir: unused
+	&ScriptInterpreter::cmdUnknown, // StayDef
+	&ScriptInterpreter::cmdUnknown, // UnLock
+	&ScriptInterpreter::cmdUnknown, // CursorAs: unused
+	&ScriptInterpreter::cmdUnknown, // AnimaEffect
+	&ScriptInterpreter::cmdUnknown, // SetArea
+	&ScriptInterpreter::cmdUnknown, // SetSpecArea
+	&ScriptInterpreter::cmdUnknown, // WaitToAnimaFrame
+	&ScriptInterpreter::cmdUnknown, // ScrollMarginL
+	&ScriptInterpreter::cmdUnknown, // ScrollMarginR
+	&ScriptInterpreter::cmdUnknown, // OutMacro
+	&ScriptInterpreter::cmdUnknown, // NormalMacro
+	&ScriptInterpreter::cmdIff,
+	&ScriptInterpreter::cmdUnknown, // AutoIncRange: unused
+	&ScriptInterpreter::cmdUnknown, // Lock
+	&ScriptInterpreter::cmdUnknown, // HideFaceAt
+	&ScriptInterpreter::cmdUnknown, // Include: unused
+	&ScriptInterpreter::cmdUnknown, // LookTo
+	&ScriptInterpreter::cmdUnknown, // GetPersonX
+	&ScriptInterpreter::cmdUnknown, // GetPersonY
+	&ScriptInterpreter::cmdIncc,
+	&ScriptInterpreter::cmdUnknown, // ContinueAnima
+	&ScriptInterpreter::cmdUnknown, // LockWalk
+	&ScriptInterpreter::cmdUnknown, // UnLockWalk
+	&ScriptInterpreter::cmdUnknown, // WaitWhileEffect
+	&ScriptInterpreter::cmdUnknown, // SetDarknessAnima
+	&ScriptInterpreter::cmdUnknown, // SetDirWalk
+	&ScriptInterpreter::cmdUnknown, // Message: unused
+	&ScriptInterpreter::cmdUnknown, // PointRotate
+	&ScriptInterpreter::cmdUnknown, // RunGlobalFilmP
+	&ScriptInterpreter::cmdUnknown, // DoNothing
+	&ScriptInterpreter::cmdUnknown, // Slap: unused
+	&ScriptInterpreter::cmdUnknown, // Shoot: unused
+	&ScriptInterpreter::cmdUnknown, // ActiveMacroAnima
+	&ScriptInterpreter::cmdUnknown, // Pause: unused
+	&ScriptInterpreter::cmdUnknown, // ExitGame: unused
+	&ScriptInterpreter::cmdUnknown, // RotateTo
+	&ScriptInterpreter::cmdUnknown, // MacroDestructor
+	&ScriptInterpreter::cmdUnknown, // BlockMacro
+	&ScriptInterpreter::cmdUnknown, // UnBlockMacro
+	&ScriptInterpreter::cmdUnknown, // PinArea
+	&ScriptInterpreter::cmdUnknown, // AnimaDelay
+	&ScriptInterpreter::cmdUnknown, // Random
+	&ScriptInterpreter::cmdUnknown, // DeactiveMacro
+	&ScriptInterpreter::cmdUnknown, // Mixing: unused
+	&ScriptInterpreter::cmdUnknown, // RefreshScreen: unused
+	&ScriptInterpreter::cmdUnknown, // ClearAnimaBuffer: unused
+	&ScriptInterpreter::cmdUnknown, // RunAvx
+	&ScriptInterpreter::cmdUnknown, // JackTempo
+	&ScriptInterpreter::cmdUnknown, // ClearMenuBar: unused
+	&ScriptInterpreter::cmdUnknown, // UnLockCanal: unused
+	&ScriptInterpreter::cmdUnknown, // PointInSecArea
+	&ScriptInterpreter::cmdUnknown, // TalkRandomIndex
+	&ScriptInterpreter::cmdUnknown, // MouseToTool: unused
+	&ScriptInterpreter::cmdUnknown, // RelativeMulP
+	&ScriptInterpreter::cmdUnknown, // MinShadow
+	&ScriptInterpreter::cmdUnknown, // MaxShadow
+	&ScriptInterpreter::cmdUnknown, // PutShadow
+	&ScriptInterpreter::cmdUnknown, // AnimaShadow: unused
+	&ScriptInterpreter::cmdUnknown, // ShiftShadowP
+	&ScriptInterpreter::cmdUnknown, // Pickup
+	&ScriptInterpreter::cmdUnknown, // MusicVolume
+	&ScriptInterpreter::cmdUnknown, // Give
+	&ScriptInterpreter::cmdUnknown, // SlapF
+	&ScriptInterpreter::cmdUnknown, // ShootF
+	&ScriptInterpreter::cmdUnknown, // ReactiveSelf
+	&ScriptInterpreter::cmdUnknown, // SetPosScroll
+	&ScriptInterpreter::cmdUnknown, // ChkDistance
+	&ScriptInterpreter::cmdUnknown, // PointInWalkArea
+	&ScriptInterpreter::cmdUnknown, // SetScroll
+	&ScriptInterpreter::cmdUnknown, // SetSpecShadow
+	&ScriptInterpreter::cmdUnknown, // ShowShadow
+	&ScriptInterpreter::cmdUnknown, // ShadowStatus
+	&ScriptInterpreter::cmdUnknown, // HideShadow
+	&ScriptInterpreter::cmdUnknown, // ShadowOnE
+	&ScriptInterpreter::cmdUnknown, // ItemPresent
+	&ScriptInterpreter::cmdUnknown, // IgnoreArea
+	&ScriptInterpreter::cmdUnknown, // SaveAble
+	&ScriptInterpreter::cmdUnknown, // ExitToDos: unused
+	&ScriptInterpreter::cmdUnknown, // AnyKey: unused
 };
 
 ScriptInterpreter::ScriptInterpreter(OrlandoEngine *vm) : _vm(vm) {
@@ -196,8 +197,77 @@ bool ScriptInterpreter::runCommand(Macro *macro, const MacroCommand &cmd) {
 	return (this->*handler)(macro, cmd);
 }
 
-bool ScriptInterpreter::unknown(Macro *macro, const MacroCommand &cmd) {
+int ScriptInterpreter::varOrLiteral(const Common::String &arg) const {
+	if (arg.firstChar() == '*') {
+		Common::String var = arg;
+		var.deleteChar(0);
+		return _vm->getVariable(var);
+	} else {
+		return toInt(arg);
+	}
+}
+
+bool ScriptInterpreter::cmdUnknown(Macro *macro, const MacroCommand &cmd) {
 	warning("ScriptInterpreter: Unknown command %s", cmd.args[0].c_str());
+	return true;
+}
+
+bool ScriptInterpreter::cmdEndIf(Macro *macro, const MacroCommand &cmd) {
+	return true;
+}
+
+bool ScriptInterpreter::cmdLet(Macro *macro, const MacroCommand &cmd) {
+	Common::String var = cmd.args[1];
+	int value = varOrLiteral(cmd.args[2]);
+
+	_vm->getVariable(var) = value;
+	return true;
+}
+
+bool ScriptInterpreter::cmdIf(Macro *macro, const MacroCommand &cmd) {
+	Common::String var = cmd.args[1];
+	int value = toInt(cmd.args[2]);
+
+	bool condition = (_vm->getVariable(var) == value);
+	if (condition) {
+		return true;
+	} else {
+		macro->skipIf();
+		return false;
+	}
+}
+
+bool ScriptInterpreter::cmdInc(Macro *macro, const MacroCommand &cmd) {
+	Common::String var = cmd.args[1];
+
+	_vm->getVariable(var)++;
+	return true;
+}
+
+bool ScriptInterpreter::cmdIff(Macro *macro, const MacroCommand &cmd) {
+	Common::String var = cmd.args[1];
+	Common::String op = cmd.args[2];
+	int value = toInt(cmd.args[3]);
+
+	bool condition = false;
+	if (op == "<")
+		condition = (_vm->getVariable(var) < value);
+	else if (op == ">")
+		condition = (_vm->getVariable(var) > value);
+
+	if (condition) {
+		return true;
+	} else {
+		macro->skipIf();
+		return false;
+	}
+}
+
+bool ScriptInterpreter::cmdIncc(Macro *macro, const MacroCommand &cmd) {
+	Common::String var = cmd.args[1];
+	int value = toInt(cmd.args[2]);
+
+	_vm->getVariable(var) += value;
 	return true;
 }
 

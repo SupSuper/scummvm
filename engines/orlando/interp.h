@@ -38,7 +38,15 @@ class ScriptInterpreter {
 	OrlandoEngine *_vm;
 	static const ScriptHandler kCommandHandlers[];
 
-	bool unknown(Macro *macro, const MacroCommand &cmd);
+	int varOrLiteral(const Common::String &arg) const;
+
+	bool cmdUnknown(Macro *macro, const MacroCommand &cmd);
+	bool cmdEndIf(Macro *macro, const MacroCommand &cmd);
+	bool cmdLet(Macro *macro, const MacroCommand &cmd);
+	bool cmdIf(Macro *macro, const MacroCommand &cmd);
+	bool cmdInc(Macro *macro, const MacroCommand &cmd);
+	bool cmdIff(Macro *macro, const MacroCommand &cmd);
+	bool cmdIncc(Macro *macro, const MacroCommand &cmd);
 public:
 	ScriptInterpreter(OrlandoEngine *vm);
 	bool runCommand(Macro *macro, const MacroCommand &cmd);

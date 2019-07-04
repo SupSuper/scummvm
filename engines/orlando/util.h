@@ -64,6 +64,14 @@ inline void replaceChar(Common::String &str, char find, char replace) {
 	}
 }
 
+inline int toInt(const Common::String &str) {
+	return atoi(str.c_str());
+}
+
+inline int toFloat(const Common::String &str) {
+	return atof(str.c_str());
+}
+
 } // End of namespace Orlando
 
 #endif

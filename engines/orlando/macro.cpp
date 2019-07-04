@@ -197,14 +197,14 @@ void Macro::load(TextParser &parser) {
 			break;
 		}
 		MacroCommand cmd;
-		cmd.type = kUnknown;
+		cmd.type = kCmdUnknown;
 		for (int i = 0; i < ARRAYSIZE(kCommands); i++) {
 			if (id == kCommands[i]) {
 				cmd.type = (CommandType)(i + 1);
 				break;
 			}
 		}
-		if (cmd.type == kUnknown) {
+		if (cmd.type == kCmdUnknown) {
 			warning("Macro: Unknown command: %s", id.c_str());
 		}
 		parser.rewind();
@@ -226,6 +226,31 @@ void Macro::execute(ScriptInterpreter *interp) {
 void Macro::start() {
 	_enabled = true;
 	_line = 0;
+}
+
+void Macro::skipIf() {
+	int ifLevel = 1;
+	do {
+		_line++;
+		if (_line >= _commands.size()) {
+			_enabled = false;
+			warning("Macro: No matching EndIf found");
+			break;
+		}
+		CommandType type = _commands[_line].type;
+		switch (type) {
+		case kCmdEndIf:
+			ifLevel--;
+			break;
+		case kCmdIf:
+		case kCmdIfAnswer:
+		case kCmdIff:
+		case kCmdIfMouseXM:
+		case kCmdIfMouseXW:
+			ifLevel++;
+			break;
+		}
+	} while (ifLevel != 0);
 }
 
 } // End of namespace Orlando

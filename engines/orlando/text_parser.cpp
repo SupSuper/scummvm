@@ -24,7 +24,9 @@
 #include "common/stream.h"
 #include "common/ptr.h"
 #include "common/util.h"
+
 #include "orlando/text_parser.h"
+#include "orlando/util.h"
 
 namespace Orlando {
 
@@ -107,12 +109,12 @@ Common::String TextParser::readString(bool upper) {
 
 int TextParser::readInt() {
 	Common::String token = nextToken();
-	return atoi(token.c_str());
+	return toInt(token);
 }
 
 float TextParser::readFloat() {
 	Common::String token = nextToken();
-	return atof(token.c_str());
+	return toFloat(token);
 }
 
 Common::Array<Common::String> TextParser::readLine(bool upper) {
