@@ -184,23 +184,32 @@ bool Scene::initialize() {
 	if (_pak == nullptr)
 		return false;
 
-	if (loadCcg() &&
-		loadDcn() &&
-		loadFcc() &&
-		loadPcs() &&
-		loadAce() &&
-		loadAci() &&
-		loadIcs() &&
-		loadFcm() &&
-		loadMcc())
-		return true;
+	if (!loadCcg() ||
+		!loadDcn() ||
+		!loadFcc() ||
+		!loadPcs() ||
+		!loadAce() ||
+		!loadAci() ||
+		!loadIcs() ||
+		!loadFcm() ||
+		!loadMcc())
+		return false;
 
-	return false;
+	Macro *preMacro = _macros["PRE"];
+	preMacro->start();
+	while (preMacro->isEnabled())
+		preMacro->execute(_vm->getScriptInterpreter());
+
+	return true;
 }
 
 bool Scene::run() {
 	GraphicsManager *graphics = _vm->getGraphicsManager();
 	uint32 time = _vm->getTotalPlayTime();
+
+	for (Common::HashMap<Common::String, Macro*>::const_iterator i = _macros.begin(); i != _macros.end(); ++i) {
+		i->_value->execute(_vm->getScriptInterpreter());
+	}
 
 	graphics->draw(*_background);
 	for (Common::HashMap<Common::String, Element*>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {

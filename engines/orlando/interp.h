@@ -23,18 +23,25 @@
 #ifndef ORLANDO_INTERP_H
 #define ORLANDO_INTERP_H
 
+#include "orlando/macro.h"
+
 namespace Orlando {
 
 class OrlandoEngine;
 
+typedef bool (ScriptInterpreter:: *ScriptHandler)(Macro *, const MacroCommand &);
+
 /**
- * Console debugger.
+ * Interprets and executes scene macros (scripts).
  */
 class ScriptInterpreter {
 	OrlandoEngine *_vm;
+	static const ScriptHandler kCommandHandlers[];
 
+	bool unknown(Macro *macro, const MacroCommand &cmd);
 public:
 	ScriptInterpreter(OrlandoEngine *vm);
+	bool runCommand(Macro *macro, const MacroCommand &cmd);
 };
 
 } // End of namespace Orlando

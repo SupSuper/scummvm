@@ -42,7 +42,7 @@
 namespace Orlando {
 
 OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),
-	_graphics(new GraphicsManager(this)), _resources(new ResourceManager(this)), _sound(new SoundManager(this)), _script(new ScriptInterpreter(this)),
+	_graphics(new GraphicsManager(this)), _resources(new ResourceManager(this)), _sound(new SoundManager(this)), _interp(new ScriptInterpreter(this)),
 	_mouse(new Mouse(this)), _debugger(nullptr), _scene(nullptr), _gameDescription(gameDesc) {
 
 	// Search in subfolders
@@ -58,7 +58,7 @@ OrlandoEngine::~OrlandoEngine() {
 	delete _scene;
 	delete _debugger;
 	delete _mouse;
-	delete _script;
+	delete _interp;
 	delete _sound;
 	delete _resources;
 	delete _graphics;

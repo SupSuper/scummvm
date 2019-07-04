@@ -29,6 +29,7 @@
 namespace Orlando {
 
 class TextParser;
+class ScriptInterpreter;
 
 enum CommandType {
 	kUnknown = 0,
@@ -200,10 +201,18 @@ struct MacroCommand {
 class Macro {
 	Common::String _id;
 	Common::Array<MacroCommand> _commands;
+	bool _enabled;
+	uint _line;
 
 public:
 	Macro(const Common::String &id);
+	Common::String getId() const { return _id; }
+	bool isEnabled() const { return _enabled; }
+	void setEnabled(bool enabled) { _enabled = enabled; }
+
 	void load(TextParser &parser);
+	void execute(ScriptInterpreter *interp);
+	void start();
 };
 
 } // End of namespace Orlando

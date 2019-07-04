@@ -23,6 +23,7 @@
 #include "common/scummsys.h"
 #include "orlando/macro.h"
 #include "orlando/text_parser.h"
+#include "orlando/interp.h"
 #include "orlando/util.h"
 
 namespace Orlando {
@@ -185,7 +186,7 @@ const char *kCommands[] = {
 	"ANYKEY",
 };
 
-Macro::Macro(const Common::String &id) : _id(id) {
+Macro::Macro(const Common::String &id) : _id(id), _enabled(false), _line(0) {
 }
 
 void Macro::load(TextParser &parser) {
@@ -210,6 +211,21 @@ void Macro::load(TextParser &parser) {
 		cmd.args = parser.readLine();
 		_commands.push_back(cmd);
 	}
+}
+
+void Macro::execute(ScriptInterpreter *interp) {
+	if (_enabled) {
+		bool done = interp->runCommand(this, _commands[_line]);
+		if (done)
+			_line++;
+		if (_line >= _commands.size())
+			_enabled = false;
+	}
+}
+
+void Macro::start() {
+	_enabled = true;
+	_line = 0;
 }
 
 } // End of namespace Orlando
