@@ -25,6 +25,7 @@
 #include "common/archive.h"
 #include "common/config-manager.h"
 #include "common/fs.h"
+#include "common/file.h"
 #include "common/error.h"
 #include "common/events.h"
 #include "common/system.h"
@@ -38,6 +39,7 @@
 #include "orlando/mouse.h"
 #include "orlando/main_menu.h"
 #include "orlando/scene.h"
+#include "orlando/text_parser.h"
 
 namespace Orlando {
 
@@ -70,6 +72,8 @@ Common::Error OrlandoEngine::run() {
 
 	if (!_resources->loadCommonResources())
 		return Common::kNoGameDataFoundError;
+
+	newGame();
 
 	_debugger = new Debugger(this);
 	_scene = new MainMenu(this);
@@ -105,6 +109,16 @@ Common::Error OrlandoEngine::run() {
 	}
 
 	return Common::kNoError;
+}
+
+void OrlandoEngine::newGame() {
+	TextParser varlist = TextParser(_resources->loadResourceFile("VARIABLE.ALL"), false);
+	while (!varlist.eof()) {
+		Common::String id = varlist.readString();
+		if (id.empty())
+			break;
+		_vars[id] = varlist.readInt();
+	}
 }
 
 bool OrlandoEngine::gotoScene(Scene *scene) {

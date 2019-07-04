@@ -24,6 +24,7 @@
 #define ORLANDO_ORLANDO_H
 
 #include "engines/engine.h"
+#include "common/hash-str.h"
 #include "orlando/debugger.h"
 
 struct ADGameDescription;
@@ -49,12 +50,15 @@ class OrlandoEngine : public Engine {
 
 	Debugger *_debugger;
 	Scene *_scene;
+	Common::HashMap<Common::String, int> _vars;
 
 public:
 	OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc);
 	~OrlandoEngine();
 
 	Common::Error run() override;
+	void newGame();
+
 	GUI::Debugger *getDebugger() override { return _debugger; }
 	GraphicsManager *getGraphicsManager() { return _graphics; }
 	ResourceManager *getResourceManager() { return _resources; }
@@ -62,6 +66,7 @@ public:
 	ScriptInterpreter *getScriptInterpreter() { return _interp; }
 	Mouse *getMouse() { return _mouse; }
 	Scene *getScene() { return _scene; }
+	int &getVariable(const Common::String &id) { return _vars[id]; }
 	bool gotoScene(Scene *scene);
 
 	// Detection related functions
