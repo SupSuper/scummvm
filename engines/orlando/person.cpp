@@ -26,6 +26,7 @@
 #include "orlando/person.h"
 #include "orlando/text_parser.h"
 #include "orlando/scene.h"
+#include "orlando/graphics.h"
 
 namespace Orlando {
 
@@ -65,6 +66,10 @@ bool Person::load(TextParser &parser, Scene *scene) {
 		}
 	}
 	return true;
+}
+
+void Person::draw(GraphicsManager *graphics, uint32 time) const {
+	graphics->drawTransparent(*_frames[0].surface, Common::Point(0, 0));
 }
 
 } // End of namespace Orlando

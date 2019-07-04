@@ -215,6 +215,9 @@ bool Scene::run() {
 	for (Common::HashMap<Common::String, Element*>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
 		i->_value->draw(graphics, time);
 	}
+	for (Common::HashMap<Common::String, Person*>::const_iterator i = _persons.begin(); i != _persons.end(); ++i) {
+		i->_value->draw(graphics, time);
+	}
 	return true;
 }
 

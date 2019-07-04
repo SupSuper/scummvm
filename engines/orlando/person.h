@@ -34,6 +34,7 @@ namespace Orlando {
 
 class TextParser;
 class Scene;
+class GraphicsManager;
 
 struct PFrame {
 	Graphics::Surface *surface;
@@ -51,6 +52,7 @@ public:
 	Person(const Common::String &id);
 	~Person();
 	bool load(TextParser &parser, Scene *scene);
+	void draw(GraphicsManager *graphics, uint32 time) const;
 };
 
 } // End of namespace Orlando

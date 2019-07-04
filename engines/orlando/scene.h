@@ -98,6 +98,13 @@ public:
 
 	GraphicsManager *getGraphicsManager() const;
 	Element *getElement(const Common::String &id) { return _elements[id]; }
+	Dialog *getDialog(int id) { return _dialogs[id]; }
+	Face *getFace(const Common::String &id) { return _faces[id]; }
+	Person *getPerson(const Common::String &id) { return _persons[id]; }
+	Area *getArea(const Common::String &id) { return _areas[id]; }
+	Insertion *getInsertion(const Common::String &id) { return _insertions[id]; }
+	Film *getFilm(const Common::String &id) { return _films[id]; }
+	Macro *getMacro(const Common::String &id) { return _macros[id]; }
 
 	Common::File *loadFile(const Common::String &filename, bool optional = false);
 	Graphics::Surface *loadSurface(const Common::String &filename, int bpp);
