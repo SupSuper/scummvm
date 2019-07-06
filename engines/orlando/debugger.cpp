@@ -21,65 +21,38 @@
  */
 
 #include "common/scummsys.h"
+#include "common/str-array.h"
 
 #include "orlando/debugger.h"
 #include "orlando/orlando.h"
-#include "orlando/scene.h"
-#include "orlando/avx_video.h"
+#include "orlando/macro.h"
+#include "orlando/interp.h"
 
 namespace Orlando {
 
 Debugger::Debugger(OrlandoEngine *vm) : GUI::Debugger(), _vm(vm) {
-	registerCmd("music", WRAP_METHOD(Debugger, cmdMusic));
-	registerCmd("sound", WRAP_METHOD(Debugger, cmdSfx));
-	registerCmd("voice", WRAP_METHOD(Debugger, cmdSpeech));
-	registerCmd("scene", WRAP_METHOD(Debugger, cmdScene));
-	registerCmd("movie", WRAP_METHOD(Debugger, cmdMovie));
+	registerCmd("run", WRAP_METHOD(Debugger, cmdRun));
 }
 
-bool Debugger::cmdMusic(int argc, const char **argv) {
-	if (argc == 2) {
-		_vm->getScene()->playMusic(argv[1]);
-	}
-	return true;
-}
-
-bool Debugger::cmdSfx(int argc, const char **argv) {
-	if (argc == 2) {
-		if (!_vm->getScene()->playSfx(argv[1])) {
-			debugPrintf("File not found\n");
+bool Debugger::cmdRun(int argc, const char **argv) {
+	if (argc >= 2) {
+		Common::StringArray args;
+		args.reserve(argc - 1);
+		for (int i = 1; i < argc; i++) {
+			Common::String arg = argv[i];
+			arg.toUppercase();
+			args.push_back(arg);
+		}
+		Macro macro("_DEBUG_");
+		const MacroCommand &cmd = macro.loadCommand(args);
+		if (cmd.type == kCmdUnknown) {
+			debugPrintf("Invalid command\n");
+		} else {
+			_vm->getScriptInterpreter()->runCommand(&macro, cmd);
+			return false;
 		}
 	}
 	return true;
-}
-
-bool Debugger::cmdSpeech(int argc, const char **argv) {
-	if (argc == 2) {
-		if (!_vm->getScene()->playSpeech(argv[1])) {
-			debugPrintf("File not found\n");
-		}
-	}
-	return true;
-}
-
-bool Debugger::cmdScene(int argc, const char **argv) {
-	if (argc == 2) {
-		if (!_vm->gotoScene(new Scene(_vm, argv[1]))) {
-			debugPrintf("File not found\n");
-			return true;
-		}
-	}
-	return false;
-}
-
-bool Debugger::cmdMovie(int argc, const char **argv) {
-	if (argc == 2) {
-		if (!_vm->gotoScene(new AvxVideo(_vm, argv[1]))) {
-			debugPrintf("File not found\n");
-			return true;
-		}
-	}
-	return false;
 }
 
 } // End of namespace Orlando

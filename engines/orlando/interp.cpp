@@ -22,6 +22,7 @@
 
 #include "common/scummsys.h"
 #include "common/debug.h"
+#include "common/file.h"
 
 #include "orlando/interp.h"
 #include "orlando/util.h"
@@ -29,6 +30,8 @@
 #include "orlando/scene.h"
 #include "orlando/element.h"
 #include "orlando/animation.h"
+#include "orlando/sound.h"
+#include "orlando/avx_video.h"
 
 namespace Orlando {
 
@@ -53,7 +56,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // HideTalk: unused
 	&ScriptInterpreter::cmdUnknown, // ShadowBy
 	&ScriptInterpreter::cmdUnknown, // SetShadow
-	&ScriptInterpreter::cmdUnknown, // GoToScene
+	&ScriptInterpreter::cmdGoToScene,
 	&ScriptInterpreter::cmdUnknown, // PUnderP
 	&ScriptInterpreter::cmdUnknown, // PUnderE
 	&ScriptInterpreter::cmdUnknown, // WalkToDir
@@ -63,7 +66,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdIf,
 	&ScriptInterpreter::cmdUnknown, // ShowAnimaFrame
 	&ScriptInterpreter::cmdUnknown, // POverE
-	&ScriptInterpreter::cmdUnknown, // Effect
+	&ScriptInterpreter::cmdEffect,
 	&ScriptInterpreter::cmdUnknown, // EffectVolume
 	&ScriptInterpreter::cmdUnknown, // TalkRandom
 	&ScriptInterpreter::cmdUnknown, // Take
@@ -94,7 +97,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // SetAnimaFrame
 	&ScriptInterpreter::cmdUnknown, // DeactiveSelf
 	&ScriptInterpreter::cmdUnknown, // EOverE
-	&ScriptInterpreter::cmdUnknown, // Music
+	&ScriptInterpreter::cmdMusic,
 	&ScriptInterpreter::cmdUnknown, // MoveE
 	&ScriptInterpreter::cmdUnknown, // BrightnessE
 	&ScriptInterpreter::cmdUnknown, // WalkEffect
@@ -156,7 +159,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // Mixing: unused
 	&ScriptInterpreter::cmdUnknown, // RefreshScreen
 	&ScriptInterpreter::cmdUnknown, // ClearAnimaBuffer
-	&ScriptInterpreter::cmdUnknown, // RunAvx
+	&ScriptInterpreter::cmdRunAvx, // RunAvx
 	&ScriptInterpreter::cmdUnknown, // JackTempo
 	&ScriptInterpreter::cmdUnknown, // ClearMenuBar
 	&ScriptInterpreter::cmdUnknown, // UnLockCanal: unused
@@ -221,12 +224,24 @@ bool ScriptInterpreter::cmdAnima(Macro *macro, const MacroCommand &cmd) {
 	int delay = toInt(cmd.args[3]) * 1000 / 60;
 	PlayMode mode = (PlayMode)toInt(cmd.args[4]);
 	int rec = toInt(cmd.args[5]);
+	// TODO: + -
 
 	_vm->getScene()->getElement(anim)->getAnimation()->play(reverse, delay, mode, rec, _vm->getTotalPlayTime());
 	return true;
 }
 
 bool ScriptInterpreter::cmdEndIf(Macro *macro, const MacroCommand &cmd) {
+	return true;
+}
+
+bool ScriptInterpreter::cmdGoToScene(Macro *macro, const MacroCommand &cmd) {
+	Common::String scene = cmd.args[1];
+	// Remove extension if any
+	if (scene.hasSuffix(".CFG")) {
+		scene.erase(scene.size() - 4);
+	}
+
+	_vm->gotoScene(new Scene(_vm, scene));
 	return true;
 }
 
@@ -249,6 +264,24 @@ bool ScriptInterpreter::cmdIf(Macro *macro, const MacroCommand &cmd) {
 		macro->skipIf();
 		return false;
 	}
+}
+
+bool ScriptInterpreter::cmdEffect(Macro *macro, const MacroCommand &cmd) {
+	Common::String effect = cmd.args[1];
+	// TODO: Extra arguments
+
+	Common::String filename = _vm->getSoundManager()->getSfx(effect);
+	Common::File *audio = _vm->getScene()->loadFile(filename);
+	_vm->getSoundManager()->playFile(audio, Audio::Mixer::kSFXSoundType);
+	return true;
+}
+
+bool ScriptInterpreter::cmdMusic(Macro *macro, const MacroCommand &cmd) {
+	Common::String music = cmd.args[1];
+	// TODO: Extra arguments
+
+	_vm->getSoundManager()->playMusic(music);
+	return true;
 }
 
 bool ScriptInterpreter::cmdInc(Macro *macro, const MacroCommand &cmd) {
@@ -282,6 +315,18 @@ bool ScriptInterpreter::cmdIncc(Macro *macro, const MacroCommand &cmd) {
 	int value = toInt(cmd.args[2]);
 
 	_vm->getVariable(var) += value;
+	return true;
+}
+
+bool ScriptInterpreter::cmdRunAvx(Macro *macro, const MacroCommand &cmd) {
+	Common::String avx = cmd.args[1];
+	// Remove extension if any
+	if (avx.hasSuffix(".AVX")) {
+		avx.erase(avx.size() - 4);
+	}
+	avx += "16";
+
+	_vm->gotoScene(new AvxVideo(_vm, avx));
 	return true;
 }
 

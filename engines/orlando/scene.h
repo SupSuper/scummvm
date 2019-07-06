@@ -108,9 +108,6 @@ public:
 
 	Common::File *loadFile(const Common::String &filename, bool optional = false);
 	Graphics::Surface *loadSurface(const Common::String &filename, int bpp);
-	bool playMusic(const Common::String &filename);
-	bool playSfx(const Common::String &filename);
-	bool playSpeech(const Common::String &filename);
 
 	/**
 	 * Initializes the scene and its contents.

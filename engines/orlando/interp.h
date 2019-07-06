@@ -43,7 +43,7 @@ class ScriptInterpreter {
 
 	bool cmdUnknown(Macro *macro, const MacroCommand &cmd);
 	/**
-	 * ANIMA <id> <dir> <delay> <mode> <rec>
+	 * ANIMA <id> <dir> <delay> <mode> <rec> <+->
 	 * Starts playing animation <id>:
 	 * <dir> 0 = play forward, 1 = play backward
 	 * <delay> time between frames in 1/60s
@@ -54,30 +54,50 @@ class ScriptInterpreter {
 	/** End of an IF block */
 	bool cmdEndIf(Macro *macro, const MacroCommand &cmd);
 	/**
+	 * GOTOSCENE <id>
+	 * Changes the active scene.
+	 */
+	bool cmdGoToScene(Macro *macro, const MacroCommand &cmd);
+	/**
 	 * LET <var> <value>
-	 * Assigns <value> to <var>
+	 * Assigns <value> to <var>.
 	 */
 	bool cmdLet(Macro *macro, const MacroCommand &cmd);
 	/**
 	 * IF <var> <value>
-	 * Checks if <var> is equal to <var>
+	 * Checks if <var> is equal to <var>.
 	 */
 	bool cmdIf(Macro *macro, const MacroCommand &cmd);
 	/**
+	 * EFFECT <id> <arg2> <arg3> <arg4>
+	 * Plays a sound effect.
+	 */
+	bool cmdEffect(Macro *macro, const MacroCommand &cmd);
+	/**
+	 * MUSIC <id> <arg2> <arg3>
+	 * Plays a music track.
+	 */
+	bool cmdMusic(Macro *macro, const MacroCommand &cmd);
+	/**
 	 * INC <var>
-	 * Increments <var> by 1
+	 * Increments <var> by 1.
 	 */
 	bool cmdInc(Macro *macro, const MacroCommand &cmd);
 	/**
 	 * IFF <var> <op> <value>
-	 * Checks if <var> is less or greater than <value>
+	 * Checks if <var> is less or greater than <value>.
 	 */
 	bool cmdIff(Macro *macro, const MacroCommand &cmd);
 	/**
 	 * INCC <var> <value>
-	 * Increments <var> by <value>
+	 * Increments <var> by <value>.
 	 */
 	bool cmdIncc(Macro *macro, const MacroCommand &cmd);
+	/**
+	 * RUNAVX <avx> <background>
+	 * Plays a AVX video with a background surface.
+	 */
+	bool cmdRunAvx(Macro *macro, const MacroCommand &cmd);
 public:
 	ScriptInterpreter(OrlandoEngine *vm);
 	bool runCommand(Macro *macro, const MacroCommand &cmd);

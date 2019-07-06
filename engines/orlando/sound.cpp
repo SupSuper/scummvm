@@ -29,11 +29,13 @@
 #include "common/file.h"
 #include "common/substream.h"
 
-// TODO: Integrate into ScummVM
-#include "orlando/libgsm.h"
-
 #include "orlando/sound.h"
 #include "orlando/orlando.h"
+#include "orlando/resource.h"
+#include "orlando/util.h"
+
+// TODO: Integrate into ScummVM
+#include "orlando/libgsm.h"
 
 namespace Orlando {
 
@@ -51,7 +53,7 @@ class GSMStream : public Audio::SeekableAudioStream {
 	Common::DisposablePtr<Common::SeekableReadStream> _stream;
 	int _rate;
 
-	libgsm::gsm _handle;
+	libgsm::gsm _music;
 	libgsm::gsm_frame _frame;
 	libgsm::gsm_signal _decodedSamples[kSamplesPerFrame];
 	uint8 _decodedSampleCount;
@@ -59,15 +61,15 @@ class GSMStream : public Audio::SeekableAudioStream {
 public:
 	GSMStream(Common::SeekableReadStream *stream, DisposeAfterUse::Flag disposeAfterUse, GSMType type, int rate = 8000) :
 		_stream(stream, disposeAfterUse), _rate(rate), _decodedSampleCount(0) {
-		_handle = libgsm::gsm_create();
+		_music = libgsm::gsm_create();
 		if (type == kGSM610MS) {
 			int flag = 1;
-			libgsm::gsm_option(_handle, libgsm::GSM_OPT_WAV49, &flag);
+			libgsm::gsm_option(_music, libgsm::GSM_OPT_WAV49, &flag);
 		}
 	}
 
 	~GSMStream() {
-		libgsm::gsm_destroy(_handle);
+		libgsm::gsm_destroy(_music);
 	}
 
 	virtual int readBuffer(int16 *buffer, const int numSamples) override {
@@ -75,10 +77,10 @@ public:
 
 		for (samples = 0; samples < numSamples && !endOfData(); samples++) {
 			if (_decodedSampleCount == 0) {
-				int frameIndex = gsm_option(_handle, libgsm::GSM_OPT_FRAME_INDEX, nullptr);
+				int frameIndex = gsm_option(_music, libgsm::GSM_OPT_FRAME_INDEX, nullptr);
 				int frameSize = sizeof(libgsm::gsm_frame) - frameIndex;
 				_stream->read(&_frame, frameSize);
-				gsm_decode(_handle, _frame, _decodedSamples);
+				gsm_decode(_music, _frame, _decodedSamples);
 				_decodedSampleCount = kSamplesPerFrame;
 			}
 
@@ -225,12 +227,68 @@ void SoundManager::playFile(Common::SeekableReadStream *stream, Audio::Mixer::So
 	if (audio == nullptr)
 		return;
 
-	_vm->_mixer->stopHandle(_handle);
-	// Music should loop infinitely
+	// Only one music at a time
+	if (type == Audio::Mixer::kMusicSoundType) {
+		_vm->_mixer->stopHandle(_music);
+	}
+
+	Audio::SoundHandle handle;
 	if (loop) {
-		_vm->_mixer->playStream(type, &_handle, Audio::makeLoopingAudioStream(audio, 0));
+		_vm->_mixer->playStream(type, &handle, Audio::makeLoopingAudioStream(audio, 0));
 	} else {
-		_vm->_mixer->playStream(type, &_handle, audio);
+		_vm->_mixer->playStream(type, &handle, audio);
+	}
+
+	if (type == Audio::Mixer::kMusicSoundType) {
+		_music = handle;
+	}
+}
+
+void SoundManager::playMusic(const Common::String &filename) {
+	ResourceManager *resources = _vm->getResourceManager();
+	const int kExt = 5;
+
+	Common::File *audio = nullptr;
+	if (_vm->isVersionSP()) {
+		// Format is xxx-8.MUS
+		Common::String pak = replaceEnd(filename, "8.PAK", kExt);
+		audio = resources->loadPakFile(pak, filename);
+	}
+	else if (_vm->isVersionHP()) {
+		// Format is xxx-22.PMS
+		Common::String pak = replaceEnd(filename, "22.PAK", kExt);
+		Common::String file = replaceEnd(filename, "22.PMS", kExt);
+		audio = resources->loadPakFile(pak, file);
+	}
+	else if (_vm->isVersionDC()) {
+		// Format is xxx-22.PMS
+		Common::String file = replaceEnd(filename, "22.PMS", kExt);
+		audio = resources->loadRawFile(file);
+	}
+
+	_vm->getSoundManager()->playFile(audio, Audio::Mixer::kMusicSoundType, true);
+}
+
+Common::String SoundManager::getSfx(const Common::String &filename) {
+	if (_vm->isVersionHP()) {
+		// Format is xxx.S16
+		return replaceEnd(filename, "S16");
+	} else if (_vm->isVersionDC()) {
+		// Format is xxx.PSD
+		return replaceEnd(filename, "PSD");
+	} else {
+		// Format is xxx.SND
+		return filename;
+	}
+}
+
+Common::String SoundManager::getSpeech(const Common::String &filename) {
+	if (_vm->isVersionSP()) {
+		// Format is xxx.SND
+		return filename;
+	} else {
+		// Format is xxx.S22
+		return replaceEnd(filename, "S22");
 	}
 }
 

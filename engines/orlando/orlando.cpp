@@ -141,10 +141,9 @@ void OrlandoEngine::newGame() {
 	}
 }
 
-bool OrlandoEngine::gotoScene(Scene *scene) {
+void OrlandoEngine::gotoScene(Scene *scene) {
 	delete _newScene;
 	_newScene = scene;
-	return true;
 }
 
 } // End of namespace Orlando

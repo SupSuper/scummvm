@@ -189,6 +189,17 @@ const char *kCommands[] = {
 Macro::Macro(const Common::String &id) : _id(id), _enabled(false), _line(0) {
 }
 
+CommandType Macro::getType(const Common::String &id) const {
+	CommandType type = kCmdUnknown;
+	for (int i = 0; i < ARRAYSIZE(kCommands); i++) {
+		if (id == kCommands[i]) {
+			type = (CommandType)(i + 1);
+			break;
+		}
+	}
+	return type;
+}
+
 void Macro::load(TextParser &parser) {
 	while (!parser.eof()) {
 		Common::String id = parser.readString();
@@ -197,13 +208,7 @@ void Macro::load(TextParser &parser) {
 			break;
 		}
 		MacroCommand cmd;
-		cmd.type = kCmdUnknown;
-		for (int i = 0; i < ARRAYSIZE(kCommands); i++) {
-			if (id == kCommands[i]) {
-				cmd.type = (CommandType)(i + 1);
-				break;
-			}
-		}
+		cmd.type = getType(id);
 		if (cmd.type == kCmdUnknown) {
 			warning("Macro: Unknown command: %s", id.c_str());
 		}
@@ -211,6 +216,14 @@ void Macro::load(TextParser &parser) {
 		cmd.args = parser.readLine();
 		_commands.push_back(cmd);
 	}
+}
+
+const MacroCommand &Macro::loadCommand(Common::StringArray args) {
+	MacroCommand cmd;
+	cmd.type = getType(args[0]);
+	cmd.args = args;
+	_commands.push_back(cmd);
+	return _commands.front();
 }
 
 void Macro::execute(ScriptInterpreter *interp) {

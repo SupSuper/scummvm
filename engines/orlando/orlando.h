@@ -68,7 +68,7 @@ public:
 	Mouse *getMouse() { return _mouse; }
 	Scene *getScene() { return _scene; }
 	int &getVariable(const Common::String &id) { return _vars[id]; }
-	bool gotoScene(Scene *scene);
+	void gotoScene(Scene *scene);
 
 	// Detection related functions
 	const ADGameDescription *_gameDescription;

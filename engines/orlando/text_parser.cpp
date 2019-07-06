@@ -117,8 +117,8 @@ float TextParser::readFloat() {
 	return toFloat(token);
 }
 
-Common::Array<Common::String> TextParser::readLine(bool upper) {
-	Common::Array<Common::String> arr;
+Common::StringArray TextParser::readLine(bool upper) {
+	Common::StringArray arr;
 	while (!eof()) {
 		Common::String token = nextToken(!arr.empty());
 		if (token.empty()) {

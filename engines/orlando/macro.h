@@ -23,8 +23,7 @@
 #ifndef ORLANDO_MACRO_H
 #define ORLANDO_MACRO_H
 
-#include "common/str.h"
-#include "common/array.h"
+#include "common/str-array.h"
 
 namespace Orlando {
 
@@ -192,7 +191,7 @@ enum CommandType {
 
 struct MacroCommand {
 	CommandType type;
-	Common::Array<Common::String> args;
+	Common::StringArray args;
 };
 
 /**
@@ -204,6 +203,7 @@ class Macro {
 	bool _enabled;
 	uint _line;
 
+	CommandType getType(const Common::String &id) const;
 public:
 	Macro(const Common::String &id);
 	Common::String getId() const { return _id; }
@@ -211,6 +211,7 @@ public:
 	void setEnabled(bool enabled) { _enabled = enabled; }
 
 	void load(TextParser &parser);
+	const MacroCommand &loadCommand(Common::StringArray args);
 	void execute(ScriptInterpreter *interp);
 	void start();
 	void skipIf();

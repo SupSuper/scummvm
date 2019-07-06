@@ -247,6 +247,7 @@ bool AvxVideo::initialize() {
 	}
 
 	_vm->getMouse()->show(false);
+	_vm->_mixer->stopAll();
 	_vm->getSoundManager()->playFile(_audio, Audio::Mixer::kMusicSoundType);
 
 	_time = _vm->getTotalPlayTime();

@@ -23,8 +23,7 @@
 #ifndef ORLANDO_TEXT_PARSER_H
 #define ORLANDO_TEXT_PARSER_H
 
-#include "common/str.h"
-#include "common/array.h"
+#include "common/str-array.h"
 
 namespace Common {
 	class SeekableReadStream;
@@ -60,7 +59,7 @@ public:
 	/** Returns the next float value in the file. */
 	float readFloat();
 	/** Returns all string values in a line. */
-	Common::Array<Common::String> readLine(bool upper = true);
+	Common::StringArray readLine(bool upper = true);
 	/** Have we reached the end of the file? */
 	bool eof() const;
 	/** Moves the parser back to the previous value. */

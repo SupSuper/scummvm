@@ -42,7 +42,7 @@ class OrlandoEngine;
  */
 class SoundManager {
 	OrlandoEngine *_vm;
-	Audio::SoundHandle _handle;
+	Audio::SoundHandle _music;
 
 	/**
 	 * Removes the header from a stream. Shortcut for substream since most decoders expect an audio stream to start with data.
@@ -83,6 +83,21 @@ public:
 	 * @param loop Looping track.
 	 */
 	void playFile(Common::SeekableReadStream *stream, Audio::Mixer::SoundType type, bool loop = false);
+	/**
+	 * Plays a music track. The location is determined based on the game version.
+	 * @param filename Source filename.
+	 */
+	void playMusic(const Common::String &filename);
+	/**
+	 * Gets the filename of a sound effect based on the game version.
+	 * @param filename Source filename.
+	 */
+	Common::String getSfx(const Common::String &filename);
+	/**
+	 * Gets the filename of a speech sample based on the game version.
+	 * @param filename Source filename.
+	 */
+	Common::String getSpeech(const Common::String &filename);
 };
 
 } // End of namespace Orlando
