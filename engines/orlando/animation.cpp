@@ -34,7 +34,7 @@
 
 namespace Orlando {
 
-Animation::Animation(const Common::String &id) : _id(id), _flx(nullptr), _curFrame(0), _curTimeline(0), _time(0), _delay(80), _loop(true) {
+Animation::Animation(const Common::String &id) : _id(id), _flx(nullptr), _curFrame(0), _curRecord(0), _dir(1), _time(0), _delay(0), _mode(kPlayNone) {
 }
 
 Animation::~Animation() {
@@ -61,14 +61,14 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 	while (!parser.eof()) {
 		Common::String rec = parser.readString();
 		if (rec == "REC") {
-			Timeline timeline;
+			Record record;
 			while (!parser.eof()) {
 				Common::String frame = parser.readString();
 				if (frame == "END") {
-					_timelines.push_back(timeline);
+					_records.push_back(record);
 					break;
 				}
-				timeline.push_back(toInt(frame));
+				record.push_back(toInt(frame));
 			}
 		} else {
 			parser.rewind();
@@ -96,7 +96,6 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 				return false;
 			_flx = new FlxAnimation(flx, scene->getGraphicsManager()->kScreenFormat);
 			frame.surface = _flx->getSurface();
-			_delay = 1000 / _flx->getFps();
 		} else {
 			frame.surface = element->loadSurface(filename, scene);
 			if (!frame.surface)
@@ -107,10 +106,6 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 		_frames.push_back(frame);
 	}
 
-	if (_timelines.empty()) {
-		_timelines.push_back(Timeline(1, 1));
-	}
-
 	element->setAnimation(this);
 	return true;
 }
@@ -119,26 +114,45 @@ void Animation::loadFlx(Common::SeekableReadStream *flx, Scene *scene) {
 	_flx = new FlxAnimation(flx, scene->getGraphicsManager()->kScreenFormat);
 	AFrame frame = { _flx->getSurface() };
 	_frames.push_back(frame);
-	_timelines.push_back(Timeline(1, 1));
 	_delay = 1000 / _flx->getFps();
+	_mode = kPlayFlxLoop;
+}
+
+void Animation::play(bool reverse, int delay, PlayMode mode, int rec, uint32 time) {
+	_dir = (reverse) ? -1 : 1;
+	_delay = delay;
+	_mode = mode;
+	_curFrame = 0;
+	_curRecord = rec;
+	_time = time;
 }
 
 const AFrame &Animation::nextFrame(uint32 time) {
-	if (time >= _time + _delay) {
-		if (_flx == nullptr) {
-			_curFrame++;
-			if (_curFrame == _timelines[_curTimeline].size()) {
-				if (_loop)
-					_curFrame = 0;
-				else
-					_curFrame--;
-			}
+	if (_mode == kPlayNone)
+		return _frames.front();
+
+	bool loop = (_mode == kPlayLoop || _mode == kPlayRecLoop || _mode == kPlayFlxLoop);
+	int begin = 0;
+	int end = _frames.size();
+	if (_mode == kPlayRecOnce || _mode == kPlayRecLoop)
+		end = _records[_curRecord].size();
+
+	while (time >= _time + _delay) {
+		_time += _delay;
+		if (_flx) {
+			_flx->nextFrame(loop);
 		} else {
-			_flx->nextFrame(_loop);
+			_curFrame += _dir;
+			if (_curFrame >= end) {
+				_curFrame = (loop) ? begin : end - 1;
+			} else if (_curFrame < begin) {
+				_curFrame = (loop) ? end - 1 : begin;
+			}
 		}
-		_time = time;
 	}
-	int nextFrame = ABS(_timelines[_curTimeline][_curFrame]) - 1;
+	int nextFrame = _curFrame;
+	if (_mode == kPlayRecOnce || _mode == kPlayRecLoop)
+		nextFrame = ABS(_records[_curRecord][_curFrame]) - 1;
 	return _frames[nextFrame];
 }
 

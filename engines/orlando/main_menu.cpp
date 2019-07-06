@@ -74,10 +74,8 @@ bool MainMenu::initialize() {
 	}
 
 	if (Common::File *file = loadFile("_SAMOCH1.BM")) {
-		const char id[] = "_SAMOCH1.BM";
+		const char *id = "_SAMOCH1.BM";
 		Animation *anim = new Animation(id);
-		int timeline[] = { 1, 2 };
-		anim->addTimeline(Timeline(timeline, ARRAYSIZE(timeline)));
 
 		AFrame frames[] = {
 			{ _vm->getGraphicsManager()->loadRawBitmap(file) },
@@ -85,6 +83,8 @@ bool MainMenu::initialize() {
 		};
 		anim->addFrame(frames[0]);
 		anim->addFrame(frames[1]);
+
+		anim->play(false, 100, kPlayLoop, 0, _vm->getTotalPlayTime());
 
 		Element *element = new Element(id);
 		element->setPosition(Common::Point(0, 323));
@@ -95,7 +95,7 @@ bool MainMenu::initialize() {
 	}
 
 	if (Common::File *file = loadFile("D1.FLX")) {
-		const char id[] = "D1.FLX";
+		const char *id = "D1.FLX";
 		Animation *anim = new Animation(id);
 		anim->loadFlx(file, this);
 

@@ -45,7 +45,7 @@ namespace Orlando {
 
 OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),
 	_graphics(new GraphicsManager(this)), _resources(new ResourceManager(this)), _sound(new SoundManager(this)), _interp(new ScriptInterpreter(this)),
-	_mouse(new Mouse(this)), _debugger(nullptr), _scene(nullptr), _gameDescription(gameDesc) {
+	_mouse(new Mouse(this)), _debugger(nullptr), _scene(nullptr), _newScene(nullptr), _gameDescription(gameDesc) {
 
 	// Search in subfolders
 	const Common::FSNode gameDataDir(ConfMan.get("path"));
@@ -57,6 +57,7 @@ OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) :
 }
 
 OrlandoEngine::~OrlandoEngine() {
+	delete _newScene;
 	delete _scene;
 	delete _debugger;
 	delete _mouse;
@@ -64,6 +65,20 @@ OrlandoEngine::~OrlandoEngine() {
 	delete _sound;
 	delete _resources;
 	delete _graphics;
+}
+
+void OrlandoEngine::debugScenes() {
+	// Debug load every scene
+	Common::FSList files;
+	Common::FSNode dir(ConfMan.get("path"));
+	if (dir.getChild("action").getChildren(files, Common::FSNode::kListFilesOnly)) {
+		for (Common::FSList::iterator i = files.begin(); i != files.end(); ++i) {
+			Common::String id = i->getName();
+			id.erase(id.size() - 4);
+			Scene scene(this, id);
+			scene.initialize();
+		}
+	}
 }
 
 Common::Error OrlandoEngine::run() {
@@ -76,15 +91,20 @@ Common::Error OrlandoEngine::run() {
 	newGame();
 
 	_debugger = new Debugger(this);
-	_scene = new MainMenu(this);
+	gotoScene(new MainMenu(this));
 
 	if (!_mouse->initialize())
-		return Common::kNoGameDataFoundError;
-	if (!_scene->initialize())
 		return Common::kNoGameDataFoundError;
 
 	Common::Event event;
 	while (!shouldQuit()) {
+		if (_newScene != nullptr) {
+			delete _scene;
+			_scene = _newScene;
+			_newScene = nullptr;
+			if (!_scene->initialize())
+				return Common::kNoGameDataFoundError;
+		}
 		_mouse->reset();
 		while (_system->getEventManager()->pollEvent(event)) {
 			_mouse->onEvent(event);
@@ -122,12 +142,9 @@ void OrlandoEngine::newGame() {
 }
 
 bool OrlandoEngine::gotoScene(Scene *scene) {
-	bool success = scene->initialize();
-	if (success) {
-		//delete _scene;
-		_scene = scene;
-	}
-	return success;
+	delete _newScene;
+	_newScene = scene;
+	return true;
 }
 
 } // End of namespace Orlando

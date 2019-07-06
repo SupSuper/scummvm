@@ -49,9 +49,10 @@ class OrlandoEngine : public Engine {
 	Mouse *_mouse;
 
 	Debugger *_debugger;
-	Scene *_scene;
+	Scene *_scene, *_newScene;
 	Common::HashMap<Common::String, int> _vars;
 
+	void debugScenes();
 public:
 	OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc);
 	~OrlandoEngine();

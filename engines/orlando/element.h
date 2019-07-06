@@ -53,6 +53,7 @@ public:
 	Element(const Common::String &id);
 	~Element();
 	Common::String getId() const { return _id; }
+	Animation *getAnimation() { return _anim; }
 	void setAnimation(Animation *anim) { _anim = anim; }
 	void setPosition(const Common::Point &pos) { _pos = pos; }
 

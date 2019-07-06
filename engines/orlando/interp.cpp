@@ -24,8 +24,11 @@
 #include "common/debug.h"
 
 #include "orlando/interp.h"
-#include "orlando/orlando.h"
 #include "orlando/util.h"
+#include "orlando/orlando.h"
+#include "orlando/scene.h"
+#include "orlando/element.h"
+#include "orlando/animation.h"
 
 namespace Orlando {
 
@@ -35,7 +38,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // SetPosition
 	&ScriptInterpreter::cmdUnknown, // InitFirst
 	&ScriptInterpreter::cmdUnknown, // SetPersonData
-	&ScriptInterpreter::cmdUnknown, // Anima
+	&ScriptInterpreter::cmdAnima,
 	&ScriptInterpreter::cmdUnknown, // StopAnima
 	&ScriptInterpreter::cmdUnknown, // WalkTo
 	&ScriptInterpreter::cmdUnknown, // RunInsertion
@@ -76,8 +79,8 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // SetPositionEV
 	&ScriptInterpreter::cmdUnknown, // IfMouseXM
 	&ScriptInterpreter::cmdUnknown, // IfMouseXW
-	&ScriptInterpreter::cmdUnknown, // ScrollLeft: unused
-	&ScriptInterpreter::cmdUnknown, // ScrollRight: unsed
+	&ScriptInterpreter::cmdUnknown, // ScrollLeft
+	&ScriptInterpreter::cmdUnknown, // ScrollRight
 	&ScriptInterpreter::cmdUnknown, // SetScrollX1
 	&ScriptInterpreter::cmdUnknown, // SetScrollX2
 	&ScriptInterpreter::cmdUnknown, // SetPosXY
@@ -119,7 +122,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // OutMacro
 	&ScriptInterpreter::cmdUnknown, // NormalMacro
 	&ScriptInterpreter::cmdIff,
-	&ScriptInterpreter::cmdUnknown, // AutoIncRange: unused
+	&ScriptInterpreter::cmdUnknown, // AutoIncRange
 	&ScriptInterpreter::cmdUnknown, // Lock
 	&ScriptInterpreter::cmdUnknown, // HideFaceAt
 	&ScriptInterpreter::cmdUnknown, // Include: unused
@@ -151,15 +154,15 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // Random
 	&ScriptInterpreter::cmdUnknown, // DeactiveMacro
 	&ScriptInterpreter::cmdUnknown, // Mixing: unused
-	&ScriptInterpreter::cmdUnknown, // RefreshScreen: unused
-	&ScriptInterpreter::cmdUnknown, // ClearAnimaBuffer: unused
+	&ScriptInterpreter::cmdUnknown, // RefreshScreen
+	&ScriptInterpreter::cmdUnknown, // ClearAnimaBuffer
 	&ScriptInterpreter::cmdUnknown, // RunAvx
 	&ScriptInterpreter::cmdUnknown, // JackTempo
-	&ScriptInterpreter::cmdUnknown, // ClearMenuBar: unused
+	&ScriptInterpreter::cmdUnknown, // ClearMenuBar
 	&ScriptInterpreter::cmdUnknown, // UnLockCanal: unused
 	&ScriptInterpreter::cmdUnknown, // PointInSecArea
 	&ScriptInterpreter::cmdUnknown, // TalkRandomIndex
-	&ScriptInterpreter::cmdUnknown, // MouseToTool: unused
+	&ScriptInterpreter::cmdUnknown, // MouseToTool
 	&ScriptInterpreter::cmdUnknown, // RelativeMulP
 	&ScriptInterpreter::cmdUnknown, // MinShadow
 	&ScriptInterpreter::cmdUnknown, // MaxShadow
@@ -209,6 +212,17 @@ int ScriptInterpreter::varOrLiteral(const Common::String &arg) const {
 
 bool ScriptInterpreter::cmdUnknown(Macro *macro, const MacroCommand &cmd) {
 	warning("ScriptInterpreter: Unknown command %s", cmd.args[0].c_str());
+	return true;
+}
+
+bool ScriptInterpreter::cmdAnima(Macro *macro, const MacroCommand &cmd) {
+	Common::String anim = cmd.args[1];
+	bool reverse = (cmd.args[2] == "1");
+	int delay = toInt(cmd.args[3]) * 1000 / 60;
+	PlayMode mode = (PlayMode)toInt(cmd.args[4]);
+	int rec = toInt(cmd.args[5]);
+
+	_vm->getScene()->getElement(anim)->getAnimation()->play(reverse, delay, mode, rec, _vm->getTotalPlayTime());
 	return true;
 }
 

@@ -45,28 +45,40 @@ struct AFrame {
 	Common::Point offset;
 };
 
-typedef Common::Array<int> Timeline;
+enum PlayMode
+{
+	kPlayNone = 0,
+	kPlayOnce,
+	kPlayLoop,
+	kPlayRecOnce,
+	kPlayRecLoop,
+	kPlayFlxOnce,
+	kPlayFlxLoop,
+};
+
+/** Sequence of frames */
+typedef Common::Array<int> Record;
 
 /**
  * Represents an animation for a graphical element.
  */
 class Animation {
 	Common::String _id;
-	Common::Array<Timeline> _timelines;
+	Common::Array<Record> _records;
 	Common::Array<AFrame> _frames;
 	FlxAnimation *_flx;
 
-	int _curFrame, _curTimeline;
+	int _curFrame, _curRecord, _dir;
 	uint32 _time, _delay;
-	bool _loop;
+	PlayMode _mode;
 public:
 	Animation(const Common::String &id);
 	~Animation();
-	void addTimeline(const Timeline &timeline) { _timelines.push_back(timeline); }
 	void addFrame(const AFrame &frame) { _frames.push_back(frame); }
 
 	bool load(TextParser &parser, Scene *scene);
 	void loadFlx(Common::SeekableReadStream *flx, Scene *scene);
+	void play(bool reverse, int delay, PlayMode mode, int rec, uint32 time);
 	const AFrame &nextFrame(uint32 time);
 };
 
