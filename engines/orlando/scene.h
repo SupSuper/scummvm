@@ -100,7 +100,7 @@ public:
 	Element *getElement(const Common::String &id) { return _elements[id]; }
 	Dialog *getDialog(int id) { return _dialogs[id]; }
 	Face *getFace(const Common::String &id) { return _faces[id]; }
-	Person *getPerson(const Common::String &id) { return _persons[id]; }
+	Person *getPerson(const Common::String &id);
 	Area *getArea(const Common::String &id) { return _areas[id]; }
 	Insertion *getInsertion(const Common::String &id) { return _insertions[id]; }
 	Film *getFilm(const Common::String &id) { return _films[id]; }

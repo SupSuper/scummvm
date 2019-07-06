@@ -22,14 +22,12 @@
 
 #include "common/scummsys.h"
 #include "common/file.h"
-#include "common/system.h"
 #include "graphics/surface.h"
 
 #include "orlando/scene.h"
 #include "orlando/orlando.h"
 #include "orlando/util.h"
 #include "orlando/resource.h"
-#include "orlando/sound.h"
 #include "orlando/text_parser.h"
 #include "orlando/graphics.h"
 #include "orlando/element.h"
@@ -41,6 +39,7 @@
 #include "orlando/insertion.h"
 #include "orlando/film.h"
 #include "orlando/macro.h"
+#include "orlando/jack.h"
 
 namespace Orlando {
 
@@ -74,6 +73,12 @@ Scene::~Scene() {
 
 GraphicsManager *Scene::getGraphicsManager() const {
 	return _vm->getGraphicsManager();
+}
+
+Person *Scene::getPerson(const Common::String &id) {
+	if (id == "JACK")
+		return _vm->getJack();
+	return _persons[id];
 }
 
 Common::File *Scene::loadFile(const Common::String &filename, bool optional) {

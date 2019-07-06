@@ -37,6 +37,7 @@ class SoundManager;
 class ScriptInterpreter;
 class Mouse;
 class Scene;
+class Jack;
 
 /**
  * Engine for the Jack Orlando adventure game.
@@ -51,6 +52,7 @@ class OrlandoEngine : public Engine {
 	Debugger *_debugger;
 	Scene *_scene, *_newScene;
 	Common::HashMap<Common::String, int> _vars;
+	Jack *_jack;
 
 	void debugScenes();
 public:
@@ -59,6 +61,7 @@ public:
 
 	Common::Error run() override;
 	void newGame();
+	void gotoScene(Scene *scene);
 
 	GUI::Debugger *getDebugger() override { return _debugger; }
 	GraphicsManager *getGraphicsManager() { return _graphics; }
@@ -68,7 +71,7 @@ public:
 	Mouse *getMouse() { return _mouse; }
 	Scene *getScene() { return _scene; }
 	int &getVariable(const Common::String &id) { return _vars[id]; }
-	void gotoScene(Scene *scene);
+	Jack *getJack() { return _jack; }
 
 	// Detection related functions
 	const ADGameDescription *_gameDescription;

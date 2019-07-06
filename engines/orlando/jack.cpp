@@ -20,41 +20,12 @@
  *
  */
 
-#ifndef ORLANDO_PERSON_H
-#define ORLANDO_PERSON_H
-
-#include "common/str.h"
-#include "common/array.h"
-
-namespace Graphics {
-	struct Surface;
-}
+#include "common/scummsys.h"
+#include "orlando/jack.h"
 
 namespace Orlando {
 
-class TextParser;
-class Scene;
-class GraphicsManager;
-
-struct PFrame {
-	Graphics::Surface *surface;
-	int16 offsetX, offsetFlipX, offsetY;
-};
-
-/**
- * Represents a walkable character on a scene.
- */
-class Person {
-	Common::String _id;
-	Common::Array<PFrame> _frames;
-
-public:
-	Person(const Common::String &id);
-	virtual ~Person();
-	bool load(TextParser &parser, Scene *scene);
-	void draw(GraphicsManager *graphics, uint32 time) const;
-};
+Jack::Jack() : Person("JACK") {
+}
 
 } // End of namespace Orlando
-
-#endif

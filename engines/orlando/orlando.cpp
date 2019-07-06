@@ -40,12 +40,13 @@
 #include "orlando/main_menu.h"
 #include "orlando/scene.h"
 #include "orlando/text_parser.h"
+#include "orlando/jack.h"
 
 namespace Orlando {
 
 OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),
 	_graphics(new GraphicsManager(this)), _resources(new ResourceManager(this)), _sound(new SoundManager(this)), _interp(new ScriptInterpreter(this)),
-	_mouse(new Mouse(this)), _debugger(nullptr), _scene(nullptr), _newScene(nullptr), _gameDescription(gameDesc) {
+	_mouse(new Mouse(this)), _debugger(nullptr), _scene(nullptr), _newScene(nullptr), _jack(nullptr), _gameDescription(gameDesc) {
 
 	// Search in subfolders
 	const Common::FSNode gameDataDir(ConfMan.get("path"));
@@ -57,6 +58,7 @@ OrlandoEngine::OrlandoEngine(OSystem *syst, const ADGameDescription *gameDesc) :
 }
 
 OrlandoEngine::~OrlandoEngine() {
+	delete _jack;
 	delete _newScene;
 	delete _scene;
 	delete _debugger;
@@ -139,6 +141,8 @@ void OrlandoEngine::newGame() {
 			break;
 		_vars[id] = varlist.readInt();
 	}
+
+	_jack = new Jack();
 }
 
 void OrlandoEngine::gotoScene(Scene *scene) {
