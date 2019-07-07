@@ -89,14 +89,15 @@ Common::Error OrlandoEngine::run() {
 
 	if (!_resources->loadCommonResources())
 		return Common::kNoGameDataFoundError;
+	
+	if (!_mouse->initialize())
+		return Common::kNoGameDataFoundError;
 
-	newGame();
+	if (!newGame())
+		return Common::kNoGameDataFoundError;
 
 	_debugger = new Debugger(this);
 	gotoScene(new MainMenu(this));
-
-	if (!_mouse->initialize())
-		return Common::kNoGameDataFoundError;
 
 	Common::Event event;
 	while (!shouldQuit()) {
@@ -133,7 +134,7 @@ Common::Error OrlandoEngine::run() {
 	return Common::kNoError;
 }
 
-void OrlandoEngine::newGame() {
+bool OrlandoEngine::newGame() {
 	TextParser varlist = TextParser(_resources->loadResourceFile("VARIABLE.ALL"), false);
 	while (!varlist.eof()) {
 		Common::String id = varlist.readString();
@@ -143,6 +144,10 @@ void OrlandoEngine::newGame() {
 	}
 
 	_jack = new Jack();
+	if (!_jack->initialize(this))
+		return false;
+
+	return true;
 }
 
 void OrlandoEngine::gotoScene(Scene *scene) {

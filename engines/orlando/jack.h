@@ -27,12 +27,17 @@
 
 namespace Orlando {
 
+class OrlandoEngine;
+
 /**
  * The player character Jack Orlando.
  */
 class Jack : public Person {
+
+	bool loadWalk(const char *id, OrlandoEngine *vm);
 public:
 	Jack();
+	bool initialize(OrlandoEngine *vm);
 };
 
 } // End of namespace Orlando

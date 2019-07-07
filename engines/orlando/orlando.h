@@ -60,7 +60,7 @@ public:
 	~OrlandoEngine();
 
 	Common::Error run() override;
-	void newGame();
+	bool newGame();
 	void gotoScene(Scene *scene);
 
 	GUI::Debugger *getDebugger() override { return _debugger; }

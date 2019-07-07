@@ -116,9 +116,14 @@ bool MainMenu::initialize() {
 }
 
 bool MainMenu::run() {
-	Scene::run();
-
 	GraphicsManager *graphics = _vm->getGraphicsManager();
+	uint32 time = _vm->getTotalPlayTime();
+
+	// Draw sprites
+	graphics->draw(*_background);
+	for (Common::HashMap<Common::String, Element *>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
+		i->_value->draw(graphics, time);
+	}
 
 	// Draw UI
 	const uint16 kColorYellow = graphics->RGBToColor(255, 255, 0);

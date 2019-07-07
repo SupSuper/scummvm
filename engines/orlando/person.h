@@ -45,6 +45,7 @@ struct PFrame {
  * Represents a walkable character on a scene.
  */
 class Person {
+protected:
 	Common::String _id;
 	Common::Array<PFrame> _frames;
 

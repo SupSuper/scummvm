@@ -21,11 +21,49 @@
  */
 
 #include "common/scummsys.h"
+#include "common/str.h"
+#include "common/file.h"
+
 #include "orlando/jack.h"
+#include "orlando/orlando.h"
+#include "orlando/resource.h"
+#include "orlando/graphics.h"
 
 namespace Orlando {
 
 Jack::Jack() : Person("JACK") {
+}
+
+bool Jack::loadWalk(const char *id, OrlandoEngine *vm) {
+	ResourceManager *resources = vm->getResourceManager();
+	GraphicsManager *graphics = vm->getGraphicsManager();
+	
+	bool army = vm->getVariable("JACKISWOJ") != 0;
+	const char *w = (army) ? "W" : "";
+
+	const int kFrames = 12;
+	for (int i = 1; i <= kFrames; i++) {
+		Common::String filename = Common::String::format("%s%s%d.PBM", id, w, i);
+		PFrame frame;
+		frame.surface = graphics->loadPaletteBitmap(resources->loadResourceFile(filename));
+		if (!frame.surface)
+			return false;
+		frame.offsetX = 0;
+		frame.offsetFlipX = 0;
+		frame.offsetY = 0;
+		_frames.push_back(frame);
+	}
+	return true;
+}
+
+bool Jack::initialize(OrlandoEngine *vm) {
+	if (!loadWalk("FRON", vm) ||
+		!loadWalk("PROF", vm) ||
+		!loadWalk("BACK", vm) ||
+		!loadWalk("SKFR", vm) ||
+		!loadWalk("SKBA", vm))
+		return false;
+	return true;
 }
 
 } // End of namespace Orlando

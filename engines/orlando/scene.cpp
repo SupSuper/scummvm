@@ -145,10 +145,12 @@ bool Scene::run() {
 	GraphicsManager *graphics = _vm->getGraphicsManager();
 	uint32 time = _vm->getTotalPlayTime();
 
+	// Run commands
 	for (Common::HashMap<Common::String, Macro*>::const_iterator i = _macros.begin(); i != _macros.end(); ++i) {
 		i->_value->execute(_vm->getScriptInterpreter());
 	}
 
+	// Draw scene elements
 	graphics->draw(*_background);
 	for (Common::HashMap<Common::String, Element*>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
 		i->_value->draw(graphics, time);
@@ -156,6 +158,7 @@ bool Scene::run() {
 	for (Common::HashMap<Common::String, Person*>::const_iterator i = _persons.begin(); i != _persons.end(); ++i) {
 		i->_value->draw(graphics, time);
 	}
+	_vm->getJack()->draw(graphics, time);
 	return true;
 }
 
