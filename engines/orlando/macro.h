@@ -200,20 +200,19 @@ struct MacroCommand {
 class Macro {
 	Common::String _id;
 	Common::Array<MacroCommand> _commands;
-	bool _enabled;
+	bool _active;
 	uint _line;
 
 	CommandType getType(const Common::String &id) const;
 public:
 	Macro(const Common::String &id);
 	Common::String getId() const { return _id; }
-	bool isEnabled() const { return _enabled; }
-	void setEnabled(bool enabled) { _enabled = enabled; }
+	bool isActive() const { return _active; }
+	void setActive(bool active) { _active = active; }
 
 	void load(TextParser &parser);
 	const MacroCommand &loadCommand(Common::StringArray args);
 	void execute(ScriptInterpreter *interp, uint32 time);
-	void start();
 	void skipIf();
 };
 

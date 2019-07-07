@@ -96,7 +96,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // SetDialog
 	&ScriptInterpreter::cmdUnknown, // StopAnimaNeg
 	&ScriptInterpreter::cmdUnknown, // SetAnimaFrame
-	&ScriptInterpreter::cmdUnknown, // DeactiveSelf
+	&ScriptInterpreter::cmdDeactiveSelf,
 	&ScriptInterpreter::cmdUnknown, // EOverE
 	&ScriptInterpreter::cmdMusic,
 	&ScriptInterpreter::cmdMoveE,
@@ -156,7 +156,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // PinArea
 	&ScriptInterpreter::cmdUnknown, // AnimaDelay
 	&ScriptInterpreter::cmdUnknown, // Random
-	&ScriptInterpreter::cmdUnknown, // DeactiveMacro
+	&ScriptInterpreter::cmdDeactiveMacro,
 	&ScriptInterpreter::cmdUnknown, // Mixing: unused
 	&ScriptInterpreter::cmdUnknown, // RefreshScreen
 	&ScriptInterpreter::cmdUnknown, // ClearAnimaBuffer
@@ -252,7 +252,7 @@ bool ScriptInterpreter::cmdHide(const MacroCommand &cmd) {
 bool ScriptInterpreter::cmdActiveMacro(const MacroCommand &cmd) {
 	Common::String id = cmd.args[1];
 
-	_vm->getScene()->getMacro(id)->start();
+	_vm->getScene()->getMacro(id)->setActive(true);
 	return true;
 }
 
@@ -335,6 +335,11 @@ bool ScriptInterpreter::cmdMoveP(const MacroCommand &cmd) {
 	return true;
 }
 
+bool ScriptInterpreter::cmdDeactiveSelf(const MacroCommand &cmd) {
+	_macro->setActive(false);
+	return true;
+}
+
 bool ScriptInterpreter::cmdMoveE(const MacroCommand &cmd) {
 	Common::String element = cmd.args[1];
 	int x = toInt(cmd.args[2]);
@@ -410,6 +415,13 @@ bool ScriptInterpreter::cmdIncc(const MacroCommand &cmd) {
 	int value = toInt(cmd.args[2]);
 
 	_vm->getVariable(var) += value;
+	return true;
+}
+
+bool ScriptInterpreter::cmdDeactiveMacro(const MacroCommand &cmd) {
+	Common::String id = cmd.args[1];
+
+	_vm->getScene()->getMacro(id)->setActive(false);
 	return true;
 }
 

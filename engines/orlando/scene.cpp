@@ -135,10 +135,10 @@ bool Scene::initialize() {
 
 	uint32 time = _vm->getTotalPlayTime();
 	Macro *preMacro = _macros["PRE"];
-	preMacro->start();
-	while (preMacro->isEnabled())
+	preMacro->setActive(true);
+	while (preMacro->isActive())
 		preMacro->execute(_vm->getScriptInterpreter(), time);
-	_macros["INIT"]->start();
+	_macros["INIT"]->setActive(true);
 
 	return true;
 }

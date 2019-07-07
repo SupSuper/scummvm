@@ -186,7 +186,7 @@ const char *kCommands[] = {
 	"ANYKEY",
 };
 
-Macro::Macro(const Common::String &id) : _id(id), _enabled(false), _line(0) {
+Macro::Macro(const Common::String &id) : _id(id), _active(false), _line(0) {
 }
 
 CommandType Macro::getType(const Common::String &id) const {
@@ -227,18 +227,15 @@ const MacroCommand &Macro::loadCommand(Common::StringArray args) {
 }
 
 void Macro::execute(ScriptInterpreter *interp, uint32 time) {
-	if (_enabled) {
+	if (_active) {
 		bool done = interp->runCommand(this, _commands[_line], time);
 		if (done)
 			_line++;
-		if (_line >= _commands.size())
-			_enabled = false;
+		if (_line >= _commands.size()) {
+			_active = false;
+			_line = 0;
+		}
 	}
-}
-
-void Macro::start() {
-	_enabled = true;
-	_line = 0;
 }
 
 void Macro::skipIf() {
@@ -246,7 +243,7 @@ void Macro::skipIf() {
 	do {
 		_line++;
 		if (_line >= _commands.size()) {
-			_enabled = false;
+			_active = false;
 			warning("Macro: No matching EndIf found");
 			break;
 		}

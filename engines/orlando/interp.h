@@ -114,6 +114,11 @@ class ScriptInterpreter {
 	 */
 	bool cmdMoveP(const MacroCommand &cmd);
 	/**
+	 * DEACTIVESELF
+	 * Disables the current macro.
+	 */
+	bool cmdDeactiveSelf(const MacroCommand &cmd);
+	/**
 	 * MOVEE <element> <x> <y>
 	 * Moves an element by a relative amount.
 	 */
@@ -153,6 +158,11 @@ class ScriptInterpreter {
 	 * Increments <var> by <value>.
 	 */
 	bool cmdIncc(const MacroCommand &cmd);
+	/**
+	 * DEACTIVEMACRO <id>
+	 * Disables a script macro.
+	 */
+	bool cmdDeactiveMacro(const MacroCommand &cmd);
 	/**
 	 * RUNAVX <avx> <background>
 	 * Plays a AVX video with a background surface.
