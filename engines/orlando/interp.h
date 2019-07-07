@@ -43,6 +43,11 @@ class ScriptInterpreter {
 
 	bool cmdUnknown(Macro *macro, const MacroCommand &cmd);
 	/**
+	 * SETPOSITION <person> <x> <y>
+	 * Changes a person's position.
+	 */
+	bool cmdSetPosition(Macro *macro, const MacroCommand &cmd);
+	/**
 	 * ANIMA <id> <dir> <delay> <mode> <rec> <+->
 	 * Starts playing animation <id>:
 	 * <dir> 0 = play forward, 1 = play backward
@@ -51,7 +56,20 @@ class ScriptInterpreter {
 	 * <rec> record to play
 	 */
 	bool cmdAnima(Macro *macro, const MacroCommand &cmd);
-	/** End of an IF block */
+	/**
+	 * HIDE <person>
+	 * Makes a person invisible.
+	 */
+	bool cmdHide(Macro *macro, const MacroCommand &cmd);
+	/**
+	 * ACTIVEMACRO <id>
+	 * Enables a script macro.
+	 */
+	bool cmdActiveMacro(Macro *macro, const MacroCommand &cmd);
+	/**
+	 * ENDIF
+	 * End of an If block.
+	 */
 	bool cmdEndIf(Macro *macro, const MacroCommand &cmd);
 	/**
 	 * GOTOSCENE <id>
@@ -65,7 +83,7 @@ class ScriptInterpreter {
 	bool cmdLet(Macro *macro, const MacroCommand &cmd);
 	/**
 	 * IF <var> <value>
-	 * Checks if <var> is equal to <var>.
+	 * Executes block if <var> is equal to <var>.
 	 */
 	bool cmdIf(Macro *macro, const MacroCommand &cmd);
 	/**
@@ -73,6 +91,31 @@ class ScriptInterpreter {
 	 * Plays a sound effect.
 	 */
 	bool cmdEffect(Macro *macro, const MacroCommand &cmd);
+	/**
+	 * HIDEE <element>
+	 * Makes an element invisible.
+	 */
+	bool cmdHideE(Macro *macro, const MacroCommand &cmd);
+	/**
+	 * SHOWE <element>
+	 * Makes an element visible.
+	 */
+	bool cmdShowE(Macro *macro, const MacroCommand &cmd);
+	/**
+	 * SETPOSITIONE <element> <x> <y>
+	 * Changes an element's position.
+	 */
+	bool cmdSetPositionE(Macro *macro, const MacroCommand &cmd);
+	/**
+	 * MOVEP <person> <x> <y>
+	 * Moves a person by a relative amount.
+	 */
+	bool cmdMoveP(Macro *macro, const MacroCommand &cmd);
+	/**
+	 * MOVEE <element> <x> <y>
+	 * Moves an element by a relative amount.
+	 */
+	bool cmdMoveE(Macro *macro, const MacroCommand &cmd);
 	/**
 	 * MUSIC <id> <arg2> <arg3>
 	 * Plays a music track.
@@ -84,10 +127,25 @@ class ScriptInterpreter {
 	 */
 	bool cmdInc(Macro *macro, const MacroCommand &cmd);
 	/**
+	 * WAITWHILE <var> <value>
+	 * Pauses this macro while <var> is equal to <value>.
+	 */
+	bool cmdWaitWhile(Macro *macro, const MacroCommand &cmd);
+	/**
 	 * IFF <var> <op> <value>
-	 * Checks if <var> is less or greater than <value>.
+	 * Executes block if <var> is less or greater than <value>.
 	 */
 	bool cmdIff(Macro *macro, const MacroCommand &cmd);
+	/**
+	 * GETPERSONX <person> <var>
+	 * Sets <var> to the <person>'s X position.
+	 */
+	bool cmdGetPersonX(Macro *macro, const MacroCommand &cmd);
+	/**
+	 * GETPERSONY <person> <var>
+	 * Sets <var> to the <person>'s Y position.
+	 */
+	bool cmdGetPersonY(Macro *macro, const MacroCommand &cmd);
 	/**
 	 * INCC <var> <value>
 	 * Increments <var> by <value>.

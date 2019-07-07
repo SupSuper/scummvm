@@ -48,6 +48,7 @@ class Element {
 	Quad _region;
 	Graphics::Surface *_surface;
 	Animation *_anim;
+	bool _visible;
 
 public:
 	Element(const Common::String &id);
@@ -55,7 +56,9 @@ public:
 	Common::String getId() const { return _id; }
 	Animation *getAnimation() { return _anim; }
 	void setAnimation(Animation *anim) { _anim = anim; }
+	Common::Point getPosition() const { return _pos; }
 	void setPosition(const Common::Point &pos) { _pos = pos; }
+	void setVisible(bool visible) { _visible = visible; }
 
 	bool load(TextParser &parser, Scene *scene);
 	Graphics::Surface *loadSurface(const Common::String &name, Scene *scene);

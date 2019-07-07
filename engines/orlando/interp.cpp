@@ -32,13 +32,14 @@
 #include "orlando/animation.h"
 #include "orlando/sound.h"
 #include "orlando/avx_video.h"
+#include "orlando/person.h"
 
 namespace Orlando {
 
 const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown,
 	&ScriptInterpreter::cmdUnknown, // ChWindow
-	&ScriptInterpreter::cmdUnknown, // SetPosition
+	&ScriptInterpreter::cmdSetPosition,
 	&ScriptInterpreter::cmdUnknown, // InitFirst
 	&ScriptInterpreter::cmdUnknown, // SetPersonData
 	&ScriptInterpreter::cmdAnima,
@@ -46,10 +47,10 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // WalkTo
 	&ScriptInterpreter::cmdUnknown, // RunInsertion
 	&ScriptInterpreter::cmdUnknown, // RunFilm: unused
-	&ScriptInterpreter::cmdUnknown, // Hide
+	&ScriptInterpreter::cmdHide,
 	&ScriptInterpreter::cmdUnknown, // Talk
 	&ScriptInterpreter::cmdUnknown, // Dialog
-	&ScriptInterpreter::cmdUnknown, // ActiveMacro
+	&ScriptInterpreter::cmdActiveMacro,
 	&ScriptInterpreter::cmdUnknown, // IfAnswer
 	&ScriptInterpreter::cmdEndIf,
 	&ScriptInterpreter::cmdUnknown, // ShowFrame: unused
@@ -75,11 +76,11 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // MoveAR: unsed
 	&ScriptInterpreter::cmdUnknown, // SetFrame
 	&ScriptInterpreter::cmdUnknown, // NoHave
-	&ScriptInterpreter::cmdUnknown, // HideE
-	&ScriptInterpreter::cmdUnknown, // ShowE
+	&ScriptInterpreter::cmdHideE,
+	&ScriptInterpreter::cmdShowE,
 	&ScriptInterpreter::cmdUnknown, // SetShiftX
-	&ScriptInterpreter::cmdUnknown, // SetPositionE
-	&ScriptInterpreter::cmdUnknown, // SetPositionEV
+	&ScriptInterpreter::cmdSetPositionE,
+	&ScriptInterpreter::cmdSetPositionE, // TODO: SetPositionEV
 	&ScriptInterpreter::cmdUnknown, // IfMouseXM
 	&ScriptInterpreter::cmdUnknown, // IfMouseXW
 	&ScriptInterpreter::cmdUnknown, // ScrollLeft
@@ -90,7 +91,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // SetChkPrior
 	&ScriptInterpreter::cmdUnknown, // Brightness
 	&ScriptInterpreter::cmdUnknown, // SetPerspY
-	&ScriptInterpreter::cmdUnknown, // MoveP
+	&ScriptInterpreter::cmdMoveP,
 	&ScriptInterpreter::cmdUnknown, // StopAnimaFrame: unused
 	&ScriptInterpreter::cmdUnknown, // SetDialog
 	&ScriptInterpreter::cmdUnknown, // StopAnimaNeg
@@ -98,7 +99,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // DeactiveSelf
 	&ScriptInterpreter::cmdUnknown, // EOverE
 	&ScriptInterpreter::cmdMusic,
-	&ScriptInterpreter::cmdUnknown, // MoveE
+	&ScriptInterpreter::cmdMoveE,
 	&ScriptInterpreter::cmdUnknown, // BrightnessE
 	&ScriptInterpreter::cmdUnknown, // WalkEffect
 	&ScriptInterpreter::cmdUnknown, // HaveGun
@@ -107,10 +108,10 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // HaveTool
 	&ScriptInterpreter::cmdUnknown, // NoHaveTool
 	&ScriptInterpreter::cmdInc,
-	&ScriptInterpreter::cmdUnknown, // WaitWhile
+	&ScriptInterpreter::cmdWaitWhile,
 	&ScriptInterpreter::cmdUnknown, // Stay
 	&ScriptInterpreter::cmdUnknown, // GameOver: unused
-	&ScriptInterpreter::cmdUnknown, // MoveEP
+	&ScriptInterpreter::cmdMoveE, // TODO: MoveEP
 	&ScriptInterpreter::cmdUnknown, // WaitWhileAnima
 	&ScriptInterpreter::cmdUnknown, // ShowFrameDir: unused
 	&ScriptInterpreter::cmdUnknown, // StayDef
@@ -130,8 +131,8 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // HideFaceAt
 	&ScriptInterpreter::cmdUnknown, // Include: unused
 	&ScriptInterpreter::cmdUnknown, // LookTo
-	&ScriptInterpreter::cmdUnknown, // GetPersonX
-	&ScriptInterpreter::cmdUnknown, // GetPersonY
+	&ScriptInterpreter::cmdGetPersonX,
+	&ScriptInterpreter::cmdGetPersonY,
 	&ScriptInterpreter::cmdIncc,
 	&ScriptInterpreter::cmdUnknown, // ContinueAnima
 	&ScriptInterpreter::cmdUnknown, // LockWalk
@@ -159,7 +160,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // Mixing: unused
 	&ScriptInterpreter::cmdUnknown, // RefreshScreen
 	&ScriptInterpreter::cmdUnknown, // ClearAnimaBuffer
-	&ScriptInterpreter::cmdRunAvx, // RunAvx
+	&ScriptInterpreter::cmdRunAvx,
 	&ScriptInterpreter::cmdUnknown, // JackTempo
 	&ScriptInterpreter::cmdUnknown, // ClearMenuBar
 	&ScriptInterpreter::cmdUnknown, // UnLockCanal: unused
@@ -218,6 +219,15 @@ bool ScriptInterpreter::cmdUnknown(Macro *macro, const MacroCommand &cmd) {
 	return true;
 }
 
+bool ScriptInterpreter::cmdSetPosition(Macro *macro, const MacroCommand &cmd) {
+	Common::String person = cmd.args[1];
+	int x = toInt(cmd.args[2]);
+	int y = toInt(cmd.args[3]);
+
+	_vm->getScene()->getPerson(person)->setPosition(Common::Point(x, y));
+	return true;
+}
+
 bool ScriptInterpreter::cmdAnima(Macro *macro, const MacroCommand &cmd) {
 	Common::String anim = cmd.args[1];
 	bool reverse = (cmd.args[2] == "1");
@@ -227,6 +237,20 @@ bool ScriptInterpreter::cmdAnima(Macro *macro, const MacroCommand &cmd) {
 	// TODO: + -
 
 	_vm->getScene()->getElement(anim)->getAnimation()->play(reverse, delay, mode, rec, _vm->getTotalPlayTime());
+	return true;
+}
+
+bool ScriptInterpreter::cmdHide(Macro *macro, const MacroCommand &cmd) {
+	Common::String person = cmd.args[1];
+
+	_vm->getScene()->getPerson(person)->setVisible(false);
+	return true;
+}
+
+bool ScriptInterpreter::cmdActiveMacro(Macro *macro, const MacroCommand &cmd) {
+	Common::String id = cmd.args[1];
+
+	_vm->getScene()->getMacro(id)->start();
 	return true;
 }
 
@@ -276,6 +300,49 @@ bool ScriptInterpreter::cmdEffect(Macro *macro, const MacroCommand &cmd) {
 	return true;
 }
 
+bool ScriptInterpreter::cmdHideE(Macro *macro, const MacroCommand &cmd) {
+	Common::String element = cmd.args[1];
+
+	_vm->getScene()->getElement(element)->setVisible(false);
+	return true;
+}
+
+bool ScriptInterpreter::cmdShowE(Macro *macro, const MacroCommand &cmd) {
+	Common::String element = cmd.args[1];
+
+	_vm->getScene()->getElement(element)->setVisible(true);
+	return true;
+}
+
+bool ScriptInterpreter::cmdSetPositionE(Macro *macro, const MacroCommand &cmd) {
+	Common::String element = cmd.args[1];
+	int x = toInt(cmd.args[2]);
+	int y = toInt(cmd.args[3]);
+
+	_vm->getScene()->getElement(element)->setPosition(Common::Point(x, y));
+	return true;
+}
+
+bool ScriptInterpreter::cmdMoveP(Macro *macro, const MacroCommand &cmd) {
+	Common::String person = cmd.args[1];
+	int x = toInt(cmd.args[2]);
+	int y = toInt(cmd.args[3]);
+
+	Person *p = _vm->getScene()->getPerson(person);
+	p->setPosition(p->getPosition() + Common::Point(x, y));
+	return true;
+}
+
+bool ScriptInterpreter::cmdMoveE(Macro *macro, const MacroCommand &cmd) {
+	Common::String element = cmd.args[1];
+	int x = toInt(cmd.args[2]);
+	int y = toInt(cmd.args[3]);
+
+	Element *e = _vm->getScene()->getElement(element);
+	e->setPosition(e->getPosition() + Common::Point(x, y));
+	return true;
+}
+
 bool ScriptInterpreter::cmdMusic(Macro *macro, const MacroCommand &cmd) {
 	Common::String music = cmd.args[1];
 	// TODO: Extra arguments
@@ -289,6 +356,16 @@ bool ScriptInterpreter::cmdInc(Macro *macro, const MacroCommand &cmd) {
 
 	_vm->getVariable(var)++;
 	return true;
+}
+
+bool ScriptInterpreter::cmdWaitWhile(Macro *macro, const MacroCommand &cmd) {
+	Common::String var = cmd.args[1];
+	int value = toInt(cmd.args[2]);
+
+	if (_vm->getVariable(var) == value)
+		return false;
+	else
+		return true;
 }
 
 bool ScriptInterpreter::cmdIff(Macro *macro, const MacroCommand &cmd) {
@@ -308,6 +385,22 @@ bool ScriptInterpreter::cmdIff(Macro *macro, const MacroCommand &cmd) {
 		macro->skipIf();
 		return false;
 	}
+}
+
+bool ScriptInterpreter::cmdGetPersonX(Macro *macro, const MacroCommand &cmd) {
+	Common::String person = cmd.args[1];
+	Common::String var = cmd.args[2];
+
+	_vm->getVariable(var) = _vm->getScene()->getPerson(person)->getPosition().x;
+	return true;
+}
+
+bool ScriptInterpreter::cmdGetPersonY(Macro *macro, const MacroCommand &cmd) {
+	Common::String person = cmd.args[1];
+	Common::String var = cmd.args[2];
+
+	_vm->getVariable(var) = _vm->getScene()->getPerson(person)->getPosition().y;
+	return true;
 }
 
 bool ScriptInterpreter::cmdIncc(Macro *macro, const MacroCommand &cmd) {

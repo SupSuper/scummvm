@@ -25,6 +25,7 @@
 
 #include "common/str.h"
 #include "common/array.h"
+#include "common/rect.h"
 
 namespace Graphics {
 	struct Surface;
@@ -48,10 +49,16 @@ class Person {
 protected:
 	Common::String _id;
 	Common::Array<PFrame> _frames;
+	Common::Point _pos;
+	bool _visible;
 
 public:
 	Person(const Common::String &id);
 	virtual ~Person();
+	Common::Point getPosition() const { return _pos; }
+	void setPosition(const Common::Point &pos) { _pos = pos; }
+	void setVisible(bool visible) { _visible = visible; }
+
 	bool load(TextParser &parser, Scene *scene);
 	void draw(GraphicsManager *graphics, uint32 time) const;
 };

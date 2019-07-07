@@ -31,7 +31,7 @@
 
 namespace Orlando {
 
-Element::Element(const Common::String &id) : _id(id), _bpp(16), _surface(nullptr), _anim(nullptr) {
+Element::Element(const Common::String &id) : _id(id), _bpp(16), _surface(nullptr), _anim(nullptr), _visible(true) {
 }
 
 Element::~Element() {
@@ -67,6 +67,9 @@ Graphics::Surface *Element::loadSurface(const Common::String &name, Scene *scene
 }
 
 void Element::draw(GraphicsManager *graphics, uint32 time) const {
+	if (!_visible)
+		return;
+
 	if (_anim != nullptr) {
 		AFrame frame = _anim->nextFrame(time);
 		Graphics::Surface *surface = frame.surface;

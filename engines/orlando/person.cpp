@@ -30,7 +30,7 @@
 
 namespace Orlando {
 
-Person::Person(const Common::String &id) : _id(id) {
+Person::Person(const Common::String &id) : _id(id), _visible(true) {
 }
 
 Person::~Person() {
@@ -69,7 +69,11 @@ bool Person::load(TextParser &parser, Scene *scene) {
 }
 
 void Person::draw(GraphicsManager *graphics, uint32 time) const {
-	graphics->drawTransparent(*_frames[0].surface, Common::Point(0, 0));
+	if (!_visible)
+		return;
+
+	const PFrame &frame = _frames[0];
+	graphics->drawTransparent(*frame.surface, _pos + Common::Point(frame.offsetX, frame.offsetY));
 }
 
 } // End of namespace Orlando
