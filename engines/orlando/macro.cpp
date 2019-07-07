@@ -226,9 +226,9 @@ const MacroCommand &Macro::loadCommand(Common::StringArray args) {
 	return _commands.front();
 }
 
-void Macro::execute(ScriptInterpreter *interp) {
+void Macro::execute(ScriptInterpreter *interp, uint32 time) {
 	if (_enabled) {
-		bool done = interp->runCommand(this, _commands[_line]);
+		bool done = interp->runCommand(this, _commands[_line], time);
 		if (done)
 			_line++;
 		if (_line >= _commands.size())

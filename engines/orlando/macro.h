@@ -212,7 +212,7 @@ public:
 
 	void load(TextParser &parser);
 	const MacroCommand &loadCommand(Common::StringArray args);
-	void execute(ScriptInterpreter *interp);
+	void execute(ScriptInterpreter *interp, uint32 time);
 	void start();
 	void skipIf();
 };

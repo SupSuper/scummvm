@@ -195,13 +195,15 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // AnyKey: unused
 };
 
-ScriptInterpreter::ScriptInterpreter(OrlandoEngine *vm) : _vm(vm) {
+ScriptInterpreter::ScriptInterpreter(OrlandoEngine *vm) : _vm(vm), _macro(nullptr), _time(0) {
 }
 
-bool ScriptInterpreter::runCommand(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::runCommand(Macro *macro, const MacroCommand &cmd, uint32 time) {
+	_macro = macro;
+	_time = time;
 	debug("ScriptInterpreter: Executing [%s] %s", macro->getId().c_str(), cmd.args[0].c_str());
 	ScriptHandler handler = kCommandHandlers[cmd.type];
-	return (this->*handler)(macro, cmd);
+	return (this->*handler)(cmd);
 }
 
 int ScriptInterpreter::varOrLiteral(const Common::String &arg) const {
@@ -214,12 +216,12 @@ int ScriptInterpreter::varOrLiteral(const Common::String &arg) const {
 	}
 }
 
-bool ScriptInterpreter::cmdUnknown(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdUnknown(const MacroCommand &cmd) {
 	warning("ScriptInterpreter: Unknown command %s", cmd.args[0].c_str());
 	return true;
 }
 
-bool ScriptInterpreter::cmdSetPosition(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdSetPosition(const MacroCommand &cmd) {
 	Common::String person = cmd.args[1];
 	int x = toInt(cmd.args[2]);
 	int y = toInt(cmd.args[3]);
@@ -228,7 +230,7 @@ bool ScriptInterpreter::cmdSetPosition(Macro *macro, const MacroCommand &cmd) {
 	return true;
 }
 
-bool ScriptInterpreter::cmdAnima(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdAnima(const MacroCommand &cmd) {
 	Common::String anim = cmd.args[1];
 	bool reverse = (cmd.args[2] == "1");
 	int delay = toInt(cmd.args[3]) * 1000 / 60;
@@ -236,29 +238,29 @@ bool ScriptInterpreter::cmdAnima(Macro *macro, const MacroCommand &cmd) {
 	int rec = toInt(cmd.args[5]);
 	// TODO: + -
 
-	_vm->getScene()->getElement(anim)->getAnimation()->play(reverse, delay, mode, rec, _vm->getTotalPlayTime());
+	_vm->getScene()->getElement(anim)->getAnimation()->play(reverse, delay, mode, rec, _time);
 	return true;
 }
 
-bool ScriptInterpreter::cmdHide(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdHide(const MacroCommand &cmd) {
 	Common::String person = cmd.args[1];
 
 	_vm->getScene()->getPerson(person)->setVisible(false);
 	return true;
 }
 
-bool ScriptInterpreter::cmdActiveMacro(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdActiveMacro(const MacroCommand &cmd) {
 	Common::String id = cmd.args[1];
 
 	_vm->getScene()->getMacro(id)->start();
 	return true;
 }
 
-bool ScriptInterpreter::cmdEndIf(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdEndIf(const MacroCommand &cmd) {
 	return true;
 }
 
-bool ScriptInterpreter::cmdGoToScene(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdGoToScene(const MacroCommand &cmd) {
 	Common::String scene = cmd.args[1];
 	// Remove extension if any
 	if (scene.hasSuffix(".CFG")) {
@@ -269,7 +271,7 @@ bool ScriptInterpreter::cmdGoToScene(Macro *macro, const MacroCommand &cmd) {
 	return true;
 }
 
-bool ScriptInterpreter::cmdLet(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdLet(const MacroCommand &cmd) {
 	Common::String var = cmd.args[1];
 	int value = varOrLiteral(cmd.args[2]);
 
@@ -277,7 +279,7 @@ bool ScriptInterpreter::cmdLet(Macro *macro, const MacroCommand &cmd) {
 	return true;
 }
 
-bool ScriptInterpreter::cmdIf(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdIf(const MacroCommand &cmd) {
 	Common::String var = cmd.args[1];
 	int value = toInt(cmd.args[2]);
 
@@ -285,12 +287,12 @@ bool ScriptInterpreter::cmdIf(Macro *macro, const MacroCommand &cmd) {
 	if (condition) {
 		return true;
 	} else {
-		macro->skipIf();
+		_macro->skipIf();
 		return false;
 	}
 }
 
-bool ScriptInterpreter::cmdEffect(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdEffect(const MacroCommand &cmd) {
 	Common::String effect = cmd.args[1];
 	// TODO: Extra arguments
 
@@ -300,21 +302,21 @@ bool ScriptInterpreter::cmdEffect(Macro *macro, const MacroCommand &cmd) {
 	return true;
 }
 
-bool ScriptInterpreter::cmdHideE(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdHideE(const MacroCommand &cmd) {
 	Common::String element = cmd.args[1];
 
 	_vm->getScene()->getElement(element)->setVisible(false);
 	return true;
 }
 
-bool ScriptInterpreter::cmdShowE(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdShowE(const MacroCommand &cmd) {
 	Common::String element = cmd.args[1];
 
 	_vm->getScene()->getElement(element)->setVisible(true);
 	return true;
 }
 
-bool ScriptInterpreter::cmdSetPositionE(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdSetPositionE(const MacroCommand &cmd) {
 	Common::String element = cmd.args[1];
 	int x = toInt(cmd.args[2]);
 	int y = toInt(cmd.args[3]);
@@ -323,7 +325,7 @@ bool ScriptInterpreter::cmdSetPositionE(Macro *macro, const MacroCommand &cmd) {
 	return true;
 }
 
-bool ScriptInterpreter::cmdMoveP(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdMoveP(const MacroCommand &cmd) {
 	Common::String person = cmd.args[1];
 	int x = toInt(cmd.args[2]);
 	int y = toInt(cmd.args[3]);
@@ -333,7 +335,7 @@ bool ScriptInterpreter::cmdMoveP(Macro *macro, const MacroCommand &cmd) {
 	return true;
 }
 
-bool ScriptInterpreter::cmdMoveE(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdMoveE(const MacroCommand &cmd) {
 	Common::String element = cmd.args[1];
 	int x = toInt(cmd.args[2]);
 	int y = toInt(cmd.args[3]);
@@ -343,7 +345,7 @@ bool ScriptInterpreter::cmdMoveE(Macro *macro, const MacroCommand &cmd) {
 	return true;
 }
 
-bool ScriptInterpreter::cmdMusic(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdMusic(const MacroCommand &cmd) {
 	Common::String music = cmd.args[1];
 	// TODO: Extra arguments
 
@@ -351,14 +353,14 @@ bool ScriptInterpreter::cmdMusic(Macro *macro, const MacroCommand &cmd) {
 	return true;
 }
 
-bool ScriptInterpreter::cmdInc(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdInc(const MacroCommand &cmd) {
 	Common::String var = cmd.args[1];
 
 	_vm->getVariable(var)++;
 	return true;
 }
 
-bool ScriptInterpreter::cmdWaitWhile(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdWaitWhile(const MacroCommand &cmd) {
 	Common::String var = cmd.args[1];
 	int value = toInt(cmd.args[2]);
 
@@ -368,7 +370,7 @@ bool ScriptInterpreter::cmdWaitWhile(Macro *macro, const MacroCommand &cmd) {
 		return true;
 }
 
-bool ScriptInterpreter::cmdIff(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdIff(const MacroCommand &cmd) {
 	Common::String var = cmd.args[1];
 	Common::String op = cmd.args[2];
 	int value = toInt(cmd.args[3]);
@@ -382,12 +384,12 @@ bool ScriptInterpreter::cmdIff(Macro *macro, const MacroCommand &cmd) {
 	if (condition) {
 		return true;
 	} else {
-		macro->skipIf();
+		_macro->skipIf();
 		return false;
 	}
 }
 
-bool ScriptInterpreter::cmdGetPersonX(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdGetPersonX(const MacroCommand &cmd) {
 	Common::String person = cmd.args[1];
 	Common::String var = cmd.args[2];
 
@@ -395,7 +397,7 @@ bool ScriptInterpreter::cmdGetPersonX(Macro *macro, const MacroCommand &cmd) {
 	return true;
 }
 
-bool ScriptInterpreter::cmdGetPersonY(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdGetPersonY(const MacroCommand &cmd) {
 	Common::String person = cmd.args[1];
 	Common::String var = cmd.args[2];
 
@@ -403,7 +405,7 @@ bool ScriptInterpreter::cmdGetPersonY(Macro *macro, const MacroCommand &cmd) {
 	return true;
 }
 
-bool ScriptInterpreter::cmdIncc(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdIncc(const MacroCommand &cmd) {
 	Common::String var = cmd.args[1];
 	int value = toInt(cmd.args[2]);
 
@@ -411,7 +413,7 @@ bool ScriptInterpreter::cmdIncc(Macro *macro, const MacroCommand &cmd) {
 	return true;
 }
 
-bool ScriptInterpreter::cmdRunAvx(Macro *macro, const MacroCommand &cmd) {
+bool ScriptInterpreter::cmdRunAvx(const MacroCommand &cmd) {
 	Common::String avx = cmd.args[1];
 	// Remove extension if any
 	if (avx.hasSuffix(".AVX")) {

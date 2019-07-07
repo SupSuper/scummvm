@@ -48,7 +48,7 @@ bool Debugger::cmdRun(int argc, const char **argv) {
 		if (cmd.type == kCmdUnknown) {
 			debugPrintf("Invalid command\n");
 		} else {
-			_vm->getScriptInterpreter()->runCommand(&macro, cmd);
+			_vm->getScriptInterpreter()->runCommand(&macro, cmd, _vm->getTotalPlayTime());
 			return false;
 		}
 	}

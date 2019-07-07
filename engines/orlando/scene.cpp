@@ -133,10 +133,11 @@ bool Scene::initialize() {
 		!loadMcc())
 		return false;
 
+	uint32 time = _vm->getTotalPlayTime();
 	Macro *preMacro = _macros["PRE"];
 	preMacro->start();
 	while (preMacro->isEnabled())
-		preMacro->execute(_vm->getScriptInterpreter());
+		preMacro->execute(_vm->getScriptInterpreter(), time);
 	_macros["INIT"]->start();
 
 	return true;
@@ -148,7 +149,7 @@ bool Scene::run() {
 
 	// Run commands
 	for (Common::HashMap<Common::String, Macro*>::const_iterator i = _macros.begin(); i != _macros.end(); ++i) {
-		i->_value->execute(_vm->getScriptInterpreter());
+		i->_value->execute(_vm->getScriptInterpreter(), time);
 	}
 
 	// Draw scene elements

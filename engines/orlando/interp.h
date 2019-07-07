@@ -29,24 +29,26 @@ namespace Orlando {
 
 class OrlandoEngine;
 
-typedef bool (ScriptInterpreter:: *ScriptHandler)(Macro *, const MacroCommand &);
+typedef bool (ScriptInterpreter:: *ScriptHandler)(const MacroCommand &);
 
 /**
  * Interprets and executes scene macros (scripts).
  */
 class ScriptInterpreter {
-	OrlandoEngine *_vm;
 	static const ScriptHandler kCommandHandlers[];
+	OrlandoEngine *_vm;
+	Macro *_macro;
+	uint32 _time;
 
 	/** Some commands can be passed either a literal or a *VAR value */
 	int varOrLiteral(const Common::String &arg) const;
 
-	bool cmdUnknown(Macro *macro, const MacroCommand &cmd);
+	bool cmdUnknown(const MacroCommand &cmd);
 	/**
 	 * SETPOSITION <person> <x> <y>
 	 * Changes a person's position.
 	 */
-	bool cmdSetPosition(Macro *macro, const MacroCommand &cmd);
+	bool cmdSetPosition(const MacroCommand &cmd);
 	/**
 	 * ANIMA <id> <dir> <delay> <mode> <rec> <+->
 	 * Starts playing animation <id>:
@@ -55,110 +57,110 @@ class ScriptInterpreter {
 	 * <mode> 1 = play once, 2 = loop, 3 rec once, 4 rec loop, 5 flx once, 6 flx loop
 	 * <rec> record to play
 	 */
-	bool cmdAnima(Macro *macro, const MacroCommand &cmd);
+	bool cmdAnima(const MacroCommand &cmd);
 	/**
 	 * HIDE <person>
 	 * Makes a person invisible.
 	 */
-	bool cmdHide(Macro *macro, const MacroCommand &cmd);
+	bool cmdHide(const MacroCommand &cmd);
 	/**
 	 * ACTIVEMACRO <id>
 	 * Enables a script macro.
 	 */
-	bool cmdActiveMacro(Macro *macro, const MacroCommand &cmd);
+	bool cmdActiveMacro(const MacroCommand &cmd);
 	/**
 	 * ENDIF
 	 * End of an If block.
 	 */
-	bool cmdEndIf(Macro *macro, const MacroCommand &cmd);
+	bool cmdEndIf(const MacroCommand &cmd);
 	/**
 	 * GOTOSCENE <id>
 	 * Changes the active scene.
 	 */
-	bool cmdGoToScene(Macro *macro, const MacroCommand &cmd);
+	bool cmdGoToScene(const MacroCommand &cmd);
 	/**
 	 * LET <var> <value>
 	 * Assigns <value> to <var>.
 	 */
-	bool cmdLet(Macro *macro, const MacroCommand &cmd);
+	bool cmdLet(const MacroCommand &cmd);
 	/**
 	 * IF <var> <value>
 	 * Executes block if <var> is equal to <var>.
 	 */
-	bool cmdIf(Macro *macro, const MacroCommand &cmd);
+	bool cmdIf(const MacroCommand &cmd);
 	/**
 	 * EFFECT <id> <arg2> <arg3> <arg4>
 	 * Plays a sound effect.
 	 */
-	bool cmdEffect(Macro *macro, const MacroCommand &cmd);
+	bool cmdEffect(const MacroCommand &cmd);
 	/**
 	 * HIDEE <element>
 	 * Makes an element invisible.
 	 */
-	bool cmdHideE(Macro *macro, const MacroCommand &cmd);
+	bool cmdHideE(const MacroCommand &cmd);
 	/**
 	 * SHOWE <element>
 	 * Makes an element visible.
 	 */
-	bool cmdShowE(Macro *macro, const MacroCommand &cmd);
+	bool cmdShowE(const MacroCommand &cmd);
 	/**
 	 * SETPOSITIONE <element> <x> <y>
 	 * Changes an element's position.
 	 */
-	bool cmdSetPositionE(Macro *macro, const MacroCommand &cmd);
+	bool cmdSetPositionE(const MacroCommand &cmd);
 	/**
 	 * MOVEP <person> <x> <y>
 	 * Moves a person by a relative amount.
 	 */
-	bool cmdMoveP(Macro *macro, const MacroCommand &cmd);
+	bool cmdMoveP(const MacroCommand &cmd);
 	/**
 	 * MOVEE <element> <x> <y>
 	 * Moves an element by a relative amount.
 	 */
-	bool cmdMoveE(Macro *macro, const MacroCommand &cmd);
+	bool cmdMoveE(const MacroCommand &cmd);
 	/**
 	 * MUSIC <id> <arg2> <arg3>
 	 * Plays a music track.
 	 */
-	bool cmdMusic(Macro *macro, const MacroCommand &cmd);
+	bool cmdMusic(const MacroCommand &cmd);
 	/**
 	 * INC <var>
 	 * Increments <var> by 1.
 	 */
-	bool cmdInc(Macro *macro, const MacroCommand &cmd);
+	bool cmdInc(const MacroCommand &cmd);
 	/**
 	 * WAITWHILE <var> <value>
 	 * Pauses this macro while <var> is equal to <value>.
 	 */
-	bool cmdWaitWhile(Macro *macro, const MacroCommand &cmd);
+	bool cmdWaitWhile(const MacroCommand &cmd);
 	/**
 	 * IFF <var> <op> <value>
 	 * Executes block if <var> is less or greater than <value>.
 	 */
-	bool cmdIff(Macro *macro, const MacroCommand &cmd);
+	bool cmdIff(const MacroCommand &cmd);
 	/**
 	 * GETPERSONX <person> <var>
 	 * Sets <var> to the <person>'s X position.
 	 */
-	bool cmdGetPersonX(Macro *macro, const MacroCommand &cmd);
+	bool cmdGetPersonX(const MacroCommand &cmd);
 	/**
 	 * GETPERSONY <person> <var>
 	 * Sets <var> to the <person>'s Y position.
 	 */
-	bool cmdGetPersonY(Macro *macro, const MacroCommand &cmd);
+	bool cmdGetPersonY(const MacroCommand &cmd);
 	/**
 	 * INCC <var> <value>
 	 * Increments <var> by <value>.
 	 */
-	bool cmdIncc(Macro *macro, const MacroCommand &cmd);
+	bool cmdIncc(const MacroCommand &cmd);
 	/**
 	 * RUNAVX <avx> <background>
 	 * Plays a AVX video with a background surface.
 	 */
-	bool cmdRunAvx(Macro *macro, const MacroCommand &cmd);
+	bool cmdRunAvx(const MacroCommand &cmd);
 public:
 	ScriptInterpreter(OrlandoEngine *vm);
-	bool runCommand(Macro *macro, const MacroCommand &cmd);
+	bool runCommand(Macro *macro, const MacroCommand &cmd, uint32 time);
 };
 
 } // End of namespace Orlando
