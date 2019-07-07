@@ -137,6 +137,7 @@ bool Scene::initialize() {
 	preMacro->start();
 	while (preMacro->isEnabled())
 		preMacro->execute(_vm->getScriptInterpreter());
+	_macros["INIT"]->start();
 
 	return true;
 }
