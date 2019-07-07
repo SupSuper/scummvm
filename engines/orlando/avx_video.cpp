@@ -228,6 +228,7 @@ bool AvxVideo::initialize() {
 
 	_stream->skip(8);
 	_flx = new FlxAnimation(_stream, graphics->kScreenFormat, DisposeAfterUse::NO);
+	_flx->nextFrame();
 	_flxCurrent++;
 
 	if (ConfMan.getBool("subtitles")) {

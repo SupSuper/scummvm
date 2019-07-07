@@ -153,7 +153,6 @@ FlxAnimation::FlxAnimation(Common::SeekableReadStream *stream, const Graphics::P
 	stream->skip(2);
 	_bpp16 = stream->readByte() ? true : false;
 	stream->skip(5);
-	nextFrame();
 }
 
 FlxAnimation::~FlxAnimation() {
