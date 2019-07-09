@@ -200,8 +200,9 @@ struct MacroCommand {
 class Macro {
 	Common::String _id;
 	Common::Array<MacroCommand> _commands;
-	bool _active;
+	bool _active, _waiting;
 	uint _line;
+	uint32 _time;
 
 	CommandType getType(const Common::String &id) const;
 public:
@@ -209,6 +210,11 @@ public:
 	Common::String getId() const { return _id; }
 	bool isActive() const { return _active; }
 	void setActive(bool active) { _active = active; }
+	bool isWaiting() const { return _waiting; }
+	void setWaiting(bool waiting) { _waiting = waiting; }
+	uint32 getTime() const { return _time; }
+	void setTime(uint32 time) { _time = time; }
+	void reset() { _line = 0; }
 
 	void load(TextParser &parser);
 	const MacroCommand &loadCommand(Common::StringArray args);

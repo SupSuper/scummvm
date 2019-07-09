@@ -29,6 +29,7 @@
 namespace Orlando {
 
 class TextParser;
+class OrlandoEngine;
 
 struct DialogChoice {
 	Common::String text;
@@ -46,6 +47,7 @@ class Dialog {
 public:
 	Dialog(int id);
 	void load(TextParser &parser, bool multiple);
+	uint32 talk(OrlandoEngine *vm);
 };
 
 } // End of namespace Orlando

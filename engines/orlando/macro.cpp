@@ -186,7 +186,7 @@ const char *kCommands[] = {
 	"ANYKEY",
 };
 
-Macro::Macro(const Common::String &id) : _id(id), _active(false), _line(0) {
+Macro::Macro(const Common::String &id) : _id(id), _active(false), _waiting(false), _line(0), _time(0) {
 }
 
 CommandType Macro::getType(const Common::String &id) const {

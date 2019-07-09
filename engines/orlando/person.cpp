@@ -72,8 +72,8 @@ void Person::draw(GraphicsManager *graphics, uint32 time) const {
 	if (!_visible)
 		return;
 
-	const PFrame &frame = _frames[0];
-	graphics->drawTransparent(*frame.surface, _pos + Common::Point(frame.offsetX, frame.offsetY));
+	const PFrame &frame = _frames.front();
+	graphics->drawTransparent(*frame.surface, _pos + Common::Point(frame.offsetX, -frame.offsetY));
 }
 
 } // End of namespace Orlando

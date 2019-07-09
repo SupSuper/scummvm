@@ -23,6 +23,7 @@
 #include "common/scummsys.h"
 #include "common/str.h"
 #include "common/file.h"
+#include "graphics/surface.h"
 
 #include "orlando/jack.h"
 #include "orlando/orlando.h"
@@ -48,9 +49,9 @@ bool Jack::loadWalk(const char *id, OrlandoEngine *vm) {
 		frame.surface = graphics->loadPaletteBitmap(resources->loadResourceFile(filename));
 		if (!frame.surface)
 			return false;
-		frame.offsetX = 0;
-		frame.offsetFlipX = 0;
-		frame.offsetY = 0;
+		frame.offsetX = frame.surface->w / 2;
+		frame.offsetFlipX = frame.surface->w / 2;
+		frame.offsetY = frame.surface->h;
 		_frames.push_back(frame);
 	}
 	return true;

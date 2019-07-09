@@ -69,12 +69,14 @@ class Animation {
 	FlxAnimation *_flx;
 
 	int _curFrame, _curRecord, _dir;
-	uint32 _time, _delay;
-	PlayMode _mode;
+	uint32 _time, _delay, _begin, _end;
+	bool _playing, _loop, _rec;
 public:
 	Animation(const Common::String &id);
 	~Animation();
 	void addFrame(const AFrame &frame) { _frames.push_back(frame); }
+	bool isPlaying() { return _playing; }
+	void setPlaying(bool playing) { _playing = playing; }
 
 	bool load(TextParser &parser, Scene *scene);
 	void loadFlx(Common::SeekableReadStream *flx, Scene *scene);

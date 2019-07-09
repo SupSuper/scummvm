@@ -21,9 +21,14 @@
  */
 
 #include "common/scummsys.h"
+#include "common/file.h"
+
 #include "orlando/dialog.h"
 #include "orlando/text_parser.h"
 #include "orlando/util.h"
+#include "orlando/orlando.h"
+#include "orlando/sound.h"
+#include "orlando/scene.h"
 
 namespace Orlando {
 
@@ -43,6 +48,13 @@ void Dialog::load(TextParser &parser, bool multiple) {
 		choice.sound = parser.readString();
 		_choices.push_back(choice);
 	}
+}
+
+uint32 Dialog::talk(OrlandoEngine *vm) {
+	const DialogChoice &dialog = _choices.front();
+	Common::File *file = vm->getScene()->loadFile(vm->getSoundManager()->getSpeech(dialog.sound));
+	vm->getSoundManager()->playFile(file, Audio::Mixer::kSpeechSoundType);
+	return dialog.text.size() * 100;
 }
 
 } // End of namespace Orlando

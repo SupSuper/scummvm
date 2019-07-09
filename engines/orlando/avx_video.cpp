@@ -292,6 +292,7 @@ bool AvxVideo::run() {
 			if (!_flx->nextFrame() && _flxCurrent < _flxTotal) {
 				delete _flx;
 				_flx = new FlxAnimation(_stream, graphics->kScreenFormat, DisposeAfterUse::NO);
+				_flx->nextFrame();
 				_flxCurrent++;
 				_delay = kMsPerFrame / _flx->getFps();
 			}

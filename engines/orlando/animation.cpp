@@ -34,7 +34,8 @@
 
 namespace Orlando {
 
-Animation::Animation(const Common::String &id) : _id(id), _flx(nullptr), _curFrame(0), _curRecord(0), _dir(1), _time(0), _delay(0), _mode(kPlayNone) {
+Animation::Animation(const Common::String &id) : _id(id), _flx(nullptr), _curFrame(0), _curRecord(0), _dir(1),
+	_time(0), _delay(0), _begin(0), _end(0), _playing(false), _loop(false), _rec(false) {
 }
 
 Animation::~Animation() {
@@ -115,43 +116,51 @@ void Animation::loadFlx(Common::SeekableReadStream *flx, Scene *scene) {
 	AFrame frame = { _flx->getSurface() };
 	_frames.push_back(frame);
 	_delay = 1000 / _flx->getFps();
-	_mode = kPlayFlxLoop;
+	_loop = true;
 }
 
 void Animation::play(bool reverse, int delay, PlayMode mode, int rec, uint32 time) {
 	_dir = (reverse) ? -1 : 1;
 	_delay = delay;
-	_mode = mode;
-	_curFrame = 0;
 	_curRecord = rec;
 	_time = time;
+	_loop = (mode == kPlayLoop || mode == kPlayRecLoop || mode == kPlayFlxLoop);
+	_rec = (mode == kPlayRecOnce || mode == kPlayRecLoop);
+
+	_begin = 0;
+	_end = _frames.size();
+	if (_rec)
+		_end = _records[_curRecord].size();
+	_end--;
+
+	_curFrame = (reverse) ? _end : _begin;
+	_playing = true;
 }
 
 const AFrame &Animation::nextFrame(uint32 time) {
-	if (_mode == kPlayNone)
-		return _frames.front();
-
-	bool loop = (_mode == kPlayLoop || _mode == kPlayRecLoop || _mode == kPlayFlxLoop);
-	int begin = 0;
-	int end = _frames.size();
-	if (_mode == kPlayRecOnce || _mode == kPlayRecLoop)
-		end = _records[_curRecord].size();
-
-	while (time >= _time + _delay) {
+	while (_playing && time >= _time + _delay) {
 		_time += _delay;
 		if (_flx) {
-			_flx->nextFrame(loop);
+			_playing = _flx->nextFrame(_loop);
 		} else {
 			_curFrame += _dir;
-			if (_curFrame >= end) {
-				_curFrame = (loop) ? begin : end - 1;
-			} else if (_curFrame < begin) {
-				_curFrame = (loop) ? end - 1 : begin;
+			if (_loop) {
+				if (_curFrame > _end) {
+					_curFrame = _begin;
+				}
+				else if (_curFrame < _begin) {
+					_curFrame = _end;
+				}
+			} else {
+				if (_curFrame < _begin || _curFrame > _end) {
+					_curFrame -= _dir;
+					_playing = false;
+				}
 			}
 		}
 	}
 	int nextFrame = _curFrame;
-	if (_mode == kPlayRecOnce || _mode == kPlayRecLoop)
+	if (_rec)
 		nextFrame = ABS(_records[_curRecord][_curFrame]) - 1;
 	return _frames[nextFrame];
 }

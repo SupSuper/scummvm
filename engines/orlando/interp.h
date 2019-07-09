@@ -40,8 +40,12 @@ class ScriptInterpreter {
 	Macro *_macro;
 	uint32 _time;
 
-	/** Some commands can be passed either a literal or a *VAR value */
-	int varOrLiteral(const Common::String &arg) const;
+	/** Every tick is a 1/60th of a second */
+	int ticksToMs(int ticks) { return ticks * 1000 / 60; }
+	/** Some commands can be passed either a literal or a *VAR reference */
+	int getVarOrLiteral(const Common::String &arg) const;
+	/** Commands with a - at the end wait for the action to complete, + ignores it */
+	bool waitUntilComplete(const MacroCommand &cmd) const;
 
 	bool cmdUnknown(const MacroCommand &cmd);
 	/**
@@ -53,16 +57,29 @@ class ScriptInterpreter {
 	 * ANIMA <id> <dir> <delay> <mode> <rec> <+->
 	 * Starts playing animation <id>:
 	 * <dir> 0 = play forward, 1 = play backward
-	 * <delay> time between frames in 1/60s
+	 * <delay> time between frames in ticks
 	 * <mode> 1 = play once, 2 = loop, 3 rec once, 4 rec loop, 5 flx once, 6 flx loop
-	 * <rec> record to play
+	 * <rec> record to play (optional)
 	 */
 	bool cmdAnima(const MacroCommand &cmd);
+	/**
+	 * STOPANIMA <id>
+	 * Pauses animation <id>.
+	 */
+	bool cmdStopAnima(const MacroCommand &cmd);
 	/**
 	 * HIDE <person>
 	 * Makes a person invisible.
 	 */
 	bool cmdHide(const MacroCommand &cmd);
+	/**
+	 * TALK <person> <dialog> <color> <+->
+	 * Plays a dialog line:
+	 * <person> position text above this person (LEFT = left face, RIGHT = right face, POS = fixed position)
+	 * <dialog> dialog to use
+	 * <color> text color
+	 */
+	bool cmdTalk(const MacroCommand &cmd);
 	/**
 	 * ACTIVEMACRO <id>
 	 * Enables a script macro.
@@ -159,6 +176,16 @@ class ScriptInterpreter {
 	 */
 	bool cmdIncc(const MacroCommand &cmd);
 	/**
+	 * CONTINUEANIMA <id>
+	 * Resumes animation <id>.
+	 */
+	bool cmdContinueAnima(const MacroCommand &cmd);
+	/**
+	 * DONOTHING <time>
+	 * Pauses this macro until <time> ticks has elapsed.
+	 */
+	bool cmdDoNothing(const MacroCommand &cmd);
+	/**
 	 * DEACTIVEMACRO <id>
 	 * Disables a script macro.
 	 */
@@ -168,6 +195,11 @@ class ScriptInterpreter {
 	 * Plays a AVX video with a background surface.
 	 */
 	bool cmdRunAvx(const MacroCommand &cmd);
+	/**
+	 * REACTIVESELF
+	 * Resets the macro back to the start.
+	 */
+	bool cmdReactiveSelf(const MacroCommand &cmd);
 public:
 	ScriptInterpreter(OrlandoEngine *vm);
 	bool runCommand(Macro *macro, const MacroCommand &cmd, uint32 time);
