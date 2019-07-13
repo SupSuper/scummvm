@@ -139,16 +139,9 @@ public:
 	 * @param pos Position on screen to draw to.
 	 * @param window Draw window used to clip the sprite.
 	 * @param flipped Flip the surface horizontally?
+	 * @param scale Scale factor (1.0 = original size)
 	 */
-	void drawTransparent(const Graphics::Surface &surface, const Common::Point &pos = Common::Point(), const Common::Rect &window = Common::Rect(), bool flipped = false);
-	/**
-	 * Draws a scaled surface to the screen.
-	 * @param surface Source surface.
-	 * @param pos Position on screen to draw to.
-	 * @param window Draw window used to clip the sprite.
-	 * @param flipped Flip the surface horizontally?
-	 */
-	void drawScaled(const Graphics::Surface &surface, const Common::Point &pos = Common::Point(), const Common::Rect &window = Common::Rect(), bool flipped = false);
+	void drawTransparent(const Graphics::Surface &surface, const Common::Point &pos = Common::Point(), const Common::Rect &window = Common::Rect(), bool flipped = false, float scale = 1.0f);
 	/**
 	 * Draws a text string to the screen.
 	 * @param text Source text.

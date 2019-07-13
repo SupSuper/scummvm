@@ -42,6 +42,7 @@ struct Vector2 {
 	bool    operator!=(const Vector2 &v)    const { return x != v.x || y != v.y; }
 	Vector2 operator+(const Vector2 &delta) const { return Vector2(x + delta.x, y + delta.y); }
 	Vector2 operator-(const Vector2 &delta) const { return Vector2(x - delta.x, y - delta.y); }
+	Vector2 operator*(float scalar)         const { return Vector2(x * scalar, y * scalar); }
 
 	void operator+=(const Vector2 &delta) {
 		x += delta.x;

@@ -76,6 +76,7 @@ bool Person::load(TextParser &parser, Scene *scene) {
 	_perspYMin = scene->getPerspectiveYMin();
 	_perspYMax = scene->getPerspectiveYMax();
 	_scalePersp = scene->getPerspectiveScale();
+	calcDrawScale();
 	return true;
 }
 
@@ -107,17 +108,19 @@ void Person::draw(GraphicsManager *graphics, uint32 time) {
 		_time += _delay;
 		_curFrame = (_curFrame + 1) % _frames[_dir].size();
 
-		_pos += _walk;
+		_pos += _walk * _scaleDraw;
+		calcDrawScale();
 		if (ABS(_pos.x - _dest.x) < 10 && ABS(_pos.y - _dest.y) < 5) {
 			_walk = Vector2(0, 0);
 		}
 	}
 
 	const PFrame &frame = _frames[_dir][_curFrame];
-	Common::Point offset(frame.offsetX, frame.offsetY);
+	Vector2 offset(frame.offsetX, frame.offsetY);
 	if (_flipped)
 		offset.x = frame.offsetXFlip;
-	graphics->drawTransparent(*frame.surface, (Common::Point)_pos - offset, _window, _flipped);
+	Vector2 drawPos = _pos - offset * _scaleDraw;
+	graphics->drawTransparent(*frame.surface, (Common::Point)drawPos, _window, _flipped, _scaleDraw);
 }
 
 void Person::walkTo(Common::Point dest, uint32 time, int dir) {

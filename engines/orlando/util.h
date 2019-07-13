@@ -68,7 +68,7 @@ inline int toInt(const Common::String &str) {
 	return atoi(str.c_str());
 }
 
-inline int toFloat(const Common::String &str) {
+inline float toFloat(const Common::String &str) {
 	return atof(str.c_str());
 }
 

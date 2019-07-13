@@ -117,16 +117,20 @@ void GraphicsManager::draw(const Graphics::Surface &surface, const Common::Point
 	_screenBuffer->blitFrom(surface, pos);
 }
 
-void GraphicsManager::drawTransparent(const Graphics::Surface &surface, const Common::Point &pos, const Common::Rect &window, bool flipped) {
-	if (window.isEmpty()) {
-		_screenBuffer->transBlitFrom(surface, pos, 0, flipped);
-	} else {
-		Common::Rect drawArea(pos.x, pos.y, pos.x + surface.w, pos.y + surface.h);
-		drawArea.clip(window);
-		Common::Rect srcRect(drawArea.left - pos.x, drawArea.top - pos.y, drawArea.right - pos.x, drawArea.bottom - pos.y);
-		Common::Point destPos(drawArea.left, drawArea.top);
-		_screenBuffer->transBlitFrom(surface, srcRect, destPos, 0, flipped);
+void GraphicsManager::drawTransparent(const Graphics::Surface &surface, const Common::Point &pos, const Common::Rect &window, bool flipped, float scale) {
+	Common::Rect srcRect(surface.w, surface.h);
+	Common::Rect destRect(surface.w * scale, surface.h * scale);
+	destRect.translate(pos.x, pos.y);
+	if (!window.isEmpty()) {
+		destRect.clip(window);
+		srcRect = destRect;
+		srcRect.translate(-pos.x, -pos.y);
+		srcRect.left /= scale;
+		srcRect.top /= scale;
+		srcRect.right /= scale;
+		srcRect.bottom /= scale;
 	}
+	_screenBuffer->transBlitFrom(surface, srcRect, destRect, 0, flipped);
 }
 
 void GraphicsManager::drawText(const Common::String &text, const Common::Point &pos, int width, const TextColor &color, Graphics::TextAlign align) {
