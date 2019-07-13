@@ -138,6 +138,15 @@ static const ADGameDescription gameDescriptions[] = {
 		ADGF_NO_FLAGS,
 		GUIO1(GAMEOPTION_EASY_VERSION)
 	},
+	{ // Director's Cut Chinese
+		"orlando",
+		"Director's Cut",
+		AD_ENTRY1s("MENU.PAK", "c2fedd5778691a38a6544b4ff71064a9", 4052566),
+		Common::ZH_CNA,
+		Common::kPlatformWindows,
+		ADGF_NO_FLAGS,
+		GUIO1(GAMEOPTION_EASY_VERSION)
+	},
 
 	AD_TABLE_END_MARKER
 };
@@ -166,12 +175,8 @@ bool OrlandoMetaEngine::hasFeature(MetaEngineFeature f) const {
 }
 
 bool Orlando::OrlandoEngine::hasFeature(EngineFeature f) const {
-	switch (f) {
-	case kSupportsRTL:
-		return true;
-	default:
-		return false;
-	}
+	return (f == kSupportsRTL ||
+			f == kSupportsSubtitleOptions);
 }
 
 bool OrlandoMetaEngine::createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const {
