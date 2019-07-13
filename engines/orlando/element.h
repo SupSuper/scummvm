@@ -45,6 +45,7 @@ class Element {
 	Common::String _id;
 	int _bpp;
 	Common::Point _pos;
+	Common::Rect _window;
 	Quad _region;
 	Graphics::Surface *_surface;
 	Animation *_anim;
@@ -58,6 +59,7 @@ public:
 	void setAnimation(Animation *anim) { _anim = anim; }
 	Common::Point getPosition() const { return _pos; }
 	void setPosition(const Common::Point &pos) { _pos = pos; }
+	void setWindow(const Common::Rect &window) { _window = window; }
 	void setVisible(bool visible) { _visible = visible; }
 
 	bool load(TextParser &parser, Scene *scene);

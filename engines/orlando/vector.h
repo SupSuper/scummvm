@@ -20,24 +20,40 @@
  *
  */
 
-#ifndef ORLANDO_JACK_H
-#define ORLANDO_JACK_H
+#ifndef ORLANDO_VECTOR_H
+#define ORLANDO_VECTOR_H
 
-#include "orlando/person.h"
+#include "common/scummsys.h"
+#include "common/rect.h"
 
 namespace Orlando {
 
-class OrlandoEngine;
-
 /**
- * The player character Jack Orlando.
+ * Simple class for handling floating-point positions.
  */
-class Jack : public Person {
+struct Vector2 {
+	float x;	///< The horizontal part of the point
+	float y;	///< The vertical part of the point
 
-	bool loadWalk(const char *id, OrlandoEngine *vm, FacingDirection dir);
-public:
-	Jack();
-	bool initialize(OrlandoEngine *vm);
+	Vector2() : x(0), y(0) {}
+	Vector2(float x1, float y1) : x(x1), y(y1) {}
+	Vector2(Common::Point p) : x(p.x), y(p.y) {}
+	bool    operator==(const Vector2 &v)    const { return x == v.x && y == v.y; }
+	bool    operator!=(const Vector2 &v)    const { return x != v.x || y != v.y; }
+	Vector2 operator+(const Vector2 &delta) const { return Vector2(x + delta.x, y + delta.y); }
+	Vector2 operator-(const Vector2 &delta) const { return Vector2(x - delta.x, y - delta.y); }
+
+	void operator+=(const Vector2 &delta) {
+		x += delta.x;
+		y += delta.y;
+	}
+
+	void operator-=(const Vector2 &delta) {
+		x -= delta.x;
+		y -= delta.y;
+	}
+
+	operator Common::Point() const { return Common::Point(x, y); }
 };
 
 } // End of namespace Orlando

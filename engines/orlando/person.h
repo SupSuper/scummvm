@@ -26,6 +26,7 @@
 #include "common/str.h"
 #include "common/array.h"
 #include "common/rect.h"
+#include "orlando/vector.h"
 
 namespace Graphics {
 	struct Surface;
@@ -37,9 +38,21 @@ class TextParser;
 class Scene;
 class GraphicsManager;
 
+enum FacingDirection {
+	kDirectionS = 0,
+	kDirectionSW,
+	kDirectionW,
+	kDirectionNW,
+	kDirectionN,
+	kDirectionNE,
+	kDirectionE,
+	kDirectionSE,
+	kDirectionNone = 100
+};
+
 struct PFrame {
 	Graphics::Surface *surface;
-	int16 offsetX, offsetFlipX, offsetY;
+	int16 offsetX, offsetXFlip, offsetY;
 };
 
 /**
@@ -47,20 +60,40 @@ struct PFrame {
  */
 class Person {
 protected:
-	Common::String _id;
-	Common::Array<PFrame> _frames;
-	Common::Point _pos;
-	bool _visible;
+	static const int kDirections = 8;
 
+	Common::String _id;
+	Common::Array<PFrame> _frames[kDirections];
+	Vector2 _pos, _walk;
+	Common::Point _dest;
+	Common::Rect _window;
+	bool _visible, _flipped;
+	FacingDirection _dir;
+	uint32 _time, _delay;
+	int _walkSpeed, _perspYMin, _perspYMax, _curFrame;
+	float _scalePersp, _scaleDraw;
+
+	void calcDrawScale();
 public:
 	Person(const Common::String &id);
 	virtual ~Person();
-	Common::Point getPosition() const { return _pos; }
-	void setPosition(const Common::Point &pos) { _pos = pos; }
+	Vector2 getPosition() const { return _pos; }
+	void setPosition(const Vector2 &pos) {
+		_pos = pos;
+		calcDrawScale();
+	}
+	void setPerspectiveYMin(int perspective) {
+		_perspYMin = perspective;
+		calcDrawScale();
+	}
+	void setWindow(const Common::Rect &window) { _window = window; }
 	void setVisible(bool visible) { _visible = visible; }
+	bool isWalking() const { return _walk != Vector2(0, 0); }
 
 	bool load(TextParser &parser, Scene *scene);
-	void draw(GraphicsManager *graphics, uint32 time) const;
+	void setData(uint32 delay, float scale, int perspective, int walk);
+	void draw(GraphicsManager *graphics, uint32 time);
+	void walkTo(Common::Point dest, uint32 time, int dir = kDirectionNone);
 };
 
 } // End of namespace Orlando

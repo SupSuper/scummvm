@@ -37,7 +37,7 @@ class Scene;
 
 struct IFrame {
 	Graphics::Surface *surface;
-	int16 offsetX, offsetFlipX, offsetY;
+	int16 offsetX, offsetXFlip, offsetY;
 };
 
 /**

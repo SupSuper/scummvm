@@ -49,6 +49,21 @@ class ScriptInterpreter {
 
 	bool cmdUnknown(const MacroCommand &cmd);
 	/**
+	 * CHWINDOW <id> <x1> <y1> <x2> <y2>
+	 * Changes the draw window of an element or person.
+	 * The draw window acts as a clipping rect, nothing is drawn outside of it.
+	 */
+	bool cmdChWindow(const MacroCommand &cmd);
+	/**
+	 * SETPERSONDATA <id> <animSpeed> <scale> <perspectiveY> <walkSpeed>
+	 * Sets some parameters for person <id>:
+	 * <animSpeed> time between frames
+	 * <scale> 0.1-1.0 scaling factor (2.0 = no perspective scaling, 3.0 = ?)
+	 * <perspectiveY> Y position to use for perspective scaling
+	 * <walkSpeed> pixels walked every tick
+	 */
+	bool cmdSetPersonData(const MacroCommand &cmd);
+	/**
 	 * SETPOSITION <person> <x> <y>
 	 * Changes a person's position.
 	 */
@@ -67,6 +82,11 @@ class ScriptInterpreter {
 	 * Pauses animation <id>.
 	 */
 	bool cmdStopAnima(const MacroCommand &cmd);
+	/**
+	 * WALKTO <person> <x> <y>
+	 * Moves a person on the scene.
+	 */
+	bool cmdWalkTo(const MacroCommand &cmd);
 	/**
 	 * HIDE <person>
 	 * Makes a person invisible.
@@ -95,6 +115,11 @@ class ScriptInterpreter {
 	 * Changes the active scene.
 	 */
 	bool cmdGoToScene(const MacroCommand &cmd);
+	/**
+	 * WALKTODIR <person> <x> <y> <dir>
+	 * Moves a person on the scene in a fixed direction.
+	 */
+	bool cmdWalkToDir(const MacroCommand &cmd);
 	/**
 	 * LET <var> <value>
 	 * Assigns <value> to <var>.

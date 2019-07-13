@@ -22,22 +22,28 @@
 
 #include "common/scummsys.h"
 #include "common/file.h"
+#include "common/math.h"
 #include "graphics/surface.h"
+
 #include "orlando/person.h"
 #include "orlando/text_parser.h"
 #include "orlando/scene.h"
 #include "orlando/graphics.h"
+#include "orlando/util.h"
 
 namespace Orlando {
 
-Person::Person(const Common::String &id) : _id(id), _visible(true) {
+Person::Person(const Common::String &id) : _id(id), _visible(true), _flipped(false), _dir(kDirectionS),	_time(0), _delay(0),
+	_walkSpeed(0), _perspYMin(0), _perspYMax(0), _curFrame(0), _scalePersp(2.0f), _scaleDraw(1.0f) {
 }
 
 Person::~Person() {
-	for (Common::Array<PFrame>::const_iterator i = _frames.begin(); i != _frames.end(); ++i) {
-		if (i->surface != nullptr) {
-			i->surface->free();
-			delete i->surface;
+	for (int j = 0; j < ARRAYSIZE(_frames); j++) {
+		for (Common::Array<PFrame>::const_iterator i = _frames[j].begin(); i != _frames[j].end(); ++i) {
+			if (i->surface != nullptr) {
+				i->surface->free();
+				delete i->surface;
+			}
 		}
 	}
 }
@@ -54,26 +60,113 @@ bool Person::load(TextParser &parser, Scene *scene) {
 			parser.rewind();
 			break;
 		}
+		int direction = toInt(id);
 		for (int i = 0; i < frames; i++) {
 			PFrame frame;
 			frame.surface = scene->loadSurface(parser.readString(), 8);
 			if (!frame.surface)
 				return false;
 			frame.offsetX = parser.readInt();
-			frame.offsetFlipX = parser.readInt();
+			frame.offsetXFlip = parser.readInt();
 			frame.offsetY = parser.readInt();
-			_frames.push_back(frame);
+			_frames[direction].push_back(frame);
 		}
+		_dir = (FacingDirection)direction;
 	}
 	return true;
 }
 
-void Person::draw(GraphicsManager *graphics, uint32 time) const {
+void Person::calcDrawScale() {
+	if (_scalePersp == 3.0f) {
+		// TODO
+		_scaleDraw = 1.0f;
+	} else if (_scalePersp == 2.0f) {
+		_scaleDraw = 1.0f;
+	} else {
+		_scaleDraw = (_pos.y - _perspYMin) * _scalePersp / (_perspYMax - _perspYMin);
+	}
+	_scaleDraw = CLIP(_scaleDraw, 0.1f, 1.0f);
+}
+
+void Person::setData(uint32 delay, float scale, int perspective, int walk) {
+	_delay = delay;
+	_scalePersp = scale;
+	_perspYMax = perspective;
+	_walkSpeed = walk;
+	calcDrawScale();
+}
+
+void Person::draw(GraphicsManager *graphics, uint32 time) {
 	if (!_visible)
 		return;
 
-	const PFrame &frame = _frames.front();
-	graphics->drawTransparent(*frame.surface, _pos + Common::Point(frame.offsetX, -frame.offsetY));
+	while (isWalking() && time >= _time + _delay) {
+		_time += _delay;
+		_curFrame = (_curFrame + 1) % _frames[_dir].size();
+
+		_pos += _walk;
+		if (ABS(_pos.x - _dest.x) < 10 && ABS(_pos.y - _dest.y) < 5) {
+			_walk = Vector2(0, 0);
+		}
+	}
+
+	const PFrame &frame = _frames[_dir][_curFrame];
+	Common::Point offset(frame.offsetX, frame.offsetY);
+	if (_flipped)
+		offset.x = frame.offsetXFlip;
+	graphics->drawTransparent(*frame.surface, (Common::Point)_pos - offset, _window, _flipped);
+}
+
+void Person::walkTo(Common::Point dest, uint32 time, int dir) {
+	const float kScaleY = 0.3f;
+	const float kDirAngles[] = { 22.0f, 67.0f, 112.0f, 157.0f, 202.0f, 248.0f, 292.0f, 338.0f };
+	const int kDirAlternatives[][5] = {
+		{ 1, 7, 100, 100, 100 },
+		{ -7, 0, 2, -6, 100 },
+		{ -6, 1, 3, -5, -7 },
+		{ -5, 2, 4, -6, 100 },
+		{ 3, 5, 100, 100, 100 },
+		{ -3, 4, 6, -2, 100 },
+		{ -2, 5, 7, -1, -3 },
+		{ -1, 0, 6, -2, 100 }
+	};
+
+	_dest = dest;
+	_time = time;
+	_curFrame = 0;
+
+	float angle = atan2((_dest.y - _pos.y) / kScaleY, _dest.x - _pos.x);
+	_walk.x = cos(angle) * _walkSpeed;
+	_walk.y = sin(angle) * _walkSpeed * kScaleY;
+
+	if (dir == kDirectionNone) {
+		// Determine direction based on angle
+		float angleDeg = Common::rad2deg(angle);
+		for (int i = 0; i < kDirections - 1; i++) {
+			if (angleDeg >= kDirAngles[i] && angleDeg <= kDirAngles[i + 1]) {
+				dir = (i + 7) % kDirections;
+				break;
+			}
+		}
+		if (dir == kDirectionNone) {
+			dir = 6;
+		}
+		// Find closest sprite
+		if (_frames[dir].empty()) {
+			for (int i = 0; i < 5; i++) {
+				int newDir = kDirAlternatives[dir][i];
+				if (newDir == kDirectionNone) {
+					break;
+				}
+				if (!_frames[ABS(newDir)].empty()) {
+					dir = newDir;
+					break;
+				}
+			}
+		}
+	}
+	_flipped = (dir < 0);
+	_dir = (FacingDirection)ABS(dir);
 }
 
 } // End of namespace Orlando

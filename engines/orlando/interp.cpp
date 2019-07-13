@@ -39,13 +39,13 @@ namespace Orlando {
 
 const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown,
-	&ScriptInterpreter::cmdUnknown, // ChWindow
+	&ScriptInterpreter::cmdChWindow,
 	&ScriptInterpreter::cmdSetPosition,
 	&ScriptInterpreter::cmdUnknown, // InitFirst
-	&ScriptInterpreter::cmdUnknown, // SetPersonData
+	&ScriptInterpreter::cmdSetPersonData,
 	&ScriptInterpreter::cmdAnima,
 	&ScriptInterpreter::cmdStopAnima,
-	&ScriptInterpreter::cmdSetPosition, // TODO: WalkTo
+	&ScriptInterpreter::cmdWalkTo,
 	&ScriptInterpreter::cmdUnknown, // RunInsertion
 	&ScriptInterpreter::cmdUnknown, // RunFilm: unused
 	&ScriptInterpreter::cmdHide,
@@ -61,7 +61,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdGoToScene,
 	&ScriptInterpreter::cmdUnknown, // PUnderP
 	&ScriptInterpreter::cmdUnknown, // PUnderE
-	&ScriptInterpreter::cmdSetPosition, // TODO: WalkToDir
+	&ScriptInterpreter::cmdWalkToDir,
 	&ScriptInterpreter::cmdUnknown, // ShowFace
 	&ScriptInterpreter::cmdUnknown, // HideFace
 	&ScriptInterpreter::cmdLet,
@@ -74,7 +74,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // Take
 	&ScriptInterpreter::cmdUnknown, // RunFilmP
 	&ScriptInterpreter::cmdUnknown, // Extra
-	&ScriptInterpreter::cmdUnknown, // MoveAR: unsed
+	&ScriptInterpreter::cmdUnknown, // MoveAR: unused
 	&ScriptInterpreter::cmdUnknown, // SetFrame
 	&ScriptInterpreter::cmdUnknown, // NoHave
 	&ScriptInterpreter::cmdHideE,
@@ -228,12 +228,46 @@ bool ScriptInterpreter::cmdUnknown(const MacroCommand &cmd) {
 	return true;
 }
 
+bool ScriptInterpreter::cmdChWindow(const MacroCommand &cmd) {
+	Common::String id = cmd.args[1];
+	int x1 = toInt(cmd.args[2]);
+	int y1 = toInt(cmd.args[3]);
+	int x2 = toInt(cmd.args[4]);
+	int y2 = toInt(cmd.args[5]);
+	Common::Rect window(x1, y1, x2, y2);
+
+	Person *person = _vm->getScene()->getPerson(id);
+	if (person != nullptr) {
+		person->setWindow(window);
+	} else {
+		Element *element = _vm->getScene()->getElement(id);
+		if (element != nullptr) {
+			element->setWindow(window);
+		} else {
+			warning("ScriptInterpreter: Element %s not found", id.c_str());
+		}
+	}
+	return true;
+}
+
+bool ScriptInterpreter::cmdSetPersonData(const MacroCommand &cmd) {
+	Common::String id = cmd.args[1];
+	int delay = ticksToMs(toInt(cmd.args[2]));
+	float scale = toFloat(cmd.args[3]);
+	int perspY = toInt(cmd.args[4]);
+	int walkSpeed = toInt(cmd.args[5]);
+
+	_vm->getScene()->getPerson(id)->setData(delay, scale, perspY, walkSpeed);
+
+	return true;
+}
+
 bool ScriptInterpreter::cmdSetPosition(const MacroCommand &cmd) {
 	Common::String person = cmd.args[1];
 	int x = getVarOrLiteral(cmd.args[2]);
 	int y = getVarOrLiteral(cmd.args[3]);
 
-	_vm->getScene()->getPerson(person)->setPosition(Common::Point(x, y));
+	_vm->getScene()->getPerson(person)->setPosition(Vector2(x, y));
 	return true;
 }
 
@@ -265,6 +299,27 @@ bool ScriptInterpreter::cmdStopAnima(const MacroCommand &cmd) {
 
 	_vm->getScene()->getElement(anim)->getAnimation()->setPlaying(false);
 	return true;
+}
+
+bool ScriptInterpreter::cmdWalkTo(const MacroCommand &cmd) {
+	Common::String id = cmd.args[1];
+	int x = getVarOrLiteral(cmd.args[2]);
+	int y = getVarOrLiteral(cmd.args[3]);
+	bool wait = waitUntilComplete(cmd);
+
+	Person *person = _vm->getScene()->getPerson(id);
+	if (!_macro->isWaiting()) {
+		person->walkTo(Common::Point(x, y), _time);
+		_macro->setWaiting(wait);
+		return !wait;
+	} else {
+		if (person->isWalking()) {
+			return false;
+		} else {
+			_macro->setWaiting(false);
+			return true;
+		}
+	}
 }
 
 bool ScriptInterpreter::cmdHide(const MacroCommand &cmd) {
@@ -315,6 +370,28 @@ bool ScriptInterpreter::cmdGoToScene(const MacroCommand &cmd) {
 
 	_vm->gotoScene(new Scene(_vm, scene));
 	return true;
+}
+
+bool ScriptInterpreter::cmdWalkToDir(const MacroCommand &cmd) {
+	Common::String id = cmd.args[1];
+	int x = getVarOrLiteral(cmd.args[2]);
+	int y = getVarOrLiteral(cmd.args[3]);
+	int dir = toInt(cmd.args[4]);
+	bool wait = waitUntilComplete(cmd);
+
+	Person *person = _vm->getScene()->getPerson(id);
+	if (!_macro->isWaiting()) {
+		person->walkTo(Common::Point(x, y), _time, dir);
+		_macro->setWaiting(wait);
+		return !wait;
+	} else {
+		if (person->isWalking()) {
+			return false;
+		} else {
+			_macro->setWaiting(false);
+			return true;
+		}
+	}
 }
 
 bool ScriptInterpreter::cmdLet(const MacroCommand &cmd) {
@@ -377,7 +454,7 @@ bool ScriptInterpreter::cmdMoveP(const MacroCommand &cmd) {
 	int y = toInt(cmd.args[3]);
 
 	Person *p = _vm->getScene()->getPerson(person);
-	p->setPosition(p->getPosition() + Common::Point(x, y));
+	p->setPosition(p->getPosition() + Vector2(x, y));
 	return true;
 }
 

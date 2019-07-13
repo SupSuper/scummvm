@@ -97,14 +97,14 @@ public:
 	virtual ~Scene();
 
 	GraphicsManager *getGraphicsManager() const;
-	Element *getElement(const Common::String &id) { return _elements[id]; }
-	Dialog *getDialog(int id) { return _dialogs[id]; }
-	Face *getFace(const Common::String &id) { return _faces[id]; }
+	Element *getElement(const Common::String &id) { return _elements.getVal(id, nullptr); }
+	Dialog *getDialog(int id) { return _dialogs.getVal(id, nullptr); }
+	Face *getFace(const Common::String &id) { return _faces.getVal(id, nullptr); }
 	Person *getPerson(const Common::String &id);
-	Area *getArea(const Common::String &id) { return _areas[id]; }
-	Insertion *getInsertion(const Common::String &id) { return _insertions[id]; }
-	Film *getFilm(const Common::String &id) { return _films[id]; }
-	Macro *getMacro(const Common::String &id) { return _macros[id]; }
+	Area *getArea(const Common::String &id) { return _areas.getVal(id, nullptr); }
+	Insertion *getInsertion(const Common::String &id) { return _insertions.getVal(id, nullptr); }
+	Film *getFilm(const Common::String &id) { return _films.getVal(id, nullptr); }
+	Macro *getMacro(const Common::String &id) { return _macros.getVal(id, nullptr); }
 
 	Common::File *loadFile(const Common::String &filename, bool optional = false);
 	Graphics::Surface *loadSurface(const Common::String &filename, int bpp);

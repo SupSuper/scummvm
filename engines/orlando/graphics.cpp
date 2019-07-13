@@ -117,8 +117,16 @@ void GraphicsManager::draw(const Graphics::Surface &surface, const Common::Point
 	_screenBuffer->blitFrom(surface, pos);
 }
 
-void GraphicsManager::drawTransparent(const Graphics::Surface &surface, const Common::Point &pos) {
-	_screenBuffer->transBlitFrom(surface, pos);
+void GraphicsManager::drawTransparent(const Graphics::Surface &surface, const Common::Point &pos, const Common::Rect &window, bool flipped) {
+	if (window.isEmpty()) {
+		_screenBuffer->transBlitFrom(surface, pos, 0, flipped);
+	} else {
+		Common::Rect drawArea(pos.x, pos.y, pos.x + surface.w, pos.y + surface.h);
+		drawArea.clip(window);
+		Common::Rect srcRect(drawArea.left - pos.x, drawArea.top - pos.y, drawArea.right - pos.x, drawArea.bottom - pos.y);
+		Common::Point destPos(drawArea.left, drawArea.top);
+		_screenBuffer->transBlitFrom(surface, srcRect, destPos, 0, flipped);
+	}
 }
 
 void GraphicsManager::drawText(const Common::String &text, const Common::Point &pos, int width, uint16 fill, uint16 border, Graphics::TextAlign align) {

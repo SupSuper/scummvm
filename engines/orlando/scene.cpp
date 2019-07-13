@@ -78,7 +78,7 @@ GraphicsManager *Scene::getGraphicsManager() const {
 Person *Scene::getPerson(const Common::String &id) {
 	if (id == "JACK")
 		return _vm->getJack();
-	return _persons[id];
+	return _persons.getVal(id, nullptr);
 }
 
 Common::File *Scene::loadFile(const Common::String &filename, bool optional) {

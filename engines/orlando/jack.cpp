@@ -35,7 +35,7 @@ namespace Orlando {
 Jack::Jack() : Person("JACK") {
 }
 
-bool Jack::loadWalk(const char *id, OrlandoEngine *vm) {
+bool Jack::loadWalk(const char *id, OrlandoEngine *vm, FacingDirection dir) {
 	ResourceManager *resources = vm->getResourceManager();
 	GraphicsManager *graphics = vm->getGraphicsManager();
 	
@@ -50,19 +50,19 @@ bool Jack::loadWalk(const char *id, OrlandoEngine *vm) {
 		if (!frame.surface)
 			return false;
 		frame.offsetX = frame.surface->w / 2;
-		frame.offsetFlipX = frame.surface->w / 2;
+		frame.offsetXFlip = frame.surface->w / 2;
 		frame.offsetY = frame.surface->h;
-		_frames.push_back(frame);
+		_frames[dir].push_back(frame);
 	}
 	return true;
 }
 
 bool Jack::initialize(OrlandoEngine *vm) {
-	if (!loadWalk("FRON", vm) ||
-		!loadWalk("PROF", vm) ||
-		!loadWalk("BACK", vm) ||
-		!loadWalk("SKFR", vm) ||
-		!loadWalk("SKBA", vm))
+	if (!loadWalk("FRON", vm, kDirectionS) ||
+		!loadWalk("PROF", vm, kDirectionE) ||
+		!loadWalk("BACK", vm, kDirectionN) ||
+		!loadWalk("SKFR", vm, kDirectionSW) ||
+		!loadWalk("SKBA", vm, kDirectionNE))
 		return false;
 	return true;
 }

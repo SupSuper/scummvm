@@ -59,7 +59,7 @@ bool Insertion::load(TextParser &parser, Scene *scene) {
 			if (!frame.surface)
 				return false;
 			frame.offsetX = parser.readInt();
-			frame.offsetFlipX = parser.readInt();
+			frame.offsetXFlip = parser.readInt();
 			frame.offsetY = parser.readInt();
 			parser.readInt();
 			parser.readInt();

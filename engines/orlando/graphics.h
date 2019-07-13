@@ -123,13 +123,15 @@ public:
 	 * @param surface Source surface.
 	 * @param pos Position on screen to draw to.
 	 */
-	void draw(const Graphics::Surface &surface, const Common::Point &pos = Common::Point(0, 0));
+	void draw(const Graphics::Surface &surface, const Common::Point &pos = Common::Point());
 	/**
 	 * Draws a transparent surface to the screen.
 	 * @param surface Source surface.
 	 * @param pos Position on screen to draw to.
+	 * @param window Draw window used to clip the sprite.
+	 * @param flipped Flip the surface horizontally?
 	 */
-	void drawTransparent(const Graphics::Surface &surface, const Common::Point &pos = Common::Point(0, 0));
+	void drawTransparent(const Graphics::Surface &surface, const Common::Point &pos = Common::Point(), const Common::Rect &window = Common::Rect(), bool flipped = false);
 	/**
 	 * Draws a text string to the screen.
 	 * @param text Source text.

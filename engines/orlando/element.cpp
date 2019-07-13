@@ -74,10 +74,10 @@ void Element::draw(GraphicsManager *graphics, uint32 time) const {
 		AFrame frame = _anim->nextFrame(time);
 		Graphics::Surface *surface = frame.surface;
 		if (surface != nullptr) {
-			graphics->drawTransparent(*surface, _pos + frame.offset);
+			graphics->drawTransparent(*surface, _pos + frame.offset, _window);
 		}
 	} else if (_surface != nullptr) {
-		graphics->drawTransparent(*_surface, _pos);
+		graphics->drawTransparent(*_surface, _pos, _window);
 	}
 }
 
