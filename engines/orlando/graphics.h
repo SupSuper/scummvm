@@ -38,6 +38,15 @@ namespace Graphics {
 
 namespace Orlando {
 
+struct TextColor {
+	uint16 border;
+	uint16 fill;
+
+	uint32 toUint() const {
+		return (uint32)border << 16 | fill;
+	}
+};
+
 class OrlandoEngine;
 
 /**
@@ -133,15 +142,22 @@ public:
 	 */
 	void drawTransparent(const Graphics::Surface &surface, const Common::Point &pos = Common::Point(), const Common::Rect &window = Common::Rect(), bool flipped = false);
 	/**
+	 * Draws a scaled surface to the screen.
+	 * @param surface Source surface.
+	 * @param pos Position on screen to draw to.
+	 * @param window Draw window used to clip the sprite.
+	 * @param flipped Flip the surface horizontally?
+	 */
+	void drawScaled(const Graphics::Surface &surface, const Common::Point &pos = Common::Point(), const Common::Rect &window = Common::Rect(), bool flipped = false);
+	/**
 	 * Draws a text string to the screen.
 	 * @param text Source text.
 	 * @param pos Position on screen to draw to.
 	 * @param width Width of the text region, used for wrapping and alignment.
-	 * @param fill Fill color for the text.
-	 * @param border Border color for the text.
+	 * @param color Color for the text.
 	 * @param align Text alignment relative to the width.
 	 */
-	void drawText(const Common::String &text, const Common::Point &pos, int width, uint16 fill, uint16 border, Graphics::TextAlign align = Graphics::kTextAlignLeft);
+	void drawText(const Common::String &text, const Common::Point &pos, int width, const TextColor &color, Graphics::TextAlign align = Graphics::kTextAlignLeft);
 	/**
 	 * Draws a filled rectangle with shadow color.
 	 * @param rect Rectangle coordinates.
@@ -153,11 +169,10 @@ public:
 	 * Draws a clickable button on screen.
 	 * @param text Button text.
 	 * @param rect Button coordinates.
-	 * @param fill Text fill color.
-	 * @param border Text border color.
+	 * @param color Text color.
 	 * @return True if the button was clicked.
 	 */
-	bool drawButton(const Common::String &text, const Common::Rect &rect, uint16 fill, uint16 border);
+	bool drawButton(const Common::String &text, const Common::Rect &rect, const TextColor &color);
 	/**
 	 * Draws a polygon border on screen.
 	 * @param rect Polygon coordinates.

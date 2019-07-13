@@ -67,18 +67,21 @@ bool MainMenu::initialize() {
 	if (!(_pak = _vm->getResourceManager()->loadPakArchive("MENU.PAK")))
 		return false;
 
+	GraphicsManager *graphics = _vm->getGraphicsManager();
+	// Background
 	if (Common::File *file = loadFile("JACK2.BM")) {
-		_background = _vm->getGraphicsManager()->loadRawBitmap(file);
+		_background = graphics->loadRawBitmap(file);
 	} else {
 		return false;
 	}
 
+	// Truck
 	if (Common::File *file = loadFile("_SAMOCH1.BM")) {
 		const char *id = "_SAMOCH1.BM";
 		Animation *anim = new Animation(id);
 
 		AFrame frames[] = {
-			{ _vm->getGraphicsManager()->loadRawBitmap(file) },
+			{ graphics->loadRawBitmap(file) },
 			{ nullptr } // Blank frame
 		};
 		anim->addFrame(frames[0]);
@@ -94,10 +97,11 @@ bool MainMenu::initialize() {
 		return false;
 	}
 
+	// Smoke
 	if (Common::File *file = loadFile("D1.FLX")) {
 		const char *id = "D1.FLX";
 		Animation *anim = new Animation(id);
-		anim->loadFlx(file, this);
+		anim->loadFlx(file, this, _vm->getTotalPlayTime());
 
 		Element *element = new Element(id);
 		element->setPosition(Common::Point(309, 39));
@@ -107,6 +111,13 @@ bool MainMenu::initialize() {
 		return false;
 	}
 
+	// Text colors
+	_textColors[0].border = graphics->RGBToColor(0, 0, 0); // black
+	_textColors[0].fill = graphics->RGBToColor(255, 255, 0); // yellow
+	_textColors[1].border = graphics->RGBToColor(0, 0, 255); // blue
+	_textColors[1].fill = graphics->RGBToColor(255, 255, 255); // white
+
+	// Music
 	if (!playMenuMusic())
 		return false;
 
@@ -126,31 +137,27 @@ bool MainMenu::run() {
 	}
 
 	// Draw UI
-	const uint16 kColorYellow = graphics->RGBToColor(255, 255, 0);
-	const uint16 kColorBlack = graphics->RGBToColor(0, 0, 0);
-	const uint16 kColorBlue = graphics->RGBToColor(0, 0, 255);
-	const uint16 kColorWhite = graphics->RGBToColor(255, 255, 255);
 	Common::Rect kUiWindow = Common::Rect(0, 0, 230, 235);
 	kUiWindow.translate(205, 190);
 	Common::Rect kUiButton = Common::Rect(0, 0, 180, 34);
 	kUiButton.translate(kUiWindow.left + 25, kUiWindow.top + 60);
 
 	graphics->drawShadowRect(kUiWindow, 0.5f, 5);
-	graphics->drawText("\x04=MAIN MENU=\x04", Common::Point(kUiWindow.left, kUiWindow.top + 16), kUiWindow.width(), kColorYellow, kColorBlack, Graphics::kTextAlignCenter);
-	if (graphics->drawButton("Introduction", kUiButton, kColorWhite, kColorBlue)) {
+	graphics->drawText("\x04=MAIN MENU=\x04", Common::Point(kUiWindow.left, kUiWindow.top + 16), kUiWindow.width(), _textColors[0], Graphics::kTextAlignCenter);
+	if (graphics->drawButton("Introduction", kUiButton, _textColors[1])) {
 		_vm->gotoScene(new AvxVideo(_vm, "INTRO"));
 	}
 	kUiButton.translate(0, 38);
-	if (graphics->drawButton("New game", kUiButton, kColorWhite, kColorBlue)) {
+	if (graphics->drawButton("New game", kUiButton, _textColors[1])) {
 		_vm->gotoScene(new Scene(_vm, "SC001"));
 	}
 	kUiButton.translate(0, 38);
-	if (graphics->drawButton("Load game", kUiButton, kColorWhite, kColorBlue)) {
+	if (graphics->drawButton("Load game", kUiButton, _textColors[1])) {
 		GUI::SaveLoadChooser dialog = GUI::SaveLoadChooser(_("Load game:"), _("Load"), false);
 		dialog.runModalWithCurrentTarget();
 	}
 	kUiButton.translate(0, 38);
-	if (graphics->drawButton("Exit", kUiButton, kColorWhite, kColorBlue)) {
+	if (graphics->drawButton("Exit", kUiButton, _textColors[1])) {
 		_vm->quitGame();
 	}
 

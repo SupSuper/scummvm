@@ -111,12 +111,11 @@ bool Animation::load(TextParser &parser, Scene *scene) {
 	return true;
 }
 
-void Animation::loadFlx(Common::SeekableReadStream *flx, Scene *scene) {
+void Animation::loadFlx(Common::SeekableReadStream *flx, Scene *scene, uint32 time) {
 	_flx = new FlxAnimation(flx, scene->getGraphicsManager()->kScreenFormat);
 	AFrame frame = { _flx->getSurface() };
 	_frames.push_back(frame);
-	_delay = 1000 / _flx->getFps();
-	_loop = true;
+	play(false, 1000 / _flx->getFps(), kPlayFlxLoop, 0, time);
 }
 
 void Animation::play(bool reverse, int delay, PlayMode mode, int rec, uint32 time) {

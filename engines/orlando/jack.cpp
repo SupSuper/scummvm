@@ -67,4 +67,10 @@ bool Jack::initialize(OrlandoEngine *vm) {
 	return true;
 }
 
+void Jack::setPerspective(int yMin, int yMax, float scale) {
+	_perspYMin = yMin;
+	_perspYMax = yMax;
+	_scalePersp = scale;
+}
+
 } // End of namespace Orlando

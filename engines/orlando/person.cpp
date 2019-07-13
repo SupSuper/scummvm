@@ -73,6 +73,9 @@ bool Person::load(TextParser &parser, Scene *scene) {
 		}
 		_dir = (FacingDirection)direction;
 	}
+	_perspYMin = scene->getPerspectiveYMin();
+	_perspYMax = scene->getPerspectiveYMax();
+	_scalePersp = scene->getPerspectiveScale();
 	return true;
 }
 

@@ -38,6 +38,7 @@ class Jack : public Person {
 public:
 	Jack();
 	bool initialize(OrlandoEngine *vm);
+	void setPerspective(int yMin, int yMax, float scale);
 };
 
 } // End of namespace Orlando

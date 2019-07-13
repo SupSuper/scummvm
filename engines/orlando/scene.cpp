@@ -206,6 +206,11 @@ bool Scene::loadCcg() {
 			}
 		} else if (section == "PERSPEKTYWA") {
 			// perspective
+			parser.readInt();
+			_perspYMin = parser.readInt();
+			_perspYMax = parser.readInt();
+			_scalePersp = parser.readFloat();
+			_vm->getJack()->setPerspective(_perspYMin, _perspYMax, _scalePersp);
 		} else if (section == "OBSZAR_CHODU") {
 			// walk areas
 			int n = parser.readInt();
@@ -219,8 +224,22 @@ bool Scene::loadCcg() {
 			}
 		} else if (section == "KOLOR_LITER") {
 			// text color
+			for (int i = 0; i < ARRAYSIZE(_textColors); i++) {
+				_textColors[i].border = parser.readInt();
+				_textColors[i].fill = parser.readInt();
+			}
 		} else if (section == "SWIATLO") {
 			// light
+			while (!parser.eof()) {
+				Common::String id = parser.readString();
+				if (id.empty() || id.firstChar() == '[') {
+					parser.rewind();
+					break;
+				}
+
+				Common::Point light(parser.readInt(), parser.readInt());
+				_lightSources.push_back(light);
+			}
 		} else if (section == "ELEMENTY") {
 			// items
 			while (!parser.eof()) {

@@ -27,6 +27,7 @@
 #include "common/array.h"
 #include "common/hash-str.h"
 #include "orlando/polygon.h"
+#include "orlando/graphics.h"
 
 namespace Common {
 	class Archive;
@@ -59,8 +60,11 @@ protected:
 	Common::Archive *_pak, *_pakEx;
 
 	Graphics::Surface *_background;
-	int _scrollX;
+	int _scrollX, _perspYMin, _perspYMax;
+	float _scalePersp;
+	Common::Array<Common::Point> _lightSources;
 	Common::Array<Triangle> _walkRegions;
+	TextColor _textColors[3];
 
 	Common::HashMap<Common::String, Element*> _elements;
 	Common::HashMap<int, Dialog*> _dialogs;
@@ -105,6 +109,10 @@ public:
 	Insertion *getInsertion(const Common::String &id) { return _insertions.getVal(id, nullptr); }
 	Film *getFilm(const Common::String &id) { return _films.getVal(id, nullptr); }
 	Macro *getMacro(const Common::String &id) { return _macros.getVal(id, nullptr); }
+
+	int getPerspectiveYMin() const { return _perspYMin; }
+	int getPerspectiveYMax() const { return _perspYMax; }
+	float getPerspectiveScale() const { return _scalePersp; }
 
 	Common::File *loadFile(const Common::String &filename, bool optional = false);
 	Graphics::Surface *loadSurface(const Common::String &filename, int bpp);

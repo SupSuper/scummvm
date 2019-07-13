@@ -79,7 +79,7 @@ public:
 	void setPlaying(bool playing) { _playing = playing; }
 
 	bool load(TextParser &parser, Scene *scene);
-	void loadFlx(Common::SeekableReadStream *flx, Scene *scene);
+	void loadFlx(Common::SeekableReadStream *flx, Scene *scene, uint32 time);
 	void play(bool reverse, int delay, PlayMode mode, int rec, uint32 time);
 	const AFrame &nextFrame(uint32 time);
 };

@@ -129,9 +129,8 @@ void GraphicsManager::drawTransparent(const Graphics::Surface &surface, const Co
 	}
 }
 
-void GraphicsManager::drawText(const Common::String &text, const Common::Point &pos, int width, uint16 fill, uint16 border, Graphics::TextAlign align) {
-	uint32 color = (uint32)border << 16 | fill;
-	_vm->getResourceManager()->getFont()->drawString(_screenBuffer, text, pos.x, pos.y, width, color, align);
+void GraphicsManager::drawText(const Common::String &text, const Common::Point &pos, int width, const TextColor &color, Graphics::TextAlign align) {
+	_vm->getResourceManager()->getFont()->drawString(_screenBuffer, text, pos.x, pos.y, width, color.toUint(), align);
 }
 
 void GraphicsManager::drawShadowRect(const Common::Rect &rect, float shadow, int bevel) {
@@ -157,7 +156,7 @@ void GraphicsManager::drawShadowRect(const Common::Rect &rect, float shadow, int
 	}
 }
 
-bool GraphicsManager::drawButton(const Common::String &text, const Common::Rect &rect, uint16 fill, uint16 border) {
+bool GraphicsManager::drawButton(const Common::String &text, const Common::Rect &rect, const TextColor &color) {
 	Mouse *mouse = _vm->getMouse();
 	bool isPressed = (mouse->getLeftButton() == kButtonPressed && mouse->isOver(rect));
 
@@ -174,7 +173,7 @@ bool GraphicsManager::drawButton(const Common::String &text, const Common::Rect 
 	if (isPressed) {
 		pos += Common::Point(1, 1);
 	}
-	drawText(text, pos, rect.width(), fill, border, Graphics::kTextAlignCenter);
+	drawText(text, pos, rect.width(), color, Graphics::kTextAlignCenter);
 
 	return (mouse->getLeftButton() == kButtonReleased && mouse->isOver(rect));
 }
