@@ -34,6 +34,7 @@
 #include "orlando/avx_video.h"
 #include "orlando/person.h"
 #include "orlando/dialog.h"
+#include "orlando/mouse.h"
 
 namespace Orlando {
 
@@ -50,9 +51,9 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // RunFilm: unused
 	&ScriptInterpreter::cmdHide,
 	&ScriptInterpreter::cmdTalk,
-	&ScriptInterpreter::cmdTalk, // TODO: Dialog
+	&ScriptInterpreter::cmdDialog,
 	&ScriptInterpreter::cmdActiveMacro,
-	&ScriptInterpreter::cmdIf, // TODO: IfAnswer
+	&ScriptInterpreter::cmdIfAnswer,
 	&ScriptInterpreter::cmdEndIf,
 	&ScriptInterpreter::cmdUnknown, // ShowFrame: unused
 	&ScriptInterpreter::cmdUnknown, // HideTalk: unused
@@ -91,10 +92,10 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // SetPosXY
 	&ScriptInterpreter::cmdUnknown, // SetChkPrior
 	&ScriptInterpreter::cmdUnknown, // Brightness
-	&ScriptInterpreter::cmdUnknown, // SetPerspY
+	&ScriptInterpreter::cmdSetPerspY,
 	&ScriptInterpreter::cmdMoveP,
 	&ScriptInterpreter::cmdUnknown, // StopAnimaFrame: unused
-	&ScriptInterpreter::cmdUnknown, // SetDialog
+	&ScriptInterpreter::cmdSetDialog,
 	&ScriptInterpreter::cmdUnknown, // StopAnimaNeg
 	&ScriptInterpreter::cmdUnknown, // SetAnimaFrame
 	&ScriptInterpreter::cmdDeactiveSelf,
@@ -331,17 +332,46 @@ bool ScriptInterpreter::cmdHide(const MacroCommand &cmd) {
 
 bool ScriptInterpreter::cmdTalk(const MacroCommand &cmd) {
 	Common::String person = cmd.args[1];
-	int dialog = toInt(cmd.args[2]);
-	//int color = toInt(cmd.args[3]);
+	int id = toInt(cmd.args[2]);
+	// TODO: Show text
+	int color = toInt(cmd.args[3]);
 	bool wait = waitUntilComplete(cmd);
 
+	Dialog *dialog = _vm->getScene()->getDialog(id);
 	if (!_macro->isWaiting()) {
-		uint32 delay = _vm->getScene()->getDialog(dialog)->talk(_vm);
-		_macro->setTime(_time + delay);
+		dialog->talk(_vm);
 		_macro->setWaiting(wait);
 		return !wait;
 	} else {
-		if (_time < _macro->getTime()) {
+		// Skip dialog
+		if (_vm->getMouse()->getLeftButton() == kButtonReleased) {
+			dialog->skip(_vm);
+		}
+		if (dialog->isTalking(_vm)) {
+			return false;
+		} else {
+			_macro->setWaiting(false);
+			return true;
+		}
+	}
+}
+
+bool ScriptInterpreter::cmdDialog(const MacroCommand &cmd) {
+	Common::String person = cmd.args[1];
+	int id = toInt(cmd.args[2]);
+	// TODO: Show text
+
+	Dialog *dialog = _vm->getScene()->getDialog(id);
+	if (!_macro->isWaiting()) {
+		dialog->talk(_vm);
+		_macro->setWaiting(true);
+		return false;
+	} else {
+		// Skip dialog
+		if (_vm->getMouse()->getLeftButton() == kButtonReleased) {
+			dialog->skip(_vm);
+		}
+		if (dialog->isTalking(_vm)) {
 			return false;
 		} else {
 			_macro->setWaiting(false);
@@ -355,6 +385,19 @@ bool ScriptInterpreter::cmdActiveMacro(const MacroCommand &cmd) {
 
 	_vm->getScene()->getMacro(id)->setActive(true);
 	return true;
+}
+
+bool ScriptInterpreter::cmdIfAnswer(const MacroCommand &cmd) {
+	int dialog = toInt(cmd.args[1]);
+	int value = toInt(cmd.args[2]);
+
+	bool condition = (_vm->getScene()->getDialog(dialog)->getAnswer() == value);
+	if (condition) {
+		return true;
+	} else {
+		_macro->skipIf();
+		return false;
+	}
 }
 
 bool ScriptInterpreter::cmdEndIf(const MacroCommand &cmd) {
@@ -445,6 +488,23 @@ bool ScriptInterpreter::cmdSetPositionE(const MacroCommand &cmd) {
 	int y = toInt(cmd.args[3]);
 
 	_vm->getScene()->getElement(element)->setPosition(Common::Point(x, y));
+	return true;
+}
+
+bool ScriptInterpreter::cmdSetPerspY(const MacroCommand &cmd) {
+	Common::String person = cmd.args[1];
+	int y = toInt(cmd.args[2]);
+
+	_vm->getScene()->getPerson(person)->setPerspectiveYMin(y);
+	return true;
+}
+
+bool ScriptInterpreter::cmdSetDialog(const MacroCommand &cmd) {
+	int dialog = toInt(cmd.args[1]);
+	int option = toInt(cmd.args[2]);
+	bool enabled = toInt(cmd.args[3]) != 0;
+
+	_vm->getScene()->getDialog(dialog)->setOption(option, enabled);
 	return true;
 }
 

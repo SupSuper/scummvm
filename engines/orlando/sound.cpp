@@ -222,10 +222,10 @@ Audio::SeekableAudioStream *SoundManager::loadHeaderAudio(Common::SeekableReadSt
 	return audio;
 }
 
-void SoundManager::playFile(Common::SeekableReadStream *stream, Audio::Mixer::SoundType type, bool loop) {
+Audio::SoundHandle SoundManager::playFile(Common::SeekableReadStream *stream, Audio::Mixer::SoundType type, bool loop) {
 	Audio::SeekableAudioStream *audio = loadHeaderAudio(stream, type);
 	if (audio == nullptr)
-		return;
+		return Audio::SoundHandle();
 
 	// Only one music at a time
 	if (type == Audio::Mixer::kMusicSoundType) {
@@ -242,6 +242,7 @@ void SoundManager::playFile(Common::SeekableReadStream *stream, Audio::Mixer::So
 	if (type == Audio::Mixer::kMusicSoundType) {
 		_music = handle;
 	}
+	return handle;
 }
 
 void SoundManager::playMusic(const Common::String &filename) {

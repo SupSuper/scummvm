@@ -32,7 +32,7 @@
 
 namespace Orlando {
 
-Dialog::Dialog(int id) : _id(id) {
+Dialog::Dialog(int id) : _id(id), _answer(0) {
 }
 
 void Dialog::load(TextParser &parser, bool multiple) {
@@ -41,20 +41,28 @@ void Dialog::load(TextParser &parser, bool multiple) {
 		num = parser.readInt();
 	}
 	for (int i = 0; i < num; i++) {
-		DialogChoice choice;
-		choice.text = parser.readString(false);
-		replaceChar(choice.text, '_', ' ');
-		choice.width = parser.readInt();
-		choice.sound = parser.readString();
-		_choices.push_back(choice);
+		DialogOption option;
+		option.text = parser.readString(false);
+		replaceChar(option.text, '_', ' ');
+		option.width = parser.readInt();
+		option.sound = parser.readString();
+		option.enabled = true;
+		_options.push_back(option);
 	}
 }
 
-uint32 Dialog::talk(OrlandoEngine *vm) {
-	const DialogChoice &dialog = _choices.front();
+void Dialog::talk(OrlandoEngine *vm) {
+	const DialogOption &dialog = _options.front();
 	Common::File *file = vm->getScene()->loadFile(vm->getSoundManager()->getSpeech(dialog.sound));
-	vm->getSoundManager()->playFile(file, Audio::Mixer::kSpeechSoundType);
-	return dialog.text.size() * 100;
+	_handle = vm->getSoundManager()->playFile(file, Audio::Mixer::kSpeechSoundType);
+}
+
+void Dialog::skip(OrlandoEngine *vm) {
+	vm->_mixer->stopHandle(_handle);
+}
+
+bool Dialog::isTalking(OrlandoEngine *vm) const {
+	return vm->_mixer->isSoundHandleActive(_handle);
 }
 
 } // End of namespace Orlando

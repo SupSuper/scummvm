@@ -25,16 +25,18 @@
 
 #include "common/str.h"
 #include "common/array.h"
+#include "audio/mixer.h"
 
 namespace Orlando {
 
 class TextParser;
 class OrlandoEngine;
 
-struct DialogChoice {
+struct DialogOption {
 	Common::String text;
 	int width;
 	Common::String sound;
+	bool enabled;
 };
 
 /**
@@ -42,12 +44,19 @@ struct DialogChoice {
  */
 class Dialog {
 	int _id;
-	Common::Array<DialogChoice> _choices;
+	Common::Array<DialogOption> _options;
+	Audio::SoundHandle _handle;
+	int _answer;
 
 public:
 	Dialog(int id);
+	int getAnswer() const { return _answer; }
+	void setOption(int option, bool enabled) { _options[option].enabled = enabled; }
+
 	void load(TextParser &parser, bool multiple);
-	uint32 talk(OrlandoEngine *vm);
+	void talk(OrlandoEngine *vm);
+	void skip(OrlandoEngine *vm);
+	bool isTalking(OrlandoEngine *vm) const;
 };
 
 } // End of namespace Orlando

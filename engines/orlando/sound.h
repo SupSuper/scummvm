@@ -81,8 +81,9 @@ public:
 	 * @param stream Stream to load data from. Freed after usage.
 	 * @param type Mixer channel.
 	 * @param loop Looping track.
+	 * @return Handle to control the sound.
 	 */
-	void playFile(Common::SeekableReadStream *stream, Audio::Mixer::SoundType type, bool loop = false);
+	Audio::SoundHandle playFile(Common::SeekableReadStream *stream, Audio::Mixer::SoundType type, bool loop = false);
 	/**
 	 * Plays a music track. The location is determined based on the game version.
 	 * @param filename Source filename.

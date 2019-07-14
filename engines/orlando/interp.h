@@ -95,16 +95,26 @@ class ScriptInterpreter {
 	/**
 	 * TALK <person> <dialog> <color> <+->
 	 * Plays a dialog line:
-	 * <person> position text above this person (LEFT = left face, RIGHT = right face, POS = fixed position)
-	 * <dialog> dialog to use
-	 * <color> text color
+	 * <person> person speaking (LEFT = left face, RIGHT = right face, POS = fixed position)
+	 * <dialog> dialog line
+	 * <color> scene text color
 	 */
 	bool cmdTalk(const MacroCommand &cmd);
+	/**
+	 * DIALOG <person> <dialog>
+	 * Shows a list of <dialog> options to choose from and <person> speaks the answer.
+	 */
+	bool cmdDialog(const MacroCommand &cmd);
 	/**
 	 * ACTIVEMACRO <id>
 	 * Enables a script macro.
 	 */
 	bool cmdActiveMacro(const MacroCommand &cmd);
+	/**
+	 * IFANSWER <dialog> <option>
+	 * Executes block if <dialog> was answered with <option>.
+	 */
+	bool cmdIfAnswer(const MacroCommand &cmd);
 	/**
 	 * ENDIF
 	 * End of an If block.
@@ -150,6 +160,16 @@ class ScriptInterpreter {
 	 * Changes an element's position.
 	 */
 	bool cmdSetPositionE(const MacroCommand &cmd);
+	/**
+	 * SETPERSPY <person> <y>
+	 * Changes a person's Y perspective.
+	 */
+	bool cmdSetPerspY(const MacroCommand &cmd);
+	/**
+	 * SETDIALOG <dialog> <option> <enabled>
+	 * Toggles a dialog option off (0) or on (1).
+	 */
+	bool cmdSetDialog(const MacroCommand &cmd);
 	/**
 	 * MOVEP <person> <x> <y>
 	 * Moves a person by a relative amount.
