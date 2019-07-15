@@ -33,11 +33,14 @@ class OrlandoEngine;
  * The player character Jack Orlando.
  */
 class Jack : public Person {
+	OrlandoEngine *_vm;
 
-	bool loadWalk(const char *id, OrlandoEngine *vm, FacingDirection dir);
+	bool loadWalk(const char *id, FacingDirection dir);
 public:
-	Jack();
-	bool initialize(OrlandoEngine *vm);
+	Jack(OrlandoEngine *vm);
+	bool initialize();
+
+	void setPosition(const Vector2 &pos) override;
 	void setPerspective(int yMin, int yMax, float scale);
 };
 

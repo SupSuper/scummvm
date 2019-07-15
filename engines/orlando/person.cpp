@@ -29,11 +29,12 @@
 #include "orlando/text_parser.h"
 #include "orlando/scene.h"
 #include "orlando/graphics.h"
+#include "orlando/insertion.h"
 #include "orlando/util.h"
 
 namespace Orlando {
 
-Person::Person(const Common::String &id) : _id(id), _visible(true), _flipped(false), _dir(kDirectionS),	_time(0), _delay(0),
+Person::Person(const Common::String &id) : _id(id), _ins(nullptr), _visible(true), _flipped(false), _dir(kDirectionS), _time(0), _delay(0),
 	_walkSpeed(0), _perspYMin(0), _perspYMax(0), _curFrame(0), _scalePersp(2.0f), _scaleDraw(1.0f) {
 }
 
@@ -108,19 +109,25 @@ void Person::draw(GraphicsManager *graphics, uint32 time) {
 		_time += _delay;
 		_curFrame = (_curFrame + 1) % _frames[_dir].size();
 
-		_pos += _walk * _scaleDraw;
-		calcDrawScale();
+		setPosition(_pos + _walk * _scaleDraw);
 		if (ABS(_pos.x - _dest.x) < 10 && ABS(_pos.y - _dest.y) < 5) {
 			_walk = Vector2(0, 0);
 		}
 	}
+	if (_ins != nullptr) {
+		_ins->nextFrame(time, _delay);
+	}
 
-	const PFrame &frame = _frames[_dir][_curFrame];
-	Vector2 offset(frame.offsetX, frame.offsetY);
+	const PFrame *frame = &_frames[_dir][_curFrame];
+	if (!isWalking() && _ins != nullptr) {
+		frame = _ins->getFrame();
+	}
+
+	Vector2 offset(frame->offsetX, frame->offsetY);
 	if (_flipped)
-		offset.x = frame.offsetXFlip;
+		offset.x = frame->offsetXFlip;
 	Vector2 drawPos = _pos - offset * _scaleDraw;
-	graphics->drawTransparent(*frame.surface, (Common::Point)drawPos, _window, _flipped, _scaleDraw);
+	graphics->drawTransparent(*frame->surface, (Common::Point)drawPos, _window, _flipped, _scaleDraw);
 }
 
 void Person::walkTo(Common::Point dest, uint32 time, int dir) {

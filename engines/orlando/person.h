@@ -37,6 +37,7 @@ namespace Orlando {
 class TextParser;
 class Scene;
 class GraphicsManager;
+class Insertion;
 
 enum FacingDirection {
 	kDirectionS = 0,
@@ -67,6 +68,7 @@ protected:
 	Vector2 _pos, _walk;
 	Common::Point _dest;
 	Common::Rect _window;
+	Insertion *_ins;
 	bool _visible, _flipped;
 	FacingDirection _dir;
 	uint32 _time, _delay;
@@ -77,8 +79,10 @@ protected:
 public:
 	Person(const Common::String &id);
 	virtual ~Person();
+	Insertion *getInsertion() { return _ins; }
+	void setInsertion(Insertion *ins) { _ins = ins; }
 	Vector2 getPosition() const { return _pos; }
-	void setPosition(const Vector2 &pos) {
+	virtual void setPosition(const Vector2 &pos) {
 		_pos = pos;
 		calcDrawScale();
 	}

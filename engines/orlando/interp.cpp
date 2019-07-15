@@ -35,6 +35,7 @@
 #include "orlando/person.h"
 #include "orlando/dialog.h"
 #include "orlando/mouse.h"
+#include "orlando/insertion.h"
 
 namespace Orlando {
 
@@ -42,12 +43,12 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown,
 	&ScriptInterpreter::cmdChWindow,
 	&ScriptInterpreter::cmdSetPosition,
-	&ScriptInterpreter::cmdUnknown, // InitFirst
+	&ScriptInterpreter::cmdInitFirst,
 	&ScriptInterpreter::cmdSetPersonData,
 	&ScriptInterpreter::cmdAnima,
 	&ScriptInterpreter::cmdStopAnima,
 	&ScriptInterpreter::cmdWalkTo,
-	&ScriptInterpreter::cmdUnknown, // RunInsertion
+	&ScriptInterpreter::cmdRunInsertion,
 	&ScriptInterpreter::cmdUnknown, // RunFilm: unused
 	&ScriptInterpreter::cmdHide,
 	&ScriptInterpreter::cmdTalk,
@@ -251,6 +252,28 @@ bool ScriptInterpreter::cmdChWindow(const MacroCommand &cmd) {
 	return true;
 }
 
+bool ScriptInterpreter::cmdSetPosition(const MacroCommand &cmd) {
+	Common::String person = cmd.args[1];
+	int x = getVarOrLiteral(cmd.args[2]);
+	int y = getVarOrLiteral(cmd.args[3]);
+
+	_vm->getScene()->getPerson(person)->setPosition(Vector2(x, y));
+	return true;
+}
+
+bool ScriptInterpreter::cmdInitFirst(const MacroCommand &cmd) {
+	Common::String person = cmd.args[1];
+	Common::String insertion = cmd.args[2];
+	// TODO: Extra arguments
+
+	Insertion *ins = _vm->getScene()->getInsertion(insertion);
+	Person *p = _vm->getScene()->getPerson(person);
+	p->setInsertion(ins);
+	p->setVisible(true);
+	ins->init(false, _time);
+	return true;
+}
+
 bool ScriptInterpreter::cmdSetPersonData(const MacroCommand &cmd) {
 	Common::String id = cmd.args[1];
 	int delay = ticksToMs(toInt(cmd.args[2]));
@@ -260,15 +283,6 @@ bool ScriptInterpreter::cmdSetPersonData(const MacroCommand &cmd) {
 
 	_vm->getScene()->getPerson(id)->setData(delay, scale, perspY, walkSpeed);
 
-	return true;
-}
-
-bool ScriptInterpreter::cmdSetPosition(const MacroCommand &cmd) {
-	Common::String person = cmd.args[1];
-	int x = getVarOrLiteral(cmd.args[2]);
-	int y = getVarOrLiteral(cmd.args[3]);
-
-	_vm->getScene()->getPerson(person)->setPosition(Vector2(x, y));
 	return true;
 }
 
@@ -321,6 +335,31 @@ bool ScriptInterpreter::cmdWalkTo(const MacroCommand &cmd) {
 			return true;
 		}
 	}
+}
+
+bool ScriptInterpreter::cmdRunInsertion(const MacroCommand &cmd) {
+	Common::String person = cmd.args[1];
+	Common::String insertion = cmd.args[2];
+	bool wait = waitUntilComplete(cmd);
+	// TODO: Extra arguments
+
+	Insertion *ins = _vm->getScene()->getInsertion(insertion);
+	Person *p = _vm->getScene()->getPerson(person);
+	if (!_macro->isWaiting()) {
+		p->setInsertion(ins);
+		p->setVisible(true);
+		ins->init(true, _time);
+		_macro->setWaiting(wait);
+		return !wait;
+	} else {
+		if (ins->isPlaying()) {
+			return false;
+		} else {
+			_macro->setWaiting(false);
+			return true;
+		}
+	}
+	return true;
 }
 
 bool ScriptInterpreter::cmdHide(const MacroCommand &cmd) {

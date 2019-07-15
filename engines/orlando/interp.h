@@ -55,6 +55,16 @@ class ScriptInterpreter {
 	 */
 	bool cmdChWindow(const MacroCommand &cmd);
 	/**
+	 * SETPOSITION <person> <x> <y>
+	 * Changes a person's position.
+	 */
+	bool cmdSetPosition(const MacroCommand &cmd);
+	/**
+	 * INITFIRST <person> <insertion> <?>
+	 * Assigns an insertion to a person.
+	 */
+	bool cmdInitFirst(const MacroCommand &cmd);
+	/**
 	 * SETPERSONDATA <id> <animSpeed> <scale> <perspectiveY> <walkSpeed>
 	 * Sets some parameters for person <id>:
 	 * <animSpeed> time between frames
@@ -63,11 +73,6 @@ class ScriptInterpreter {
 	 * <walkSpeed> pixels walked every tick
 	 */
 	bool cmdSetPersonData(const MacroCommand &cmd);
-	/**
-	 * SETPOSITION <person> <x> <y>
-	 * Changes a person's position.
-	 */
-	bool cmdSetPosition(const MacroCommand &cmd);
 	/**
 	 * ANIMA <id> <dir> <delay> <mode> <rec> <+->
 	 * Starts playing animation <id>:
@@ -83,10 +88,15 @@ class ScriptInterpreter {
 	 */
 	bool cmdStopAnima(const MacroCommand &cmd);
 	/**
-	 * WALKTO <person> <x> <y>
+	 * WALKTO <person> <x> <y> <+->
 	 * Moves a person on the scene.
 	 */
 	bool cmdWalkTo(const MacroCommand &cmd);
+	/**
+	 * RUNINSERTION <person> <insertion> <?> <?> <+->
+	 * Starts playing an insertion on a person.
+	 */
+	bool cmdRunInsertion(const MacroCommand &cmd);
 	/**
 	 * HIDE <person>
 	 * Makes a person invisible.
@@ -126,7 +136,7 @@ class ScriptInterpreter {
 	 */
 	bool cmdGoToScene(const MacroCommand &cmd);
 	/**
-	 * WALKTODIR <person> <x> <y> <dir>
+	 * WALKTODIR <person> <x> <y> <dir> <+->
 	 * Moves a person on the scene in a fixed direction.
 	 */
 	bool cmdWalkToDir(const MacroCommand &cmd);
@@ -141,7 +151,7 @@ class ScriptInterpreter {
 	 */
 	bool cmdIf(const MacroCommand &cmd);
 	/**
-	 * EFFECT <id> <arg2> <arg3> <arg4>
+	 * EFFECT <id> <?> <?> <?>
 	 * Plays a sound effect.
 	 */
 	bool cmdEffect(const MacroCommand &cmd);
@@ -186,7 +196,7 @@ class ScriptInterpreter {
 	 */
 	bool cmdMoveE(const MacroCommand &cmd);
 	/**
-	 * MUSIC <id> <arg2> <arg3>
+	 * MUSIC <id> <?> <?>
 	 * Plays a music track.
 	 */
 	bool cmdMusic(const MacroCommand &cmd);

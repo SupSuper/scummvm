@@ -32,39 +32,53 @@
 
 namespace Orlando {
 
-Jack::Jack() : Person("JACK") {
+Jack::Jack(OrlandoEngine *vm) : Person("JACK"), _vm(vm) {
 }
 
-bool Jack::loadWalk(const char *id, OrlandoEngine *vm, FacingDirection dir) {
-	ResourceManager *resources = vm->getResourceManager();
-	GraphicsManager *graphics = vm->getGraphicsManager();
+bool Jack::loadWalk(const char *id, FacingDirection dir) {
+	ResourceManager *resources = _vm->getResourceManager();
+	GraphicsManager *graphics = _vm->getGraphicsManager();
 	
-	bool army = vm->getVariable("JACKISWOJ") != 0;
+	bool army = _vm->getVariable("JACKISWOJ") != 0;
 	const char *w = (army) ? "W" : "";
+
+
+	Common::String sfb = Common::String::format("%s%s.SFB", id, w);
+	Common::File *offsets = resources->loadResourceFile(sfb);
+	if (!offsets)
+		return false;
 
 	const int kFrames = 12;
 	for (int i = 1; i <= kFrames; i++) {
-		Common::String filename = Common::String::format("%s%s%d.PBM", id, w, i);
+		Common::String pbm = Common::String::format("%s%s%d.PBM", id, w, i);
 		PFrame frame;
-		frame.surface = graphics->loadPaletteBitmap(resources->loadResourceFile(filename));
+		frame.surface = graphics->loadPaletteBitmap(resources->loadResourceFile(pbm));
 		if (!frame.surface)
 			return false;
-		frame.offsetX = frame.surface->w / 2;
-		frame.offsetXFlip = frame.surface->w / 2;
-		frame.offsetY = frame.surface->h;
+		frame.offsetX = offsets->readSint16LE();
+		frame.offsetXFlip = offsets->readSint16LE();
+		frame.offsetY = offsets->readSint16LE();
 		_frames[dir].push_back(frame);
 	}
+
+	delete offsets;
 	return true;
 }
 
-bool Jack::initialize(OrlandoEngine *vm) {
-	if (!loadWalk("FRON", vm, kDirectionS) ||
-		!loadWalk("PROF", vm, kDirectionE) ||
-		!loadWalk("BACK", vm, kDirectionN) ||
-		!loadWalk("SKFR", vm, kDirectionSW) ||
-		!loadWalk("SKBA", vm, kDirectionNE))
+bool Jack::initialize() {
+	if (!loadWalk("FRON", kDirectionS) ||
+		!loadWalk("PROF", kDirectionE) ||
+		!loadWalk("BACK", kDirectionN) ||
+		!loadWalk("SKFR", kDirectionSW) ||
+		!loadWalk("SKBA", kDirectionNE))
 		return false;
 	return true;
+}
+
+void Jack::setPosition(const Vector2 &pos) {
+	Person::setPosition(pos);
+	_vm->getVariable("JACKX") = pos.x;
+	_vm->getVariable("JACKY") = pos.y;
 }
 
 void Jack::setPerspective(int yMin, int yMax, float scale) {

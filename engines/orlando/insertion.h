@@ -25,6 +25,7 @@
 
 #include "common/str.h"
 #include "common/array.h"
+#include "orlando/person.h"
 
 namespace Graphics {
 	struct Surface;
@@ -35,22 +36,25 @@ namespace Orlando {
 class TextParser;
 class Scene;
 
-struct IFrame {
-	Graphics::Surface *surface;
-	int16 offsetX, offsetXFlip, offsetY;
-};
-
 /**
  * Represents a character animation.
  */
 class Insertion {
 	Common::String _id;
-	Common::Array<IFrame> _frames;
+	Common::Array<PFrame> _frames;
+	uint32 _time;
+	int _curFrame;
+	bool _playing;
 
 public:
 	Insertion(const Common::String &id);
 	~Insertion();
+	bool isPlaying() const { return _playing; }
+	const PFrame *getFrame() const { return &_frames[_curFrame]; }
+
 	bool load(TextParser &parser, Scene *scene);
+	void init(bool play, uint32 time);
+	void nextFrame(uint32 time, uint32 delay);
 };
 
 } // End of namespace Orlando

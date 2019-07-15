@@ -55,6 +55,7 @@ Scene::Scene(OrlandoEngine *vm, const Common::String &id) : _vm(vm), _id(id), _p
 }
 
 Scene::~Scene() {
+	_vm->getJack()->setInsertion(nullptr);
 	deleteAll(_insertions);
 	deleteAll(_areas);
 	deleteAll(_persons);

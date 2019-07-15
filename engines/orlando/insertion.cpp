@@ -29,11 +29,11 @@
 
 namespace Orlando {
 
-Insertion::Insertion(const Common::String &id) : _id(id) {
+Insertion::Insertion(const Common::String &id) : _id(id), _curFrame(0), _playing(false) {
 }
 
 Insertion::~Insertion() {
-	for (Common::Array<IFrame>::const_iterator i = _frames.begin(); i != _frames.end(); ++i) {
+	for (Common::Array<PFrame>::const_iterator i = _frames.begin(); i != _frames.end(); ++i) {
 		if (i->surface != nullptr) {
 			i->surface->free();
 			delete i->surface;
@@ -54,7 +54,7 @@ bool Insertion::load(TextParser &parser, Scene *scene) {
 			parser.readInt();
 			parser.readInt();
 		} else {
-			IFrame frame;
+			PFrame frame;
 			frame.surface = scene->loadSurface(id, 8);
 			if (!frame.surface)
 				return false;
@@ -69,6 +69,23 @@ bool Insertion::load(TextParser &parser, Scene *scene) {
 		}
 	}
 	return true;
+}
+
+void Insertion::init(bool play, uint32 time) {
+	_playing = play;
+	_curFrame = 0;
+	_time = time;
+}
+
+void Insertion::nextFrame(uint32 time, uint32 delay) {
+	while (_playing && time >= _time + delay) {
+		_time += delay;
+		_curFrame++;
+		if (_curFrame >= _frames.size()) {
+			_playing = false;
+			_curFrame = _frames.size() - 1;
+		}
+	}
 }
 
 } // End of namespace Orlando

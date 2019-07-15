@@ -81,7 +81,7 @@ public:
 	bool load(TextParser &parser, Scene *scene);
 	void loadFlx(Common::SeekableReadStream *flx, Scene *scene, uint32 time);
 	void play(bool reverse, int delay, PlayMode mode, int rec, uint32 time);
-	const AFrame &nextFrame(uint32 time);
+	const AFrame *nextFrame(uint32 time);
 };
 
 } // End of namespace Orlando

@@ -143,8 +143,8 @@ bool OrlandoEngine::newGame() {
 		_vars[id] = varlist.readInt();
 	}
 
-	_jack = new Jack();
-	if (!_jack->initialize(this))
+	_jack = new Jack(this);
+	if (!_jack->initialize())
 		return false;
 
 	return true;
