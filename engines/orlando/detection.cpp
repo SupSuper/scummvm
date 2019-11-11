@@ -154,12 +154,15 @@ static const ADGameDescription gameDescriptions[] = {
 class OrlandoMetaEngine : public AdvancedMetaEngine {
 public:
 	OrlandoMetaEngine() : AdvancedMetaEngine(gameDescriptions, sizeof(ADGameDescription), orlandoGames, optionsList) {
-		_singleId = "orlando";
 		_guiOptions = GUIO1(GUIO_NOMIDI);
 	}
 
+	virtual const char *getEngineId() const {
+		return "orlando";
+	}
+	
 	virtual const char *getName() const {
-		return "Jack Orlando Engine";
+		return "Jack Orlando";
 	}
 
 	virtual const char *getOriginalCopyright() const {
