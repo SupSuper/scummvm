@@ -181,6 +181,7 @@ bool ThemeParser::parserCallback_font(ParserNode *node) {
 		if (sscanf(node->values["point_size"].c_str(), "%d", &pointsize) != 1 || pointsize <= 0)
 			return parserError(Common::String::format("Font \"%s\" has invalid point size \"%s\"", node->values["id"].c_str(), node->values["point_size"].c_str()));
 	}
+	pointsize *= 2;
 
 	TextData textDataId = parseTextDataId(node->values["id"]);
 	if (!_theme->addFont(textDataId, node->values["file"], node->values["scalable_file"], pointsize))
@@ -691,6 +692,7 @@ bool ThemeParser::parserCallback_widget(ParserNode *node) {
 
 			else if (!parseIntegerKey(node->values["width"], 1, &width))
 				return parserError("Corrupted width value in key for " + var);
+			width *= 2;
 		}
 
 		if (node->values.contains("height")) {
@@ -699,6 +701,7 @@ bool ThemeParser::parserCallback_widget(ParserNode *node) {
 
 			else if (!parseIntegerKey(node->values["height"], 1, &height))
 				return parserError("Corrupted height value in key for " + var);
+			height *= 2;
 		}
 
 		Graphics::TextAlign alignH = Graphics::kTextAlignLeft;
@@ -726,6 +729,7 @@ bool ThemeParser::parserCallback_dialog(ParserNode *node) {
 	if (node->values.contains("inset")) {
 		if (!parseIntegerKey(node->values["inset"], 1, &inset))
 			return false;
+		inset *= 2;
 	}
 
 	Common::String overlays = node->values["overlays"];
@@ -778,6 +782,7 @@ bool ThemeParser::parserCallback_layout(ParserNode *node) {
 	if (node->values.contains("spacing")) {
 		if (!parseIntegerKey(node->values["spacing"], 1, &spacing))
 			return false;
+		spacing *= 2;
 	}
 
 	ThemeLayout::ItemAlign itemAlign = ThemeLayout::kItemAlignStart;
@@ -810,7 +815,7 @@ bool ThemeParser::parserCallback_layout(ParserNode *node) {
 		if (!parseIntegerKey(node->values["padding"], 4, &paddingL, &paddingR, &paddingT, &paddingB))
 			return false;
 
-		_theme->getEvaluator()->addPadding(paddingL, paddingR, paddingT, paddingB);
+		_theme->getEvaluator()->addPadding(paddingL * 2, paddingR * 2, paddingT * 2, paddingB * 2);
 	}
 
 	return true;
@@ -825,6 +830,7 @@ bool ThemeParser::parserCallback_space(ParserNode *node) {
 
 		else if (!parseIntegerKey(node->values["size"], 1, &size))
 			return parserError("Invalid value for Spacing size.");
+		size *= 2;
 	}
 
 	_theme->getEvaluator()->addSpace(size);
@@ -881,6 +887,10 @@ bool ThemeParser::parseCommonLayoutProps(ParserNode *node, const Common::String 
 				return false;
 		}
 
+		if (width != -1)
+			width *= 2;
+		if (height != -1)
+			height *= 2;
 
 		_theme->getEvaluator()->setVar(var + "Width", width);
 		_theme->getEvaluator()->setVar(var + "Height", height);
@@ -938,8 +948,8 @@ bool ThemeParser::parseCommonLayoutProps(ParserNode *node, const Common::String 
 				return false;
 		}
 
-		_theme->getEvaluator()->setVar(var + "X", x);
-		_theme->getEvaluator()->setVar(var + "Y", y);
+		_theme->getEvaluator()->setVar(var + "X", x * 2);
+		_theme->getEvaluator()->setVar(var + "Y", y * 2);
 	}
 
 	if (node->values.contains("padding")) {
@@ -948,10 +958,10 @@ bool ThemeParser::parseCommonLayoutProps(ParserNode *node, const Common::String 
 		if (!parseIntegerKey(node->values["padding"], 4, &paddingL, &paddingR, &paddingT, &paddingB))
 			return false;
 
-		_theme->getEvaluator()->setVar(var + "Padding.Left", paddingL);
-		_theme->getEvaluator()->setVar(var + "Padding.Right", paddingR);
-		_theme->getEvaluator()->setVar(var + "Padding.Top", paddingT);
-		_theme->getEvaluator()->setVar(var + "Padding.Bottom", paddingB);
+		_theme->getEvaluator()->setVar(var + "Padding.Left", paddingL * 2);
+		_theme->getEvaluator()->setVar(var + "Padding.Right", paddingR * 2);
+		_theme->getEvaluator()->setVar(var + "Padding.Top", paddingT * 2);
+		_theme->getEvaluator()->setVar(var + "Padding.Bottom", paddingB * 2);
 	}
 
 
