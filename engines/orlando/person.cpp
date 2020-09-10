@@ -155,6 +155,8 @@ void Person::walkTo(Common::Point dest, uint32 time, int dir) {
 	if (dir == kDirectionNone) {
 		// Determine direction based on angle
 		float angleDeg = Common::rad2deg(angle);
+		if (angleDeg < 0.0f)
+			angleDeg += 360.0f;
 		for (int i = 0; i < kDirections - 1; i++) {
 			if (angleDeg >= kDirAngles[i] && angleDeg <= kDirAngles[i + 1]) {
 				dir = (i + 7) % kDirections;
