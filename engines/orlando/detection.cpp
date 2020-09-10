@@ -178,7 +178,7 @@ bool OrlandoMetaEngine::hasFeature(MetaEngineFeature f) const {
 }
 
 bool Orlando::OrlandoEngine::hasFeature(EngineFeature f) const {
-	return (f == kSupportsRTL ||
+	return (f == kSupportsReturnToLauncher ||
 			f == kSupportsSubtitleOptions);
 }
 
