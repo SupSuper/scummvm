@@ -53,6 +53,7 @@ inline void deleteAll(Common::HashMap<K, V*> &container) {
 }
 
 Scene::Scene(OrlandoEngine *vm, const Common::String &id) : _vm(vm), _id(id), _pak(nullptr), _pakEx(nullptr), _background(nullptr), _scrollX(0) {
+	debug("Scene: Loading %s", id.c_str());
 }
 
 Scene::~Scene() {
@@ -71,107 +72,6 @@ Scene::~Scene() {
 
 	delete _pakEx;
 	delete _pak;
-}
-
-GraphicsManager *Scene::getGraphicsManager() const {
-	return _vm->getGraphicsManager();
-}
-
-Person *Scene::getPerson(const Common::String &id) {
-	if (id == "JACK")
-		return _vm->getJack();
-	return _persons.getVal(id, nullptr);
-}
-
-Common::File *Scene::loadFile(const Common::String &filename, bool optional) {
-	Common::File *file = nullptr;
-	if (_pak->hasFile(filename)) {
-		file = _vm->getResourceManager()->loadPakFile(*_pak, filename, optional);
-	} else if (_pakEx != nullptr && _pakEx->hasFile(filename)) {
-		file = _vm->getResourceManager()->loadPakFile(*_pakEx, filename, optional);
-	} else if (!optional) {
-		warning("ResourceManager: File not found in PAK: %s", filename.c_str());
-	}
-	return file;
-}
-
-Graphics::Surface *Scene::loadSurface(const Common::String &filename, int bpp) {
-	Common::File *file = loadFile(filename);
-	if (file == nullptr || file->size() <= 1)
-		return nullptr;
-
-	if (bpp == 16) {
-		return _vm->getGraphicsManager()->loadRawBitmap(file);
-	} else if (bpp == 8) {
-		return _vm->getGraphicsManager()->loadPaletteBitmap(file);
-	} else {
-		warning("GraphicsManager: Unknown bpp '%d'", bpp);
-		return nullptr;
-	}
-}
-
-bool Scene::initialize() {
-	Common::String actionExt = ".PHK";
-	Common::String dataExt = ".PH2";
-	if (_vm->isVersionSP()) {
-		actionExt = ".PAK";
-		dataExt = ".PA2";
-	}
-	_pak = _vm->getResourceManager()->loadPakArchive(_id + actionExt);
-	if (Common::File::exists(_id + dataExt))
-		_pakEx = _vm->getResourceManager()->loadPakArchive(_id + dataExt);
-
-	if (_pak == nullptr)
-		return false;
-
-	if (!loadCcg() ||
-		!loadDcn() ||
-		!loadFcc() ||
-		!loadPcs() ||
-		!loadAce() ||
-		!loadAci() ||
-		!loadIcs() ||
-		!loadFcm() ||
-		!loadMcc())
-		return false;
-
-	_vm->getJack()->setWindow(addWindow());
-
-	uint32 time = _vm->getTotalPlayTime();
-	Macro *preMacro = _macros["PRE"];
-	preMacro->setActive(true);
-	while (preMacro->isActive())
-		preMacro->execute(_vm->getScriptInterpreter(), time);
-	_macros["INIT"]->setActive(true);
-
-	return true;
-}
-
-bool Scene::run() {
-	uint32 time = _vm->getTotalPlayTime();
-
-	// Run commands
-	for (Common::HashMap<Common::String, Macro*>::const_iterator i = _macros.begin(); i != _macros.end(); ++i) {
-		i->_value->execute(_vm->getScriptInterpreter(), time);
-	}
-
-	// Update scene elements
-	for (Common::HashMap<Common::String, Element*>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
-		i->_value->update(time);
-	}
-	for (Common::HashMap<Common::String, Person *>::const_iterator i = _persons.begin(); i != _persons.end(); ++i) {
-		i->_value->update(time);
-	}
-	_vm->getJack()->update(time);
-
-	// Draw scene windows
-	GraphicsManager *graphics = _vm->getGraphicsManager();
-	graphics->draw(*_background);
-	for (Common::List<Window *>::const_iterator i = _windows.begin(); i != _windows.end(); ++i) {
-		(*i)->drawTo(graphics);
-	}
-
-	return true;
 }
 
 bool Scene::loadCcg() {
@@ -455,6 +355,127 @@ Window *Scene::addWindow() {
 	Window *window = new Window(Common::Rect(_background->w, _background->h));
 	_windows.push_back(window);
 	return window;
+}
+
+GraphicsManager *Scene::getGraphicsManager() const {
+	return _vm->getGraphicsManager();
+}
+
+Person *Scene::getPerson(const Common::String &id) {
+	if (id == "JACK")
+		return _vm->getJack();
+	return _persons.getVal(id, nullptr);
+}
+
+Common::File *Scene::loadFile(const Common::String &filename, bool optional) {
+	Common::File *file = nullptr;
+	if (_pak->hasFile(filename)) {
+		file = _vm->getResourceManager()->loadPakFile(*_pak, filename, optional);
+	} else if (_pakEx != nullptr && _pakEx->hasFile(filename)) {
+		file = _vm->getResourceManager()->loadPakFile(*_pakEx, filename, optional);
+	} else if (!optional) {
+		warning("ResourceManager: File not found in PAK: %s", filename.c_str());
+	}
+	return file;
+}
+
+Graphics::Surface *Scene::loadSurface(const Common::String &filename, int bpp) {
+	Common::File *file = loadFile(filename);
+	if (file == nullptr || file->size() <= 1)
+		return nullptr;
+
+	if (bpp == 16) {
+		return _vm->getGraphicsManager()->loadRawBitmap(file);
+	} else if (bpp == 8) {
+		return _vm->getGraphicsManager()->loadPaletteBitmap(file);
+	} else {
+		warning("GraphicsManager: Unknown bpp '%d'", bpp);
+		return nullptr;
+	}
+}
+
+void Scene::moveWindow(Window *w1, Window *w2, bool after) {
+	bool removeOld = false, addNew = false;
+	for (Common::List<Window *>::iterator i = _windows.begin(); i != _windows.end(); ++i) {
+		// Remove w1 from the old position
+		if (!removeOld && (*i) == w1) {
+			i = _windows.erase(i);
+			removeOld = true;
+		}
+		// Insert w1 at the new position
+		if (!addNew && (*i) == w2) {
+			if (after)
+				i++;
+			_windows.insert(i, w1);
+			addNew = true;
+		}
+		if (removeOld && addNew)
+			break;
+	}
+}
+
+bool Scene::initialize() {
+	Common::String actionExt = ".PHK";
+	Common::String dataExt = ".PH2";
+	if (_vm->isVersionSP()) {
+		actionExt = ".PAK";
+		dataExt = ".PA2";
+	}
+	_pak = _vm->getResourceManager()->loadPakArchive(_id + actionExt);
+	if (Common::File::exists(_id + dataExt))
+		_pakEx = _vm->getResourceManager()->loadPakArchive(_id + dataExt);
+
+	if (_pak == nullptr)
+		return false;
+
+	if (!loadCcg() ||
+		!loadDcn() ||
+		!loadFcc() ||
+		!loadPcs() ||
+		!loadAce() ||
+		!loadAci() ||
+		!loadIcs() ||
+		!loadFcm() ||
+		!loadMcc())
+		return false;
+
+	_vm->getJack()->setWindow(addWindow());
+
+	uint32 time = _vm->getTotalPlayTime();
+	Macro *preMacro = _macros["PRE"];
+	preMacro->setActive(true);
+	while (preMacro->isActive())
+		preMacro->execute(_vm->getScriptInterpreter(), time);
+	_macros["INIT"]->setActive(true);
+
+	return true;
+}
+
+bool Scene::run() {
+	uint32 time = _vm->getTotalPlayTime();
+
+	// Run commands
+	for (Common::HashMap<Common::String, Macro*>::const_iterator i = _macros.begin(); i != _macros.end(); ++i) {
+		i->_value->execute(_vm->getScriptInterpreter(), time);
+	}
+
+	// Update scene elements
+	for (Common::HashMap<Common::String, Element*>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
+		i->_value->update(time);
+	}
+	for (Common::HashMap<Common::String, Person*>::const_iterator i = _persons.begin(); i != _persons.end(); ++i) {
+		i->_value->update(time);
+	}
+	_vm->getJack()->update(time);
+
+	// Draw scene windows
+	GraphicsManager *graphics = _vm->getGraphicsManager();
+	graphics->draw(*_background);
+	for (Common::List<Window*>::const_iterator i = _windows.begin(); i != _windows.end(); ++i) {
+		(*i)->drawTo(graphics);
+	}
+
+	return true;
 }
 
 } // End of namespace Orlando

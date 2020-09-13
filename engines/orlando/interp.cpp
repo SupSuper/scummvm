@@ -62,15 +62,15 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // ShadowBy
 	&ScriptInterpreter::cmdUnknown, // SetShadow
 	&ScriptInterpreter::cmdGoToScene,
-	&ScriptInterpreter::cmdUnknown, // PUnderP
-	&ScriptInterpreter::cmdUnknown, // PUnderE
+	&ScriptInterpreter::cmdPUnderP,
+	&ScriptInterpreter::cmdPUnderE,
 	&ScriptInterpreter::cmdWalkToDir,
 	&ScriptInterpreter::cmdUnknown, // ShowFace
 	&ScriptInterpreter::cmdUnknown, // HideFace
 	&ScriptInterpreter::cmdLet,
 	&ScriptInterpreter::cmdIf,
 	&ScriptInterpreter::cmdUnknown, // ShowAnimaFrame
-	&ScriptInterpreter::cmdUnknown, // POverE
+	&ScriptInterpreter::cmdPOverE,
 	&ScriptInterpreter::cmdEffect,
 	&ScriptInterpreter::cmdUnknown, // EffectVolume
 	&ScriptInterpreter::cmdUnknown, // TalkRandom
@@ -101,7 +101,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // StopAnimaNeg
 	&ScriptInterpreter::cmdUnknown, // SetAnimaFrame
 	&ScriptInterpreter::cmdDeactiveSelf,
-	&ScriptInterpreter::cmdUnknown, // EOverE
+	&ScriptInterpreter::cmdEOverE,
 	&ScriptInterpreter::cmdMusic,
 	&ScriptInterpreter::cmdMoveE,
 	&ScriptInterpreter::cmdUnknown, // BrightnessE
@@ -456,6 +456,26 @@ bool ScriptInterpreter::cmdGoToScene(const MacroCommand &cmd) {
 	return true;
 }
 
+bool ScriptInterpreter::cmdPUnderP(const MacroCommand &cmd) {
+	Common::String id1 = cmd.args[1];
+	Common::String id2 = cmd.args[2];
+	Person *person1 = _vm->getScene()->getPerson(id1);
+	Person *person2 = _vm->getScene()->getPerson(id2);
+
+	_vm->getScene()->moveWindow(person1->getWindow(), person2->getWindow(), false);
+	return true;
+}
+
+bool ScriptInterpreter::cmdPUnderE(const MacroCommand &cmd) {
+	Common::String id1 = cmd.args[1];
+	Common::String id2 = cmd.args[2];
+	Person *person = _vm->getScene()->getPerson(id1);
+	Element *element = _vm->getScene()->getElement(id2);
+
+	_vm->getScene()->moveWindow(person->getWindow(), element->getWindow(), false);
+	return true;
+}
+
 bool ScriptInterpreter::cmdWalkToDir(const MacroCommand &cmd) {
 	Common::String id = cmd.args[1];
 	int x = getVarOrLiteral(cmd.args[2]);
@@ -497,6 +517,16 @@ bool ScriptInterpreter::cmdIf(const MacroCommand &cmd) {
 		_macro->skipIf();
 		return false;
 	}
+}
+
+bool ScriptInterpreter::cmdPOverE(const MacroCommand &cmd) {
+	Common::String id1 = cmd.args[1];
+	Common::String id2 = cmd.args[2];
+	Person *person = _vm->getScene()->getPerson(id1);
+	Element *element = _vm->getScene()->getElement(id2);
+
+	_vm->getScene()->moveWindow(person->getWindow(), element->getWindow(), true);
+	return true;
 }
 
 bool ScriptInterpreter::cmdEffect(const MacroCommand &cmd) {
@@ -561,6 +591,16 @@ bool ScriptInterpreter::cmdMoveP(const MacroCommand &cmd) {
 
 bool ScriptInterpreter::cmdDeactiveSelf(const MacroCommand &cmd) {
 	_macro->setActive(false);
+	return true;
+}
+
+bool ScriptInterpreter::cmdEOverE(const MacroCommand &cmd) {
+	Common::String id1 = cmd.args[1];
+	Common::String id2 = cmd.args[2];
+	Element *element1 = _vm->getScene()->getElement(id1);
+	Element *element2 = _vm->getScene()->getElement(id2);
+
+	_vm->getScene()->moveWindow(element1->getWindow(), element2->getWindow(), true);
 	return true;
 }
 

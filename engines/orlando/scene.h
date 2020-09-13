@@ -99,7 +99,7 @@ protected:
 	bool loadFcm();
 	/** Loads script macros. */
 	bool loadMcc();
-
+	/** Adds a new window to the scene. */
 	Window *addWindow();
 
 public:
@@ -115,14 +115,14 @@ public:
 	Insertion *getInsertion(const Common::String &id) { return _insertions.getVal(id, nullptr); }
 	Film *getFilm(const Common::String &id) { return _films.getVal(id, nullptr); }
 	Macro *getMacro(const Common::String &id) { return _macros.getVal(id, nullptr); }
-
 	int getPerspectiveYMin() const { return _perspYMin; }
 	int getPerspectiveYMax() const { return _perspYMax; }
 	float getPerspectiveScale() const { return _scalePersp; }
 
 	Common::File *loadFile(const Common::String &filename, bool optional = false);
 	Graphics::Surface *loadSurface(const Common::String &filename, int bpp);
-
+	/** Places w1 before (under) or after (over) w2. */
+	void moveWindow(Window *w1, Window *w2, bool after);
 	/**
 	 * Initializes the scene and its contents.
 	 * @return False if a resource is missing.

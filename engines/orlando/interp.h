@@ -136,6 +136,16 @@ class ScriptInterpreter {
 	 */
 	bool cmdGoToScene(const MacroCommand &cmd);
 	/**
+	 * PUNDERP <person1> <person2>
+	 * Draws <person1> under <person2>.
+	 */
+	bool cmdPUnderP(const MacroCommand &cmd);
+	/**
+	 * PUNDERE <person> <element>
+	 * Draws <person> under <element>.
+	 */
+	bool cmdPUnderE(const MacroCommand &cmd);
+	/**
 	 * WALKTODIR <person> <x> <y> <dir> <+->
 	 * Moves a person on the scene in a fixed direction.
 	 */
@@ -150,6 +160,11 @@ class ScriptInterpreter {
 	 * Executes block if <var> is equal to <var>.
 	 */
 	bool cmdIf(const MacroCommand &cmd);
+	/**
+	 * POVERE <person> <element>
+	 * Draws <person> over <element>.
+	 */
+	bool cmdPOverE(const MacroCommand &cmd);
 	/**
 	 * EFFECT <id> <?> <?> <?>
 	 * Plays a sound effect.
@@ -191,15 +206,20 @@ class ScriptInterpreter {
 	 */
 	bool cmdDeactiveSelf(const MacroCommand &cmd);
 	/**
-	 * MOVEE <element> <x> <y>
-	 * Moves an element by a relative amount.
+	 * EOVERE <element1> <element2>
+	 * Draws <element1> over <element2>.
 	 */
-	bool cmdMoveE(const MacroCommand &cmd);
+	bool cmdEOverE(const MacroCommand &cmd);
 	/**
 	 * MUSIC <id> <?> <?>
 	 * Plays a music track.
 	 */
 	bool cmdMusic(const MacroCommand &cmd);
+	/**
+	 * MOVEE <element> <x> <y>
+	 * Moves an element by a relative amount.
+	 */
+	bool cmdMoveE(const MacroCommand &cmd);
 	/**
 	 * INC <var>
 	 * Increments <var> by 1.
