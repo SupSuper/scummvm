@@ -26,7 +26,8 @@ MODULE_OBJS = \
 	film.o \
 	macro.o \
 	interp.o \
-	jack.o
+	jack.o \
+	window.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_ORLANDO), DYNAMIC_PLUGIN)

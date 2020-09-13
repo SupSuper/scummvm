@@ -27,6 +27,7 @@
 #include "common/array.h"
 #include "common/rect.h"
 #include "orlando/vector.h"
+#include "orlando/window.h"
 
 namespace Graphics {
 	struct Surface;
@@ -36,7 +37,6 @@ namespace Orlando {
 
 class TextParser;
 class Scene;
-class GraphicsManager;
 class Insertion;
 
 enum FacingDirection {
@@ -67,9 +67,9 @@ protected:
 	Common::Array<PFrame> _frames[kDirections];
 	Vector2 _pos, _walk;
 	Common::Point _dest;
-	Common::Rect _window;
+	Window *_window;
 	Insertion *_ins;
-	bool _visible, _flipped;
+	bool _flipped;
 	FacingDirection _dir;
 	uint32 _time, _delay;
 	int _walkSpeed, _perspYMin, _perspYMax, _curFrame;
@@ -84,19 +84,23 @@ public:
 	Vector2 getPosition() const { return _pos; }
 	virtual void setPosition(const Vector2 &pos) {
 		_pos = pos;
-		calcDrawScale();
+		draw();
 	}
 	void setPerspectiveYMin(int perspective) {
 		_perspYMin = perspective;
-		calcDrawScale();
 	}
-	void setWindow(const Common::Rect &window) { _window = window; }
-	void setVisible(bool visible) { _visible = visible; }
+	Window *getWindow() { return _window; }
+	void setWindow(Window *window) {
+		delete _window;
+		_window = window;
+	}
 	bool isWalking() const { return _walk != Vector2(0, 0); }
+	uint32 getDelay() const { return _delay; }
 
 	bool load(TextParser &parser, Scene *scene);
 	void setData(uint32 delay, float scale, int perspective, int walk);
-	void draw(GraphicsManager *graphics, uint32 time);
+	void update(uint32 time);
+	void draw();
 	void walkTo(Common::Point dest, uint32 time, int dir = kDirectionNone);
 };
 

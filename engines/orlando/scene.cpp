@@ -40,6 +40,7 @@
 #include "orlando/film.h"
 #include "orlando/macro.h"
 #include "orlando/jack.h"
+#include "orlando/window.h"
 
 namespace Orlando {
 
@@ -134,6 +135,8 @@ bool Scene::initialize() {
 		!loadMcc())
 		return false;
 
+	_vm->getJack()->setWindow(addWindow());
+
 	uint32 time = _vm->getTotalPlayTime();
 	Macro *preMacro = _macros["PRE"];
 	preMacro->setActive(true);
@@ -145,7 +148,6 @@ bool Scene::initialize() {
 }
 
 bool Scene::run() {
-	GraphicsManager *graphics = _vm->getGraphicsManager();
 	uint32 time = _vm->getTotalPlayTime();
 
 	// Run commands
@@ -153,15 +155,22 @@ bool Scene::run() {
 		i->_value->execute(_vm->getScriptInterpreter(), time);
 	}
 
-	// Draw scene elements
-	graphics->draw(*_background);
+	// Update scene elements
 	for (Common::HashMap<Common::String, Element*>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
-		i->_value->draw(graphics, time);
+		i->_value->update(time);
 	}
-	for (Common::HashMap<Common::String, Person*>::const_iterator i = _persons.begin(); i != _persons.end(); ++i) {
-		i->_value->draw(graphics, time);
+	for (Common::HashMap<Common::String, Person *>::const_iterator i = _persons.begin(); i != _persons.end(); ++i) {
+		i->_value->update(time);
 	}
-	_vm->getJack()->draw(graphics, time);
+	_vm->getJack()->update(time);
+
+	// Draw scene windows
+	GraphicsManager *graphics = _vm->getGraphicsManager();
+	graphics->draw(*_background);
+	for (Common::List<Window *>::const_iterator i = _windows.begin(); i != _windows.end(); ++i) {
+		(*i)->drawTo(graphics);
+	}
+
 	return true;
 }
 
@@ -199,6 +208,7 @@ bool Scene::loadCcg() {
 				}
 
 				Element *element = new Element(id);
+				element->setWindow(addWindow());
 				if (!element->load(parser, this)) {
 					delete element;
 					return false;
@@ -327,6 +337,7 @@ bool Scene::loadPcs() {
 			break;
 		deleteFirstLast(id);
 		Person *person = new Person(id);
+		person->setWindow(addWindow());
 		if (!person->load(parser, this)) {
 			delete person;
 			return false;
@@ -372,7 +383,6 @@ bool Scene::loadAci() {
 			delete anim;
 			return false;
 		}
-
 	}
 
 	return true;
@@ -439,6 +449,12 @@ bool Scene::loadMcc() {
 	}
 
 	return true;
+}
+
+Window *Scene::addWindow() {
+	Window *window = new Window(Common::Rect(_background->w, _background->h));
+	_windows.push_back(window);
+	return window;
 }
 
 } // End of namespace Orlando

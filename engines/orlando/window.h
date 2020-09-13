@@ -20,56 +20,37 @@
  *
  */
 
-#ifndef ORLANDO_ELEMENT_H
-#define ORLANDO_ELEMENT_H
+#ifndef ORLANDO_WINDOW_H
+#define ORLANDO_WINDOW_H
 
-#include "common/str.h"
 #include "common/rect.h"
-#include "orlando/polygon.h"
-#include "orlando/window.h"
 
 namespace Graphics {
+	class ManagedSurface;
 	struct Surface;
 }
 
 namespace Orlando {
 
-class Animation;
-class TextParser;
-class Scene;
+class GraphicsManager;
 
 /**
- * Represents a graphical element on a scene.
+ * Represents a surface window for a scene element.
+ * Elements draw to this buffer instead of directly to the screen.
  */
-class Element {
-	Common::String _id;
-	int _bpp;
+class Window {
+	Graphics::ManagedSurface *_surface;
 	Common::Point _pos;
-	Window *_window;
-	Quad _region;
-	Graphics::Surface *_surface;
-	Animation *_anim;
-public:
-	Element(const Common::String &id);
-	~Element();
-	Common::String getId() const { return _id; }
-	Animation *getAnimation() { return _anim; }
-	void setAnimation(Animation *anim) { _anim = anim; }
-	Common::Point getPosition() const { return _pos; }
-	void setPosition(const Common::Point &pos) {
-		_pos = pos;
-		draw();
-	}
-	Window *getWindow() { return _window; }
-	void setWindow(Window *window) {
-		delete _window;
-		_window = window;
-	}
+	bool _visible;
 
-	bool load(TextParser &parser, Scene *scene);
-	Graphics::Surface *loadSurface(const Common::String &name, Scene *scene);
-	void update(uint32 time) const;
-	void draw() const;
+public:
+	Window(const Common::Rect &bounds);
+	~Window();
+	void setVisible(bool visible) { _visible = visible; }
+
+	void change(const Common::Rect &bounds);
+	void drawFrom(const Graphics::Surface *surface, const Common::Point &pos = Common::Point(), bool flipped = false, float scale = 1.0f) const;
+	void drawTo(GraphicsManager *graphics) const;
 };
 
 } // End of namespace Orlando

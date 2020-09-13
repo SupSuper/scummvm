@@ -39,6 +39,7 @@ namespace Orlando {
 class TextParser;
 class FlxAnimation;
 class Scene;
+class Element;
 
 struct AFrame {
 	Graphics::Surface *surface;
@@ -81,7 +82,8 @@ public:
 	bool load(TextParser &parser, Scene *scene);
 	void loadFlx(Common::SeekableReadStream *flx, Scene *scene, uint32 time);
 	void play(bool reverse, int delay, PlayMode mode, int rec, uint32 time);
-	const AFrame *nextFrame(uint32 time);
+	void nextFrame(uint32 time, const Element *element);
+	const AFrame *getFrame() const;
 };
 
 } // End of namespace Orlando

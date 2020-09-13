@@ -23,9 +23,11 @@
 #include "common/scummsys.h"
 #include "common/file.h"
 #include "graphics/surface.h"
+
 #include "orlando/insertion.h"
 #include "orlando/text_parser.h"
 #include "orlando/scene.h"
+#include "orlando/person.h"
 
 namespace Orlando {
 
@@ -77,14 +79,15 @@ void Insertion::init(bool play, uint32 time) {
 	_time = time;
 }
 
-void Insertion::nextFrame(uint32 time, uint32 delay) {
-	while (_playing && time >= _time + delay) {
-		_time += delay;
+void Insertion::nextFrame(uint32 time, Person *person) {
+	while (_playing && time >= _time + person->getDelay()) {
+		_time += person->getDelay();
 		_curFrame++;
 		if (_curFrame >= _frames.size()) {
 			_playing = false;
 			_curFrame = _frames.size() - 1;
 		}
+		person->draw();
 	}
 }
 

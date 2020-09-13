@@ -31,10 +31,11 @@
 #include "orlando/graphics.h"
 #include "orlando/insertion.h"
 #include "orlando/util.h"
+#include "orlando/window.h"
 
 namespace Orlando {
 
-Person::Person(const Common::String &id) : _id(id), _ins(nullptr), _visible(true), _flipped(false), _dir(kDirectionS), _time(0), _delay(0),
+Person::Person(const Common::String &id) : _id(id), _window(nullptr), _ins(nullptr), _flipped(false), _dir(kDirectionS), _time(0), _delay(0),
 	_walkSpeed(0), _perspYMin(0), _perspYMax(0), _curFrame(0), _scalePersp(2.0f), _scaleDraw(1.0f) {
 }
 
@@ -47,6 +48,7 @@ Person::~Person() {
 			}
 		}
 	}
+	delete _window;
 }
 
 bool Person::load(TextParser &parser, Scene *scene) {
@@ -77,7 +79,6 @@ bool Person::load(TextParser &parser, Scene *scene) {
 	_perspYMin = scene->getPerspectiveYMin();
 	_perspYMax = scene->getPerspectiveYMax();
 	_scalePersp = scene->getPerspectiveScale();
-	calcDrawScale();
 	return true;
 }
 
@@ -98,13 +99,9 @@ void Person::setData(uint32 delay, float scale, int perspective, int walk) {
 	_scalePersp = scale;
 	_perspYMax = perspective;
 	_walkSpeed = walk;
-	calcDrawScale();
 }
 
-void Person::draw(GraphicsManager *graphics, uint32 time) {
-	if (!_visible)
-		return;
-
+void Person::update(uint32 time) {
 	while (isWalking() && time >= _time + _delay) {
 		_time += _delay;
 		_curFrame = (_curFrame + 1) % _frames[_dir].size();
@@ -115,8 +112,12 @@ void Person::draw(GraphicsManager *graphics, uint32 time) {
 		}
 	}
 	if (_ins != nullptr) {
-		_ins->nextFrame(time, _delay);
+		_ins->nextFrame(time, this);
 	}
+}
+
+void Person::draw() {
+	calcDrawScale();
 
 	const PFrame *frame = &_frames[_dir][_curFrame];
 	if (!isWalking() && _ins != nullptr) {
@@ -127,7 +128,7 @@ void Person::draw(GraphicsManager *graphics, uint32 time) {
 	if (_flipped)
 		offset.x = frame->offsetXFlip;
 	Vector2 drawPos = _pos - offset * _scaleDraw;
-	graphics->drawTransparent(*frame->surface, (Common::Point)drawPos, _window, _flipped, _scaleDraw);
+	_window->drawFrom(frame->surface, (Common::Point)drawPos, _flipped, _scaleDraw);
 }
 
 void Person::walkTo(Common::Point dest, uint32 time, int dir) {

@@ -54,7 +54,7 @@ public:
 
 	bool load(TextParser &parser, Scene *scene);
 	void init(bool play, uint32 time);
-	void nextFrame(uint32 time, uint32 delay);
+	void nextFrame(uint32 time, Person *person);
 };
 
 } // End of namespace Orlando

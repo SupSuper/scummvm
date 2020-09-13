@@ -26,6 +26,7 @@
 #include "common/str.h"
 #include "common/array.h"
 #include "common/hash-str.h"
+#include "common/list.h"
 #include "orlando/polygon.h"
 #include "orlando/graphics.h"
 
@@ -49,6 +50,7 @@ class Area;
 class Insertion;
 class Film;
 class Macro;
+class Window;
 
 /**
  * Represents a game room, screen, etc.
@@ -75,6 +77,8 @@ protected:
 	Common::HashMap<Common::String, Film*> _films;
 	Common::HashMap<Common::String, Macro*> _macros;
 
+	Common::List<Window*> _windows;
+
 	/** Loads configurations and graphics. */
 	bool loadCcg();
 	/** Loads dialogs. */
@@ -95,6 +99,8 @@ protected:
 	bool loadFcm();
 	/** Loads script macros. */
 	bool loadMcc();
+
+	Window *addWindow();
 
 public:
 	Scene(OrlandoEngine *vm, const Common::String &id);

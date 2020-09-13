@@ -37,6 +37,7 @@
 #include "orlando/element.h"
 #include "orlando/animation.h"
 #include "orlando/avx_video.h"
+#include "orlando/window.h"
 
 namespace Orlando {
 
@@ -68,6 +69,7 @@ bool MainMenu::initialize() {
 		return false;
 
 	GraphicsManager *graphics = _vm->getGraphicsManager();
+	uint32 time = _vm->getTotalPlayTime();
 	// Background
 	if (Common::File *file = loadFile("JACK2.BM")) {
 		_background = graphics->loadRawBitmap(file);
@@ -87,9 +89,10 @@ bool MainMenu::initialize() {
 		anim->addFrame(frames[0]);
 		anim->addFrame(frames[1]);
 
-		anim->play(false, 100, kPlayLoop, 0, _vm->getTotalPlayTime());
+		anim->play(false, 100, kPlayLoop, 0, time);
 
 		Element *element = new Element(id);
+		element->setWindow(addWindow());
 		element->setPosition(Common::Point(0, 323));
 		element->setAnimation(anim);
 		_elements[id] = element;
@@ -101,9 +104,10 @@ bool MainMenu::initialize() {
 	if (Common::File *file = loadFile("D1.FLX")) {
 		const char *id = "D1.FLX";
 		Animation *anim = new Animation(id);
-		anim->loadFlx(file, this, _vm->getTotalPlayTime());
+		anim->loadFlx(file, this, time);
 
 		Element *element = new Element(id);
+		element->setWindow(addWindow());
 		element->setPosition(Common::Point(309, 39));
 		element->setAnimation(anim);
 		_elements[id] = element;
@@ -127,16 +131,11 @@ bool MainMenu::initialize() {
 }
 
 bool MainMenu::run() {
-	GraphicsManager *graphics = _vm->getGraphicsManager();
-	uint32 time = _vm->getTotalPlayTime();
-
-	// Draw sprites
-	graphics->draw(*_background);
-	for (Common::HashMap<Common::String, Element *>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
-		i->_value->draw(graphics, time);
-	}
+	Scene::run();
 
 	// Draw UI
+	GraphicsManager *graphics = _vm->getGraphicsManager();
+
 	Common::Rect kUiWindow = Common::Rect(0, 0, 230, 235);
 	kUiWindow.translate(205, 190);
 	Common::Rect kUiButton = Common::Rect(0, 0, 180, 34);

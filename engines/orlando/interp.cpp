@@ -36,6 +36,7 @@
 #include "orlando/dialog.h"
 #include "orlando/mouse.h"
 #include "orlando/insertion.h"
+#include "orlando/window.h"
 
 namespace Orlando {
 
@@ -240,13 +241,13 @@ bool ScriptInterpreter::cmdChWindow(const MacroCommand &cmd) {
 
 	Person *person = _vm->getScene()->getPerson(id);
 	if (person != nullptr) {
-		person->setWindow(window);
+		person->getWindow()->change(window);
 	} else {
 		Element *element = _vm->getScene()->getElement(id);
 		if (element != nullptr) {
-			element->setWindow(window);
+			element->getWindow()->change(window);
 		} else {
-			warning("ScriptInterpreter: Element %s not found", id.c_str());
+			warning("ScriptInterpreter: Window %s not found", id.c_str());
 		}
 	}
 	return true;
@@ -269,8 +270,9 @@ bool ScriptInterpreter::cmdInitFirst(const MacroCommand &cmd) {
 	Insertion *ins = _vm->getScene()->getInsertion(insertion);
 	Person *p = _vm->getScene()->getPerson(person);
 	p->setInsertion(ins);
-	p->setVisible(true);
+	p->getWindow()->setVisible(true);
 	ins->init(false, _time);
+	p->draw();
 	return true;
 }
 
@@ -347,7 +349,7 @@ bool ScriptInterpreter::cmdRunInsertion(const MacroCommand &cmd) {
 	Person *p = _vm->getScene()->getPerson(person);
 	if (!_macro->isWaiting()) {
 		p->setInsertion(ins);
-		p->setVisible(true);
+		p->getWindow()->setVisible(true);
 		ins->init(true, _time);
 		_macro->setWaiting(wait);
 		return !wait;
@@ -365,7 +367,7 @@ bool ScriptInterpreter::cmdRunInsertion(const MacroCommand &cmd) {
 bool ScriptInterpreter::cmdHide(const MacroCommand &cmd) {
 	Common::String person = cmd.args[1];
 
-	_vm->getScene()->getPerson(person)->setVisible(false);
+	_vm->getScene()->getPerson(person)->getWindow()->setVisible(false);
 	return true;
 }
 
@@ -510,14 +512,14 @@ bool ScriptInterpreter::cmdEffect(const MacroCommand &cmd) {
 bool ScriptInterpreter::cmdHideE(const MacroCommand &cmd) {
 	Common::String element = cmd.args[1];
 
-	_vm->getScene()->getElement(element)->setVisible(false);
+	_vm->getScene()->getElement(element)->getWindow()->setVisible(false);
 	return true;
 }
 
 bool ScriptInterpreter::cmdShowE(const MacroCommand &cmd) {
 	Common::String element = cmd.args[1];
 
-	_vm->getScene()->getElement(element)->setVisible(true);
+	_vm->getScene()->getElement(element)->getWindow()->setVisible(true);
 	return true;
 }
 

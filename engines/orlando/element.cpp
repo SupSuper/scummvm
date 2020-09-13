@@ -28,10 +28,11 @@
 #include "orlando/graphics.h"
 #include "orlando/scene.h"
 #include "orlando/animation.h"
+#include "orlando/window.h"
 
 namespace Orlando {
 
-Element::Element(const Common::String &id) : _id(id), _bpp(16), _surface(nullptr), _anim(nullptr), _visible(true) {
+Element::Element(const Common::String &id) : _id(id), _bpp(16), _window(nullptr), _surface(nullptr), _anim(nullptr) {
 }
 
 Element::~Element() {
@@ -40,6 +41,7 @@ Element::~Element() {
 		_surface->free();
 	}
 	delete _surface;
+	delete _window;
 }
 
 bool Element::load(TextParser &parser, Scene *scene) {
@@ -58,6 +60,7 @@ bool Element::load(TextParser &parser, Scene *scene) {
 		if (_surface == nullptr)
 			return false;
 	}
+	draw();
 	return true;
 }
 
@@ -66,18 +69,19 @@ Graphics::Surface *Element::loadSurface(const Common::String &name, Scene *scene
 	return scene->loadSurface(name, ABS(_bpp));
 }
 
-void Element::draw(GraphicsManager *graphics, uint32 time) const {
-	if (!_visible)
-		return;
-
+void Element::update(uint32 time) const {
 	if (_anim != nullptr) {
-		const AFrame *frame = _anim->nextFrame(time);
+		_anim->nextFrame(time, this);
+	}
+}
+
+void Element::draw() const {
+	if (_anim != nullptr) {
+		const AFrame *frame = _anim->getFrame();
 		Graphics::Surface *surface = frame->surface;
-		if (surface != nullptr) {
-			graphics->drawTransparent(*surface, _pos + frame->offset, _window);
-		}
+		_window->drawFrom(surface, _pos + frame->offset);
 	} else if (_surface != nullptr) {
-		graphics->drawTransparent(*_surface, _pos, _window);
+		_window->drawFrom(_surface, _pos);
 	}
 }
 

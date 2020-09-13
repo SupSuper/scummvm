@@ -136,7 +136,7 @@ void Animation::play(bool reverse, int delay, PlayMode mode, int rec, uint32 tim
 	_playing = true;
 }
 
-const AFrame *Animation::nextFrame(uint32 time) {
+void Animation::nextFrame(uint32 time, const Element *element) {
 	while (_playing && time >= _time + _delay) {
 		_time += _delay;
 		if (_flx) {
@@ -157,7 +157,11 @@ const AFrame *Animation::nextFrame(uint32 time) {
 				}
 			}
 		}
+		element->draw();
 	}
+}
+
+const AFrame *Animation::getFrame() const {
 	int nextFrame = _curFrame;
 	if (_rec)
 		nextFrame = ABS(_records[_curRecord][_curFrame]) - 1;
