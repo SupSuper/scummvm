@@ -144,14 +144,14 @@ void Animation::nextFrame(uint32 time, const Element *element) {
 		} else {
 			_curFrame += _dir;
 			if (_loop) {
-				if (_curFrame > _end) {
+				if (_curFrame > (int)_end) {
 					_curFrame = _begin;
 				}
-				else if (_curFrame < _begin) {
+				else if (_curFrame < (int)_begin) {
 					_curFrame = _end;
 				}
 			} else {
-				if (_curFrame < _begin || _curFrame > _end) {
+				if (_curFrame < (int)_begin || _curFrame > (int)_end) {
 					_curFrame -= _dir;
 					_playing = false;
 				}

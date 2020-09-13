@@ -43,7 +43,7 @@ class Insertion {
 	Common::String _id;
 	Common::Array<PFrame> _frames;
 	uint32 _time;
-	int _curFrame;
+	uint32 _curFrame;
 	bool _playing;
 
 public:
