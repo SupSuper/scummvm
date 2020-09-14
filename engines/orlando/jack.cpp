@@ -67,7 +67,7 @@ bool Jack::loadWalk(const char *id, FacingDirection dir) {
 
 bool Jack::initialize() {
 	if (!loadWalk("FRON", kDirectionS) ||
-		!loadWalk("PROF", kDirectionE) ||
+		!loadWalk("PROF", kDirectionW) ||
 		!loadWalk("BACK", kDirectionN) ||
 		!loadWalk("SKFR", kDirectionSW) ||
 		!loadWalk("SKBA", kDirectionNE))
