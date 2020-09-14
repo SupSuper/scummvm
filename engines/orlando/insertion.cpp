@@ -73,10 +73,13 @@ bool Insertion::load(TextParser &parser, Scene *scene) {
 	return true;
 }
 
-void Insertion::init(bool play, uint32 time) {
+void Insertion::init(bool play, uint32 time, Person *person) {
 	_playing = play;
 	_curFrame = 0;
 	_time = time;
+	person->draw(_frames[_curFrame]);
+	// This reveals hidden objects
+	person->getWindow()->setVisible(true);
 }
 
 void Insertion::nextFrame(uint32 time, Person *person) {
@@ -87,7 +90,7 @@ void Insertion::nextFrame(uint32 time, Person *person) {
 			_playing = false;
 			_curFrame = _frames.size() - 1;
 		}
-		person->draw();
+		person->draw(_frames[_curFrame]);
 	}
 }
 

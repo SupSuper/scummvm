@@ -134,6 +134,9 @@ void Animation::play(bool reverse, int delay, PlayMode mode, int rec, uint32 tim
 
 	_curFrame = (reverse) ? _end : _begin;
 	_playing = true;
+	if (_flx != nullptr) {
+		_flx->nextFrame(_loop);
+	}
 }
 
 void Animation::nextFrame(uint32 time, const Element *element) {

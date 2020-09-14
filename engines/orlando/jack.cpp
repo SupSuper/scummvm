@@ -85,7 +85,6 @@ void Jack::setPerspective(int yMin, int yMax, float scale) {
 	_perspYMin = yMin;
 	_perspYMax = yMax;
 	_scalePersp = scale;
-	calcDrawScale();
 }
 
 } // End of namespace Orlando

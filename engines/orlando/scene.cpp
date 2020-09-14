@@ -161,6 +161,7 @@ bool Scene::loadCcg() {
 				}
 
 				Element *element = new Element(id);
+				element->setWindow(addWindow());
 				if (!element->load(parser, this)) {
 					delete element;
 					return false;

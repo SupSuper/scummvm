@@ -85,7 +85,6 @@ bool Person::load(TextParser &parser, Scene *scene) {
 void Person::calcDrawScale() {
 	if (_scalePersp == 3.0f) {
 		// TODO
-		_scaleDraw = 1.0f;
 	} else if (_scalePersp == 2.0f) {
 		_scaleDraw = 1.0f;
 	} else {
@@ -107,6 +106,7 @@ void Person::update(uint32 time) {
 		_curFrame = (_curFrame + 1) % _frames[_dir].size();
 
 		setPosition(_pos + _walk * _scaleDraw);
+		draw(_frames[_dir][_curFrame]);
 		if (ABS(_pos.x - _dest.x) < 10 && ABS(_pos.y - _dest.y) < 5) {
 			_walk = Vector2(0, 0);
 		}
@@ -116,19 +116,14 @@ void Person::update(uint32 time) {
 	}
 }
 
-void Person::draw() {
+void Person::draw(const PFrame &frame) {
 	calcDrawScale();
 
-	const PFrame *frame = &_frames[_dir][_curFrame];
-	if (!isWalking() && _ins != nullptr) {
-		frame = _ins->getFrame();
-	}
-
-	Vector2 offset(frame->offsetX, frame->offsetY);
+	Vector2 offset(frame.offsetX, frame.offsetY);
 	if (_flipped)
-		offset.x = frame->offsetXFlip;
+		offset.x = frame.offsetXFlip;
 	Vector2 drawPos = _pos - offset * _scaleDraw;
-	_window->drawFrom(frame->surface, (Common::Point)drawPos, _flipped, _scaleDraw);
+	_window->drawFrom(frame.surface, (Common::Point)drawPos, _flipped, _scaleDraw);
 }
 
 void Person::walkTo(Common::Point dest, uint32 time, int dir) {
@@ -148,6 +143,7 @@ void Person::walkTo(Common::Point dest, uint32 time, int dir) {
 	_dest = dest;
 	_time = time;
 	_curFrame = 0;
+	_ins = nullptr;
 
 	float angle = atan2((_dest.y - _pos.y) / kScaleY, _dest.x - _pos.x);
 	_walk.x = cos(angle) * _walkSpeed;
@@ -183,6 +179,7 @@ void Person::walkTo(Common::Point dest, uint32 time, int dir) {
 	}
 	_flipped = (dir < 0);
 	_dir = (FacingDirection)ABS(dir);
+	draw(_frames[_dir][_curFrame]);
 }
 
 } // End of namespace Orlando

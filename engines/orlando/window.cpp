@@ -39,9 +39,17 @@ Window::~Window() {
 	delete _surface;
 }
 
-void Window::change(const Common::Rect& bounds) {
-	_surface->create(bounds.width(), bounds.height(), GraphicsManager::kScreenFormat);
+void Window::change(const Common::Rect &bounds) {
+	Common::Point oldPos = _pos;
+	Graphics::ManagedSurface *oldSurface = _surface;
+
+	_surface = new Graphics::ManagedSurface(bounds.width(), bounds.height(), GraphicsManager::kScreenFormat);
 	_pos = Common::Point(bounds.left, bounds.top);
+
+	// We need to copy the old contents to the new surface
+	Common::Rect srcRect(oldSurface->w, oldSurface->h);
+	_surface->blitFrom(*oldSurface, srcRect, oldPos - _pos);
+	delete oldSurface;
 }
 
 void Window::drawFrom(const Graphics::Surface *surface, const Common::Point &pos, bool flipped, float scale) const {

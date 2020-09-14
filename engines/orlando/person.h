@@ -82,13 +82,8 @@ public:
 	Insertion *getInsertion() { return _ins; }
 	void setInsertion(Insertion *ins) { _ins = ins; }
 	Vector2 getPosition() const { return _pos; }
-	virtual void setPosition(const Vector2 &pos) {
-		_pos = pos;
-		draw();
-	}
-	void setPerspectiveYMin(int perspective) {
-		_perspYMin = perspective;
-	}
+	virtual void setPosition(const Vector2 &pos) { _pos = pos; }
+	void setPerspectiveYMin(int perspective) { _perspYMin = perspective; }
 	Window *getWindow() { return _window; }
 	void setWindow(Window *window) {
 		delete _window;
@@ -100,7 +95,7 @@ public:
 	bool load(TextParser &parser, Scene *scene);
 	void setData(uint32 delay, float scale, int perspective, int walk);
 	void update(uint32 time);
-	void draw();
+	void draw(const PFrame &frame);
 	void walkTo(Common::Point dest, uint32 time, int dir = kDirectionNone);
 };
 

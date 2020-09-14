@@ -108,7 +108,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // WalkEffect
 	&ScriptInterpreter::cmdUnknown, // HaveGun
 	&ScriptInterpreter::cmdUnknown, // NoHaveGun
-	&ScriptInterpreter::cmdUnknown, // ActiveMacroAt
+	&ScriptInterpreter::cmdActiveMacro, // TODO: ActiveMacroAt
 	&ScriptInterpreter::cmdUnknown, // HaveTool
 	&ScriptInterpreter::cmdUnknown, // NoHaveTool
 	&ScriptInterpreter::cmdInc,
@@ -150,7 +150,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdDoNothing,
 	&ScriptInterpreter::cmdUnknown, // Slap: unused
 	&ScriptInterpreter::cmdUnknown, // Shoot: unused
-	&ScriptInterpreter::cmdUnknown, // ActiveMacroAnima
+	&ScriptInterpreter::cmdActiveMacro, // TODO: ActiveMacroAnima
 	&ScriptInterpreter::cmdUnknown, // Pause: unused
 	&ScriptInterpreter::cmdUnknown, // ExitGame: unused
 	&ScriptInterpreter::cmdUnknown, // RotateTo
@@ -270,9 +270,7 @@ bool ScriptInterpreter::cmdInitFirst(const MacroCommand &cmd) {
 	Insertion *ins = _vm->getScene()->getInsertion(insertion);
 	Person *p = _vm->getScene()->getPerson(person);
 	p->setInsertion(ins);
-	p->getWindow()->setVisible(true);
-	ins->init(false, _time);
-	p->draw();
+	ins->init(false, _time, p);
 	return true;
 }
 
@@ -349,8 +347,7 @@ bool ScriptInterpreter::cmdRunInsertion(const MacroCommand &cmd) {
 	Person *p = _vm->getScene()->getPerson(person);
 	if (!_macro->isWaiting()) {
 		p->setInsertion(ins);
-		p->getWindow()->setVisible(true);
-		ins->init(true, _time);
+		ins->init(true, _time, p);
 		_macro->setWaiting(wait);
 		return !wait;
 	} else {

@@ -50,10 +50,9 @@ public:
 	Insertion(const Common::String &id);
 	~Insertion();
 	bool isPlaying() const { return _playing; }
-	const PFrame *getFrame() const { return &_frames[_curFrame]; }
 
 	bool load(TextParser &parser, Scene *scene);
-	void init(bool play, uint32 time);
+	void init(bool play, uint32 time, Person *person);
 	void nextFrame(uint32 time, Person *person);
 };
 

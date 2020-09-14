@@ -54,7 +54,10 @@ public:
 	~Element();
 	Common::String getId() const { return _id; }
 	Animation *getAnimation() { return _anim; }
-	void setAnimation(Animation *anim) { _anim = anim; }
+	void setAnimation(Animation *anim) {
+		_anim = anim;
+		draw();
+	}
 	Common::Point getPosition() const { return _pos; }
 	void setPosition(const Common::Point &pos) {
 		_pos = pos;
