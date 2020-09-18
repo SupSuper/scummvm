@@ -88,7 +88,6 @@ void Jack::setPerspective(int yMin, int yMax, float scale) {
 }
 
 void Jack::walkTo(Common::Point dest, uint32 time, int dir) {
-	const char *kDirStrings[] = { "D", "LD", "L", "LU", "U", "RU", "R", "RD" };
 	const int kJackDirections[] = { 0, 3, 1, -4, 2, 4, -1, -3 };
 	if (dir != kDirectionNone) {
 		for (int i = 0; i < kDirections; i++) {
@@ -99,6 +98,15 @@ void Jack::walkTo(Common::Point dest, uint32 time, int dir) {
 		}
 	}
 	Person::walkTo(dest, time, dir);
+}
+
+void Jack::stay(int dir) {
+	// TODO: Stand animation
+	_walk = Vector2(0, 0);
+	if (dir == kDirectionNone) {
+		dir = _dir;
+	}
+	setDirection(dir);
 }
 
 } // End of namespace Orlando

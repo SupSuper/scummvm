@@ -23,6 +23,7 @@
 #include "common/scummsys.h"
 #include "common/debug.h"
 #include "common/file.h"
+#include "common/util.h"
 
 #include "orlando/interp.h"
 #include "orlando/util.h"
@@ -37,6 +38,7 @@
 #include "orlando/mouse.h"
 #include "orlando/insertion.h"
 #include "orlando/window.h"
+#include "orlando/jack.h"
 
 namespace Orlando {
 
@@ -113,12 +115,12 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // NoHaveTool
 	&ScriptInterpreter::cmdInc,
 	&ScriptInterpreter::cmdWaitWhile,
-	&ScriptInterpreter::cmdUnknown, // Stay
+	&ScriptInterpreter::cmdStay,
 	&ScriptInterpreter::cmdUnknown, // GameOver: unused
 	&ScriptInterpreter::cmdMoveE, // TODO: MoveEP
 	&ScriptInterpreter::cmdUnknown, // WaitWhileAnima
 	&ScriptInterpreter::cmdUnknown, // ShowFrameDir: unused
-	&ScriptInterpreter::cmdUnknown, // StayDef
+	&ScriptInterpreter::cmdStayDef,
 	&ScriptInterpreter::cmdUnknown, // UnLock
 	&ScriptInterpreter::cmdUnknown, // CursorAs: unused
 	&ScriptInterpreter::cmdUnknown, // AnimaEffect
@@ -634,6 +636,30 @@ bool ScriptInterpreter::cmdWaitWhile(const MacroCommand &cmd) {
 		return false;
 	else
 		return true;
+}
+
+bool ScriptInterpreter::cmdStay(const MacroCommand &cmd) {
+	const char *kDirStrings[] = { "D", "LD", "L", "LU", "U", "RU", "R", "RD" };
+	Common::String dir = cmd.args[1];
+	if (dir.lastChar() == '*') {
+		// TODO: What does this do
+		dir.deleteLastChar();
+	}
+
+	int newDir = kDirectionNone;
+	for (int i = 0; i < ARRAYSIZE(kDirStrings); i++) {
+		if (dir == kDirStrings[i]) {
+			newDir = i;
+			break;
+		}
+	}
+	_vm->getJack()->stay(newDir);
+	return true;
+}
+
+bool ScriptInterpreter::cmdStayDef(const MacroCommand &cmd) {
+	_vm->getJack()->stay();
+	return true;
 }
 
 bool ScriptInterpreter::cmdIff(const MacroCommand &cmd) {

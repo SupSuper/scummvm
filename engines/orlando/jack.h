@@ -43,6 +43,7 @@ public:
 	void setPosition(const Vector2 &pos) override;
 	void setPerspective(int yMin, int yMax, float scale);
 	void walkTo(Common::Point dest, uint32 time, int dir = kDirectionNone) override;
+	void stay(int dir = kDirectionNone);
 };
 
 } // End of namespace Orlando

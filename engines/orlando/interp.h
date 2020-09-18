@@ -231,6 +231,16 @@ class ScriptInterpreter {
 	 */
 	bool cmdWaitWhile(const MacroCommand &cmd);
 	/**
+	 * STAY <dir>
+	 * Stops Jack in the specified direction (L/R/U/D).
+	 */
+	bool cmdStay(const MacroCommand &cmd);
+	/**
+	 * STAYDEF
+	 * Stops Jack in place.
+	 */
+	bool cmdStayDef(const MacroCommand &cmd);
+	/**
 	 * IFF <var> <op> <value>
 	 * Executes block if <var> is less or greater than <value>.
 	 */

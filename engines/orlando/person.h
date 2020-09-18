@@ -76,6 +76,7 @@ protected:
 	float _scalePersp, _scaleDraw;
 
 	void calcDrawScale();
+	void setDirection(int dir);
 public:
 	Person(const Common::String &id);
 	virtual ~Person();

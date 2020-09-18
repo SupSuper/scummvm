@@ -129,16 +129,6 @@ void Person::draw(const PFrame &frame) {
 void Person::walkTo(Common::Point dest, uint32 time, int dir) {
 	const float kScaleY = 0.3f;
 	const float kDirAngles[] = { 22.0f, 67.0f, 112.0f, 157.0f, 202.0f, 248.0f, 292.0f, 338.0f };
-	const int kDirAlternatives[][5] = {
-		{ 1, 7, 100, 100, 100 },
-		{ -7, 0, 2, -6, 100 },
-		{ -6, 1, 3, -5, -7 },
-		{ -5, 2, 4, -6, 100 },
-		{ 3, 5, 100, 100, 100 },
-		{ -3, 4, 6, -2, 100 },
-		{ -2, 5, 7, -1, -3 },
-		{ -1, 0, 6, -2, 100 }
-	};
 
 	_dest = dest;
 	_time = time;
@@ -164,6 +154,20 @@ void Person::walkTo(Common::Point dest, uint32 time, int dir) {
 			dir = kDirectionE;
 		}
 	}
+	setDirection(dir);
+}
+
+void Person::setDirection(int dir) {
+	const int kDirAlternatives[][5] = {
+		{ 1, 7, 100, 100, 100 },
+		{ -7, 0, 2, -6, 100 },
+		{ -6, 1, 3, -5, -7 },
+		{ -5, 2, 4, -6, 100 },
+		{ 3, 5, 100, 100, 100 },
+		{ -3, 4, 6, -2, 100 },
+		{ -2, 5, 7, -1, -3 },
+		{ -1, 0, 6, -2, 100 }
+	};
 	// Find closest sprite
 	if (_frames[ABS(dir)].empty()) {
 		for (int i = 0; i < 5; i++) {
