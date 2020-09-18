@@ -161,19 +161,19 @@ void Person::walkTo(Common::Point dest, uint32 time, int dir) {
 			}
 		}
 		if (dir == kDirectionNone) {
-			dir = 6;
+			dir = kDirectionE;
 		}
-		// Find closest sprite
-		if (_frames[dir].empty()) {
-			for (int i = 0; i < 5; i++) {
-				int newDir = kDirAlternatives[dir][i];
-				if (newDir == kDirectionNone) {
-					break;
-				}
-				if (!_frames[ABS(newDir)].empty()) {
-					dir = newDir;
-					break;
-				}
+	}
+	// Find closest sprite
+	if (_frames[ABS(dir)].empty()) {
+		for (int i = 0; i < 5; i++) {
+			int newDir = kDirAlternatives[ABS(dir)][i];
+			if (newDir == kDirectionNone) {
+				break;
+			}
+			if (!_frames[ABS(newDir)].empty()) {
+				dir = newDir;
+				break;
 			}
 		}
 	}

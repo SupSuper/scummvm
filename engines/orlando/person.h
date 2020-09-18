@@ -96,7 +96,7 @@ public:
 	void setData(uint32 delay, float scale, int perspective, int walk);
 	void update(uint32 time);
 	void draw(const PFrame &frame);
-	void walkTo(Common::Point dest, uint32 time, int dir = kDirectionNone);
+	virtual void walkTo(Common::Point dest, uint32 time, int dir = kDirectionNone);
 };
 
 } // End of namespace Orlando
