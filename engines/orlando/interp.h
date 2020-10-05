@@ -60,8 +60,8 @@ class ScriptInterpreter {
 	 */
 	bool cmdSetPosition(const MacroCommand &cmd);
 	/**
-	 * INITFIRST <person> <insertion> <?>
-	 * Assigns an insertion to a person.
+	 * INITFIRST <person> <insertion> <flip>
+	 * Assigns an insertion to a person but does not play it.
 	 */
 	bool cmdInitFirst(const MacroCommand &cmd);
 	/**
@@ -93,7 +93,7 @@ class ScriptInterpreter {
 	 */
 	bool cmdWalkTo(const MacroCommand &cmd);
 	/**
-	 * RUNINSERTION <person> <insertion> <?> <?> <+->
+	 * RUNINSERTION <person> <insertion> <?> <flip> <+->
 	 * Starts playing an insertion on a person.
 	 */
 	bool cmdRunInsertion(const MacroCommand &cmd);

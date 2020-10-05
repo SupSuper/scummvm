@@ -96,7 +96,7 @@ public:
 	bool load(TextParser &parser, Scene *scene);
 	void setData(uint32 delay, float scale, int perspective, int walk);
 	void update(uint32 time);
-	void draw(const PFrame &frame);
+	void draw(const PFrame &frame, bool flipped);
 	virtual void walkTo(Common::Point dest, uint32 time, int dir = kDirectionNone);
 };
 

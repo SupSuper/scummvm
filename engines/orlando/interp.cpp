@@ -267,12 +267,12 @@ bool ScriptInterpreter::cmdSetPosition(const MacroCommand &cmd) {
 bool ScriptInterpreter::cmdInitFirst(const MacroCommand &cmd) {
 	Common::String person = cmd.args[1];
 	Common::String insertion = cmd.args[2];
-	// TODO: Extra arguments
+	bool flip = toInt(cmd.args[3]);
 
 	Insertion *ins = _vm->getScene()->getInsertion(insertion);
 	Person *p = _vm->getScene()->getPerson(person);
 	p->setInsertion(ins);
-	ins->init(false, _time, p);
+	ins->init(false, flip, _time, p);
 	return true;
 }
 
@@ -342,6 +342,7 @@ bool ScriptInterpreter::cmdWalkTo(const MacroCommand &cmd) {
 bool ScriptInterpreter::cmdRunInsertion(const MacroCommand &cmd) {
 	Common::String person = cmd.args[1];
 	Common::String insertion = cmd.args[2];
+	bool flip = toInt(cmd.args[4]);
 	bool wait = waitUntilComplete(cmd);
 	// TODO: Extra arguments
 
@@ -349,7 +350,7 @@ bool ScriptInterpreter::cmdRunInsertion(const MacroCommand &cmd) {
 	Person *p = _vm->getScene()->getPerson(person);
 	if (!_macro->isWaiting()) {
 		p->setInsertion(ins);
-		ins->init(true, _time, p);
+		ins->init(true, flip, _time, p);
 		_macro->setWaiting(wait);
 		return !wait;
 	} else {

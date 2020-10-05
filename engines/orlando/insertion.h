@@ -44,7 +44,7 @@ class Insertion {
 	Common::Array<PFrame> _frames;
 	uint32 _time;
 	uint32 _curFrame;
-	bool _playing;
+	bool _playing, _flipped;
 
 public:
 	Insertion(const Common::String &id);
@@ -52,7 +52,7 @@ public:
 	bool isPlaying() const { return _playing; }
 
 	bool load(TextParser &parser, Scene *scene);
-	void init(bool play, uint32 time, Person *person);
+	void init(bool play, bool flip, uint32 time, Person *person);
 	void nextFrame(uint32 time, Person *person);
 };
 

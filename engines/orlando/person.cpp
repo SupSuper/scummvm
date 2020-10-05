@@ -106,7 +106,7 @@ void Person::update(uint32 time) {
 		_curFrame = (_curFrame + 1) % _frames[_dir].size();
 
 		setPosition(_pos + _walk * _scaleDraw);
-		draw(_frames[_dir][_curFrame]);
+		draw(_frames[_dir][_curFrame], _flipped);
 		if (ABS(_pos.x - _dest.x) < 10 && ABS(_pos.y - _dest.y) < 5) {
 			_walk = Vector2(0, 0);
 		}
@@ -116,14 +116,14 @@ void Person::update(uint32 time) {
 	}
 }
 
-void Person::draw(const PFrame &frame) {
+void Person::draw(const PFrame &frame, bool flipped) {
 	calcDrawScale();
 
 	Vector2 offset(frame.offsetX, frame.offsetY);
-	if (_flipped)
+	if (flipped)
 		offset.x = frame.offsetXFlip;
 	Vector2 drawPos = _pos - offset * _scaleDraw;
-	_window->drawFrom(frame.surface, (Common::Point)drawPos, _flipped, _scaleDraw);
+	_window->drawFrom(frame.surface, (Common::Point)drawPos, flipped, _scaleDraw);
 }
 
 void Person::walkTo(Common::Point dest, uint32 time, int dir) {
@@ -183,7 +183,7 @@ void Person::setDirection(int dir) {
 	}
 	_flipped = (dir < 0);
 	_dir = (FacingDirection)ABS(dir);
-	draw(_frames[_dir][_curFrame]);
+	draw(_frames[_dir][_curFrame], _flipped);
 }
 
 } // End of namespace Orlando

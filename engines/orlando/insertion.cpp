@@ -31,7 +31,7 @@
 
 namespace Orlando {
 
-Insertion::Insertion(const Common::String &id) : _id(id), _curFrame(0), _playing(false) {
+Insertion::Insertion(const Common::String &id) : _id(id), _time(0), _curFrame(0), _playing(false), _flipped(false) {
 }
 
 Insertion::~Insertion() {
@@ -73,11 +73,12 @@ bool Insertion::load(TextParser &parser, Scene *scene) {
 	return true;
 }
 
-void Insertion::init(bool play, uint32 time, Person *person) {
+void Insertion::init(bool play, bool flip, uint32 time, Person *person) {
 	_playing = play;
+	_flipped = flip;
 	_curFrame = 0;
 	_time = time;
-	person->draw(_frames[_curFrame]);
+	person->draw(_frames[_curFrame], _flipped);
 	// This reveals hidden objects
 	person->getWindow()->setVisible(true);
 }
@@ -90,7 +91,7 @@ void Insertion::nextFrame(uint32 time, Person *person) {
 			_playing = false;
 			_curFrame = _frames.size() - 1;
 		}
-		person->draw(_frames[_curFrame]);
+		person->draw(_frames[_curFrame], _flipped);
 	}
 }
 
