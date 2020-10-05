@@ -41,4 +41,12 @@ void Area::load(TextParser &parser) {
 	}
 }
 
+bool Area::contains(const Common::Point &p) const {
+	for (Common::Array<Triangle>::const_iterator i = _regions.begin(); i != _regions.end(); ++i) {
+		if (i->contains(p))
+			return true;
+	}
+	return false;
+}
+
 } // End of namespace Orlando

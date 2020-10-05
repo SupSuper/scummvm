@@ -66,8 +66,6 @@ class Mouse {
 	ButtonState _leftButton, _rightButton;
 	CursorMode _cursor;
 	Graphics::Surface *_cursorSurfaces[kCursorModes];
-
-	Common::String getCursorMacroName() const;
 	void updateCursor() const;
 
 public:
@@ -102,7 +100,14 @@ public:
 	/** Changes the visibility of the mouse cursor. */
 	void setVisible(bool visible) const;
 
-	void setCursor(CursorMode mode);
+	CursorMode getCursor() const { return _cursor; }
+
+	void setCursor(CursorMode mode) {
+		_cursor = mode;
+		updateCursor();
+	}
+
+	Common::String getCursorMacroName(const Common::String &id) const;
 };
 
 } // End of namespace Orlando

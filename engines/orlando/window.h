@@ -46,6 +46,7 @@ class Window {
 public:
 	Window(const Common::Rect &bounds);
 	~Window();
+	bool isVisible() const { return _visible; }
 	void setVisible(bool visible) { _visible = visible; }
 
 	void change(const Common::Rect &bounds);

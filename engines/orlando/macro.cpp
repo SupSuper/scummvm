@@ -202,8 +202,6 @@ CommandType Macro::getType(const Common::String &id) const {
 
 void Macro::reset() {
 	_line = 0;
-	_locked = true;
-	_out = false;
 }
 
 void Macro::load(TextParser &parser) {

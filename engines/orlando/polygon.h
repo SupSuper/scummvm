@@ -35,6 +35,30 @@ struct Polygon {
 	Common::Point p[N];
 	int16 &x(unsigned int i) { return p[i].x; }
 	int16 &y(unsigned int i) { return p[i].y; }
+	bool contains(Common::Point i) const {
+		int yflag0;
+		int yflag1;
+		bool inside_flag = false;
+		unsigned int pt;
+
+		const Common::Point *vtx0 = &p[N - 1];
+		const Common::Point *vtx1 = &p[0];
+
+		yflag0 = (vtx0->y >= i.y);
+		for (pt = 0; pt < N; pt++, vtx1++) {
+			yflag1 = (vtx1->y >= i.y);
+			if (yflag0 != yflag1) {
+				if (((vtx1->y - i.y) * (vtx0->x - vtx1->x) >=
+				     (vtx1->x - i.x) * (vtx0->y - vtx1->y)) == yflag1) {
+					inside_flag = !inside_flag;
+				}
+			}
+			yflag0 = yflag1;
+			vtx0 = vtx1;
+		}
+
+		return inside_flag;
+	}
 };
 struct Triangle : Polygon<3> {};
 struct Quad : Polygon<4> {};

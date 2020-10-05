@@ -49,6 +49,8 @@ class Element {
 	Quad _region;
 	Graphics::Surface *_surface;
 	Animation *_anim;
+
+	friend class Scene; // Debug
 public:
 	Element(const Common::String &id);
 	~Element();
@@ -73,6 +75,7 @@ public:
 	Graphics::Surface *loadSurface(const Common::String &name, Scene *scene);
 	void update(uint32 time) const;
 	void draw() const;
+	bool contains(const Common::Point &pos) const;
 };
 
 } // End of namespace Orlando

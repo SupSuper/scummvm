@@ -85,4 +85,15 @@ void Element::draw() const {
 	}
 }
 
+bool Element::contains(const Common::Point &p) const {
+	if (!_window->isVisible())
+		return false;
+	if (_surface != nullptr) {
+		Common::Rect rect(_surface->w, _surface->h);
+		rect.moveTo(_pos);
+		return rect.contains(p);
+	}
+	return false;
+}
+
 } // End of namespace Orlando

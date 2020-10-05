@@ -25,6 +25,7 @@
 
 #include "graphics/pixelformat.h"
 #include "graphics/font.h"
+#include "orlando/polygon.h"
 
 namespace Common {
 	struct Point;
@@ -179,6 +180,15 @@ public:
 	 * @param color Line color.
 	 */
 	void drawPolygon(const Common::Point points[], int numPoints, uint16 color);
+	/**
+	 * Draws a polygon border on screen.
+	 * @param polygon Polygon coordinates.
+	 * @param color Line color.
+	 */
+	template<uint N>
+	void drawPolygon(const Polygon<N> &poly, uint16 color) {
+		drawPolygon(poly.p, poly.kPoints, color);
+	}
 };
 
 } // End of namespace Orlando

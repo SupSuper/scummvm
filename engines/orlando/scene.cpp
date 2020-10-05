@@ -359,6 +359,13 @@ Window *Scene::addWindow() {
 	return window;
 }
 
+void Scene::activateMacro(const Common::String &id) {
+	Common::HashMap<Common::String, Macro*>::const_iterator i = _macros.find(id);
+	if (i != _macros.end()) {
+		i->_value->setActive(true);
+	}
+}
+
 GraphicsManager *Scene::getGraphicsManager() const {
 	return _vm->getGraphicsManager();
 }
@@ -472,7 +479,36 @@ bool Scene::run() {
 
 		if (!locked) {
 			if (_vm->getMouse()->getLeftButton() == kButtonReleased) {
-				_vm->getJack()->walkTo(_vm->getMouse()->getPosition(), time);
+				bool clicked = false;
+				Common::Point mousePos = _vm->getMouse()->getPosition();
+
+				// Check if mouse is over an element
+				for (Common::HashMap<Common::String, Element *>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
+					if (i->_value->contains(mousePos)) {
+						clicked = true;
+						activateMacro(_vm->getMouse()->getCursorMacroName(i->_value->getId()));
+						break;
+					}
+				}
+
+				// Check if the mouse is over an area
+				for (Common::HashMap<Common::String, Area *>::const_iterator i = _areas.begin(); i != _areas.end(); ++i) {
+					if (i->_value->contains(mousePos)) {
+						clicked = true;
+						activateMacro(_vm->getMouse()->getCursorMacroName(i->_value->getId()));
+						break;
+					}
+				}
+
+				// Check if mouse is over a walk region
+				if (!clicked && _vm->getMouse()->getCursor() == kCursorPointer) {
+					for (Common::Array<Triangle>::const_iterator i = _walkRegions.begin(); i != _walkRegions.end(); ++i) {
+						if (i->contains(mousePos)) {
+							_vm->getJack()->walkTo(_vm->getMouse()->getPosition(), time);
+							break;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -492,7 +528,34 @@ bool Scene::run() {
 		(*i)->drawTo(graphics);
 	}
 
+	debugDraw(graphics);
+
 	return true;
+}
+
+void Scene::debugDraw(GraphicsManager *graphics) const {
+#ifdef _DEBUG
+	for (Common::Array<Triangle>::const_iterator i = _walkRegions.begin(); i != _walkRegions.end(); ++i) {
+		//graphics->drawPolygon(*i, graphics->RGBToColor(0, 0, 255));
+	}
+
+	for (Common::HashMap<Common::String, Element *>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
+		Element *element = i->_value;
+		if (element->getWindow()->isVisible() && element->_surface != nullptr) {
+			Common::Rect rect(element->_surface->w, element->_surface->h);
+			rect.moveTo(element->getPosition());
+			//graphics->drawPolygon(rect, graphics->RGBToColor(255, 0, 255));
+			//graphics->drawPolygon(element->_region, graphics->RGBToColor(255, 0, 0));
+		}
+	}
+
+	for (Common::HashMap<Common::String, Area *>::const_iterator i = _areas.begin(); i != _areas.end(); ++i) {
+		Area *area = i->_value;
+		for (Common::Array<Triangle>::const_iterator j = area->_regions.begin(); j != area->_regions.end(); ++j) {
+			//graphics->drawPolygon(*j, graphics->RGBToColor(0, 255, 255));
+		}
+	}
+#endif
 }
 
 } // End of namespace Orlando

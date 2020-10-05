@@ -101,7 +101,10 @@ protected:
 	bool loadMcc();
 	/** Adds a new window to the scene. */
 	Window *addWindow();
+	/** Activates a macro if it exists. */
+	void activateMacro(const Common::String &id);
 
+	void debugDraw(GraphicsManager *graphics) const;
 public:
 	Scene(OrlandoEngine *vm, const Common::String &id);
 	virtual ~Scene();

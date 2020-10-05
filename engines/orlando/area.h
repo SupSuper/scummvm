@@ -38,9 +38,12 @@ class Area {
 	Common::String _id;
 	Common::Array<Triangle> _regions;
 
+	friend class Scene; // Debug
 public:
 	Area(const Common::String &id);
+	Common::String getId() const { return _id; }
 	void load(TextParser &parser);
+	bool contains(const Common::Point &pos) const;
 };
 
 } // End of namespace Orlando

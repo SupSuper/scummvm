@@ -50,7 +50,7 @@ static const char *cursorMacros[] = {
     "UDERZENIE",  // kCursorHit
     "STRZELANIE", // kCursorGun
     "BRANIE",     // kCursorTake
-    "",           // kCursorItem
+    "PIERDOLA",   // kCursorItem
     "LEWO",       // kCursorArrowLeft
     "PRAWO",      // kCursorArrowRight
     "DOL",        // kCursorArrowDown
@@ -60,10 +60,6 @@ static const char *cursorMacros[] = {
     "",           // kCursorScrollLeft
     "",           // kCursorScrollRight
 };
-
-Common::String Mouse::getCursorMacroName() const {
-	return cursorMacros[_cursor];
-}
 
 static const char *cursorGraphics[] = {
     "WSK08.BM",    // kCursorPointer
@@ -146,9 +142,11 @@ void Mouse::setVisible(bool visible) const {
 	CursorMan.showMouse(visible);
 }
 
-void Mouse::setCursor(CursorMode mode) {
-	_cursor = mode;
-	updateCursor();
+Common::String Mouse::getCursorMacroName(const Common::String &id) const {
+	Common::String macroName = cursorMacros[_cursor];
+	macroName += "-";
+	macroName += id;
+	return macroName;
 }
 
 } // End of namespace Orlando
