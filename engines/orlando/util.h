@@ -72,6 +72,17 @@ inline float toFloat(const Common::String &str) {
 	return atof(str.c_str());
 }
 
+template<typename T>
+inline T wrap(T x, T min, T max) {
+	if (x < min) {
+		return max - 1;
+	} else if (x >= max) {
+		return min;
+	} else {
+		return x;
+	}
+}
+
 } // End of namespace Orlando
 
 #endif

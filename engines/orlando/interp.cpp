@@ -145,7 +145,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // UnLockWalk
 	&ScriptInterpreter::cmdUnknown, // WaitWhileEffect
 	&ScriptInterpreter::cmdUnknown, // SetDarknessAnima
-	&ScriptInterpreter::cmdUnknown, // SetDirWalk
+	&ScriptInterpreter::cmdSetDirWalk,
 	&ScriptInterpreter::cmdUnknown, // Message: unused
 	&ScriptInterpreter::cmdUnknown, // PointRotate
 	&ScriptInterpreter::cmdUnknown, // RunGlobalFilmP
@@ -730,6 +730,14 @@ bool ScriptInterpreter::cmdContinueAnima(const MacroCommand &cmd) {
 	Common::String anim = cmd.args[1];
 
 	_vm->getScene()->getElement(anim)->getAnimation()->setPlaying(true);
+	return true;
+}
+
+bool ScriptInterpreter::cmdSetDirWalk(const MacroCommand &cmd) {
+	Common::String person = cmd.args[1];
+	bool invert = toInt(cmd.args[2]);
+
+	_vm->getScene()->getPerson(person)->setDirWalk(invert);
 	return true;
 }
 

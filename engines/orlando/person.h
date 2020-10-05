@@ -72,7 +72,7 @@ protected:
 	bool _flipped;
 	FacingDirection _dir;
 	uint32 _time, _delay;
-	int _walkSpeed, _perspYMin, _perspYMax, _curFrame;
+	int _walkSpeed, _perspYMin, _perspYMax, _curFrame, _dirWalk;
 	float _scalePersp, _scaleDraw;
 
 	void calcDrawScale();
@@ -92,6 +92,7 @@ public:
 	}
 	bool isWalking() const { return _walk != Vector2(0, 0); }
 	uint32 getDelay() const { return _delay; }
+	void setDirWalk(bool invert) { _dirWalk = (invert) ? -1 : 1; }
 
 	bool load(TextParser &parser, Scene *scene);
 	void setData(uint32 delay, float scale, int perspective, int walk);

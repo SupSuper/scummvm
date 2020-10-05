@@ -286,6 +286,11 @@ class ScriptInterpreter {
 	 */
 	bool cmdContinueAnima(const MacroCommand &cmd);
 	/**
+	 * SETDIRWALK <person> <dir>
+	 * Sets the direction of the walking animation (0 = forward, 1 = backward).
+	 */
+	bool cmdSetDirWalk(const MacroCommand &cmd);
+	/**
 	 * DONOTHING <time>
 	 * Pauses this macro until <time> ticks has elapsed.
 	 */

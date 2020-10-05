@@ -36,7 +36,7 @@
 namespace Orlando {
 
 Person::Person(const Common::String &id) : _id(id), _window(nullptr), _ins(nullptr), _flipped(false), _dir(kDirectionS), _time(0), _delay(0),
-	_walkSpeed(0), _perspYMin(0), _perspYMax(0), _curFrame(0), _scalePersp(2.0f), _scaleDraw(1.0f) {
+	_walkSpeed(0), _perspYMin(0), _perspYMax(0), _curFrame(0), _dirWalk(1), _scalePersp(2.0f), _scaleDraw(1.0f) {
 }
 
 Person::~Person() {
@@ -103,7 +103,7 @@ void Person::setData(uint32 delay, float scale, int perspective, int walk) {
 void Person::update(uint32 time) {
 	while (isWalking() && time >= _time + _delay) {
 		_time += _delay;
-		_curFrame = (_curFrame + 1) % _framesWalk[_dir].size();
+		_curFrame = wrap(_curFrame + _dirWalk, 0, (int)_framesWalk[_dir].size());
 
 		setPosition(_pos + _walk * _scaleDraw);
 		draw(_framesWalk[_dir][_curFrame], _flipped);
