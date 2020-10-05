@@ -34,16 +34,20 @@ class OrlandoEngine;
  */
 class Jack : public Person {
 	OrlandoEngine *_vm;
+	PFrame _framesStay[kDirections];
 
-	bool loadWalk(const char *id, FacingDirection dir);
+	Common::Array<PFrame> loadAnimation(const char *id, const int frames);
+	Graphics::Surface *loadFrame(const char *id);
+
 public:
 	Jack(OrlandoEngine *vm);
+	~Jack();
 	bool initialize();
 
 	void setPosition(const Vector2 &pos) override;
 	void setPerspective(int yMin, int yMax, float scale);
 	void walkTo(Common::Point dest, uint32 time, int dir = kDirectionNone) override;
-	void stay(int dir = kDirectionNone);
+	void stay(int dir = kDirectionNone) override;
 };
 
 } // End of namespace Orlando

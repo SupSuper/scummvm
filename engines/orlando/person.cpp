@@ -40,8 +40,8 @@ Person::Person(const Common::String &id) : _id(id), _window(nullptr), _ins(nullp
 }
 
 Person::~Person() {
-	for (int j = 0; j < ARRAYSIZE(_frames); j++) {
-		for (Common::Array<PFrame>::const_iterator i = _frames[j].begin(); i != _frames[j].end(); ++i) {
+	for (int j = 0; j < ARRAYSIZE(_framesWalk); j++) {
+		for (Common::Array<PFrame>::const_iterator i = _framesWalk[j].begin(); i != _framesWalk[j].end(); ++i) {
 			if (i->surface != nullptr) {
 				i->surface->free();
 				delete i->surface;
@@ -72,7 +72,7 @@ bool Person::load(TextParser &parser, Scene *scene) {
 			frame.offsetX = parser.readInt();
 			frame.offsetXFlip = parser.readInt();
 			frame.offsetY = parser.readInt();
-			_frames[direction].push_back(frame);
+			_framesWalk[direction].push_back(frame);
 		}
 		_dir = (FacingDirection)direction;
 	}
@@ -103,12 +103,12 @@ void Person::setData(uint32 delay, float scale, int perspective, int walk) {
 void Person::update(uint32 time) {
 	while (isWalking() && time >= _time + _delay) {
 		_time += _delay;
-		_curFrame = (_curFrame + 1) % _frames[_dir].size();
+		_curFrame = (_curFrame + 1) % _framesWalk[_dir].size();
 
 		setPosition(_pos + _walk * _scaleDraw);
-		draw(_frames[_dir][_curFrame], _flipped);
+		draw(_framesWalk[_dir][_curFrame], _flipped);
 		if (ABS(_pos.x - _dest.x) < 10 && ABS(_pos.y - _dest.y) < 5) {
-			_walk = Vector2(0, 0);
+			stay();
 		}
 	}
 	if (_ins != nullptr) {
@@ -155,6 +155,7 @@ void Person::walkTo(Common::Point dest, uint32 time, int dir) {
 		}
 	}
 	setDirection(dir);
+	draw(_framesWalk[_dir][_curFrame], _flipped);
 }
 
 void Person::setDirection(int dir) {
@@ -169,13 +170,13 @@ void Person::setDirection(int dir) {
 		{ -1, 0, 6, -2, 100 }
 	};
 	// Find closest sprite
-	if (_frames[ABS(dir)].empty()) {
+	if (_framesWalk[ABS(dir)].empty()) {
 		for (int i = 0; i < 5; i++) {
 			int newDir = kDirAlternatives[ABS(dir)][i];
 			if (newDir == kDirectionNone) {
 				break;
 			}
-			if (!_frames[ABS(newDir)].empty()) {
+			if (!_framesWalk[ABS(newDir)].empty()) {
 				dir = newDir;
 				break;
 			}
@@ -183,7 +184,10 @@ void Person::setDirection(int dir) {
 	}
 	_flipped = (dir < 0);
 	_dir = (FacingDirection)ABS(dir);
-	draw(_frames[_dir][_curFrame], _flipped);
+}
+
+void Person::stay(int dir) {
+	_walk = Vector2(0, 0);
 }
 
 } // End of namespace Orlando

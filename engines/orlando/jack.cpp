@@ -35,43 +35,70 @@ namespace Orlando {
 Jack::Jack(OrlandoEngine *vm) : Person("JACK"), _vm(vm) {
 }
 
-bool Jack::loadWalk(const char *id, FacingDirection dir) {
+Jack::~Jack() {
+	/*
+	for (int i = 0; i < ARRAYSIZE(_framesWalk); i++) {
+		if (_framesStay[i].surface != nullptr) {
+			_framesStay[i].surface->free();
+			delete _framesStay[i].surface;
+		}
+	}
+	*/
+}
+
+Common::Array<PFrame> Jack::loadAnimation(const char *id, const int frames) {
+	Common::Array<PFrame> anim;
+
 	ResourceManager *resources = _vm->getResourceManager();
 	GraphicsManager *graphics = _vm->getGraphicsManager();
 	
 	bool army = _vm->getVariable("JACKISWOJ") != 0;
 	const char *w = (army) ? "W" : "";
 
-
 	Common::String sfb = Common::String::format("%s%s.SFB", id, w);
 	Common::File *offsets = resources->loadResourceFile(sfb);
 	if (!offsets)
-		return false;
+		return Common::Array<PFrame>();
 
-	const int kFrames = 12;
-	for (int i = 1; i <= kFrames; i++) {
+	for (int i = 1; i <= frames; i++) {
 		Common::String pbm = Common::String::format("%s%s%d.PBM", id, w, i);
 		PFrame frame;
 		frame.surface = graphics->loadPaletteBitmap(resources->loadResourceFile(pbm));
-		if (!frame.surface)
-			return false;
 		frame.offsetX = offsets->readSint16LE();
 		frame.offsetXFlip = offsets->readSint16LE();
 		frame.offsetY = offsets->readSint16LE();
-		_frames[dir].push_back(frame);
+		anim.push_back(frame);
 	}
 
 	delete offsets;
-	return true;
+	return anim;
+}
+
+Graphics::Surface *Jack::loadFrame(const char *id) {
+	ResourceManager *resources = _vm->getResourceManager();
+	GraphicsManager *graphics = _vm->getGraphicsManager();
+
+	bool army = _vm->getVariable("JACKISWOJ") != 0;
+	const char *w = (army) ? "W" : "";
+
+	Common::String pbm = Common::String::format("%s%s.PBM", id, w);
+	return graphics->loadPaletteBitmap(resources->loadResourceFile(pbm));
 }
 
 bool Jack::initialize() {
-	if (!loadWalk("FRON", kDirectionS) ||
-		!loadWalk("PROF", kDirectionW) ||
-		!loadWalk("BACK", kDirectionN) ||
-		!loadWalk("SKFR", kDirectionSW) ||
-		!loadWalk("SKBA", kDirectionNE))
-		return false;
+	const int kWalkFrames = 12;
+	_framesWalk[kDirectionS] = loadAnimation("FRON", kWalkFrames);
+	_framesWalk[kDirectionW] = loadAnimation("PROF", kWalkFrames);
+	_framesWalk[kDirectionN] = loadAnimation("BACK", kWalkFrames);
+	_framesWalk[kDirectionSW] = loadAnimation("SKFR", kWalkFrames);
+	_framesWalk[kDirectionNE] = loadAnimation("SKBA", kWalkFrames);
+
+	Graphics::Surface *s;
+	_framesStay[kDirectionS] = { s = loadFrame("SSFR2"), 46, s->w - 46, 264 };
+	_framesStay[kDirectionW] = { s = loadFrame("SSPR2"), 23, s->w - 23, 262 };
+	_framesStay[kDirectionN] = { s = loadFrame("SSBA2"), 50, s->w - 50, 266 };
+	_framesStay[kDirectionSW] = { s = loadFrame("SSSP2"), 36, s->w - 36, 264 };
+	_framesStay[kDirectionNE] = { s = loadFrame("SSST2"), 46, s->w - 46, 260 };
 	return true;
 }
 
@@ -101,12 +128,13 @@ void Jack::walkTo(Common::Point dest, uint32 time, int dir) {
 }
 
 void Jack::stay(int dir) {
-	// TODO: Stand animation
-	_walk = Vector2(0, 0);
+	Person::stay(dir);
 	if (dir == kDirectionNone) {
 		dir = _dir;
+	} else {
+		setDirection(dir);
 	}
-	setDirection(dir);
+	draw(_framesStay[_dir], _flipped);
 }
 
 } // End of namespace Orlando

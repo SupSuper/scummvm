@@ -64,7 +64,7 @@ protected:
 	static const int kDirections = 8;
 
 	Common::String _id;
-	Common::Array<PFrame> _frames[kDirections];
+	Common::Array<PFrame> _framesWalk[kDirections];
 	Vector2 _pos, _walk;
 	Common::Point _dest;
 	Window *_window;
@@ -98,6 +98,7 @@ public:
 	void update(uint32 time);
 	void draw(const PFrame &frame, bool flipped);
 	virtual void walkTo(Common::Point dest, uint32 time, int dir = kDirectionNone);
+	virtual void stay(int dir = kDirectionNone);
 };
 
 } // End of namespace Orlando
