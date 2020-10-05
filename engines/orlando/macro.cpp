@@ -186,7 +186,7 @@ const char *kCommands[] = {
 	"ANYKEY",
 };
 
-Macro::Macro(const Common::String &id) : _id(id), _active(false), _waiting(false), _line(0), _time(0) {
+Macro::Macro(const Common::String &id) : _id(id), _active(false), _waiting(false), _locked(true), _out(false), _line(0), _time(0) {
 }
 
 CommandType Macro::getType(const Common::String &id) const {
@@ -198,6 +198,12 @@ CommandType Macro::getType(const Common::String &id) const {
 		}
 	}
 	return type;
+}
+
+void Macro::reset() {
+	_line = 0;
+	_locked = true;
+	_out = false;
 }
 
 void Macro::load(TextParser &parser) {

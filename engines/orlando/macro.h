@@ -200,7 +200,7 @@ struct MacroCommand {
 class Macro {
 	Common::String _id;
 	Common::Array<MacroCommand> _commands;
-	bool _active, _waiting;
+	bool _active, _waiting, _locked, _out;
 	uint _line;
 	uint32 _time;
 
@@ -212,9 +212,13 @@ public:
 	void setActive(bool active) { _active = active; }
 	bool isWaiting() const { return _waiting; }
 	void setWaiting(bool waiting) { _waiting = waiting; }
+	bool isLocked() const { return _locked; }
+	void setLocked(bool locked) { _locked = locked; }
+	bool isOut() const { return _out; }
+	void setOut(bool out) { _out = out; }
 	uint32 getTime() const { return _time; }
 	void setTime(uint32 time) { _time = time; }
-	void reset() { _line = 0; }
+	void reset();
 
 	void load(TextParser &parser);
 	const MacroCommand &loadCommand(Common::StringArray args);

@@ -121,7 +121,7 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // WaitWhileAnima
 	&ScriptInterpreter::cmdUnknown, // ShowFrameDir: unused
 	&ScriptInterpreter::cmdStayDef,
-	&ScriptInterpreter::cmdUnknown, // UnLock
+	&ScriptInterpreter::cmdUnLock,
 	&ScriptInterpreter::cmdUnknown, // CursorAs: unused
 	&ScriptInterpreter::cmdUnknown, // AnimaEffect
 	&ScriptInterpreter::cmdUnknown, // SetArea
@@ -129,11 +129,11 @@ const ScriptHandler ScriptInterpreter::kCommandHandlers[] = {
 	&ScriptInterpreter::cmdUnknown, // WaitToAnimaFrame
 	&ScriptInterpreter::cmdUnknown, // ScrollMarginL
 	&ScriptInterpreter::cmdUnknown, // ScrollMarginR
-	&ScriptInterpreter::cmdUnknown, // OutMacro
-	&ScriptInterpreter::cmdUnknown, // NormalMacro
+	&ScriptInterpreter::cmdOutMacro,
+	&ScriptInterpreter::cmdNormalMacro,
 	&ScriptInterpreter::cmdIff,
 	&ScriptInterpreter::cmdUnknown, // AutoIncRange
-	&ScriptInterpreter::cmdUnknown, // Lock
+	&ScriptInterpreter::cmdLock,
 	&ScriptInterpreter::cmdUnknown, // HideFaceAt
 	&ScriptInterpreter::cmdUnknown, // Include: unused
 	&ScriptInterpreter::cmdUnknown, // LookTo
@@ -662,6 +662,21 @@ bool ScriptInterpreter::cmdStayDef(const MacroCommand &cmd) {
 	return true;
 }
 
+bool ScriptInterpreter::cmdUnLock(const MacroCommand &cmd) {
+	_macro->setLocked(false);
+	return true;
+}
+
+bool ScriptInterpreter::cmdOutMacro(const MacroCommand &cmd) {
+	_macro->setOut(true);
+	return true;
+}
+
+bool ScriptInterpreter::cmdNormalMacro(const MacroCommand &cmd) {
+	_macro->setOut(false);
+	return true;
+}
+
 bool ScriptInterpreter::cmdIff(const MacroCommand &cmd) {
 	Common::String var = cmd.args[1];
 	Common::String op = cmd.args[2];
@@ -679,6 +694,11 @@ bool ScriptInterpreter::cmdIff(const MacroCommand &cmd) {
 		_macro->skipIf();
 		return false;
 	}
+}
+
+bool ScriptInterpreter::cmdLock(const MacroCommand &cmd) {
+	_macro->setLocked(true);
+	return true;
 }
 
 bool ScriptInterpreter::cmdGetPersonX(const MacroCommand &cmd) {
@@ -750,7 +770,7 @@ bool ScriptInterpreter::cmdRunAvx(const MacroCommand &cmd) {
 
 bool ScriptInterpreter::cmdReactiveSelf(const MacroCommand &cmd) {
 	_macro->reset();
-	return false;
+	return true;
 }
 
 } // End of namespace Orlando

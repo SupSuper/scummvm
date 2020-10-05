@@ -241,10 +241,30 @@ class ScriptInterpreter {
 	 */
 	bool cmdStayDef(const MacroCommand &cmd);
 	/**
+	 * UNLOCK
+	 * Unlocks the macro. Unlocked macros run in the background.
+	 */
+	bool cmdUnLock(const MacroCommand &cmd);
+	/**
+	 * OUTMACRO
+	 * Out Macros can be interrupted by the player.
+	 */
+	bool cmdOutMacro(const MacroCommand &cmd);
+	/**
+	 * NORMALMACRO
+	 * Normal Macros cannot be interrupted.
+	 */
+	bool cmdNormalMacro(const MacroCommand &cmd);
+	/**
 	 * IFF <var> <op> <value>
 	 * Executes block if <var> is less or greater than <value>.
 	 */
 	bool cmdIff(const MacroCommand &cmd);
+	/**
+	 * LOCK
+	 * Locks the macro. Locked macros block player control.
+	 */
+	bool cmdLock(const MacroCommand &cmd);
 	/**
 	 * GETPERSONX <person> <var>
 	 * Sets <var> to the <person>'s X position.

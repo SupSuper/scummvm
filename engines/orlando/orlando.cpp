@@ -93,9 +93,6 @@ Common::Error OrlandoEngine::run() {
 	if (!_mouse->initialize())
 		return Common::kNoGameDataFoundError;
 
-	if (!newGame())
-		return Common::kNoGameDataFoundError;
-
 	_debugger = new Debugger(this);
 	gotoScene(new MainMenu(this));
 

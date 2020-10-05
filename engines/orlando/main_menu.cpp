@@ -148,6 +148,8 @@ bool MainMenu::run() {
 	}
 	kUiButton.translate(0, 38);
 	if (graphics->drawButton("New game", kUiButton, _textColors[1])) {
+		if (!_vm->newGame())
+			return false;
 		_vm->gotoScene(new Scene(_vm, "SC001"));
 	}
 	kUiButton.translate(0, 38);

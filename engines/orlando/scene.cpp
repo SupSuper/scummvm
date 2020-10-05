@@ -41,6 +41,7 @@
 #include "orlando/macro.h"
 #include "orlando/jack.h"
 #include "orlando/window.h"
+#include "orlando/mouse.h"
 
 namespace Orlando {
 
@@ -456,8 +457,24 @@ bool Scene::run() {
 	uint32 time = _vm->getTotalPlayTime();
 
 	// Run commands
+	bool locked = false;
 	for (Common::HashMap<Common::String, Macro*>::const_iterator i = _macros.begin(); i != _macros.end(); ++i) {
-		i->_value->execute(_vm->getScriptInterpreter(), time);
+		Macro *macro = i->_value;
+		macro->execute(_vm->getScriptInterpreter(), time);
+		if (!locked && macro->isActive() && macro->isLocked())
+			locked = true;
+	}
+	_vm->getMouse()->setVisible(!locked);
+
+	// Handle player input
+	if (_vm->getJack()) {
+		_vm->getJack()->update(time);
+
+		if (!locked) {
+			if (_vm->getMouse()->getLeftButton() == kButtonReleased) {
+				_vm->getJack()->walkTo(_vm->getMouse()->getPosition(), time);
+			}
+		}
 	}
 
 	// Update scene elements
@@ -467,7 +484,6 @@ bool Scene::run() {
 	for (Common::HashMap<Common::String, Person*>::const_iterator i = _persons.begin(); i != _persons.end(); ++i) {
 		i->_value->update(time);
 	}
-	_vm->getJack()->update(time);
 
 	// Draw scene windows
 	GraphicsManager *graphics = _vm->getGraphicsManager();
