@@ -247,7 +247,7 @@ bool AvxVideo::initialize() {
 		_surfaceCykl[2] = graphics->loadPaletteBitmap(resources->loadRawFile("CYKL3.BM"));
 	}
 
-	_vm->getMouse()->show(false);
+	_vm->getMouse()->setVisible(false);
 	_vm->_mixer->stopAll();
 	_vm->getSoundManager()->playFile(_audio, Audio::Mixer::kMusicSoundType);
 

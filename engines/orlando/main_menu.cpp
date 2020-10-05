@@ -125,7 +125,7 @@ bool MainMenu::initialize() {
 	if (!playMenuMusic())
 		return false;
 
-	_vm->getMouse()->show(true);
+	_vm->getMouse()->setVisible(true);
 
 	return true;
 }

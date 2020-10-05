@@ -33,18 +33,42 @@ namespace Orlando {
 
 class OrlandoEngine;
 
-enum MouseState {
+enum ButtonState {
 	kButtonNormal,	///< Button is inactive
 	kButtonPressed,	///< Button is currently held down
 	kButtonReleased	///< Button has just been released (used to detect clicks)
+};
+
+enum CursorMode {
+	kCursorPointer,
+	kCursorExamine,
+	kCursorHit,
+	kCursorGun,
+	kCursorTake,
+	kCursorItem,
+	kCursorArrowLeft,
+	kCursorArrowRight,
+	kCursorArrowDown,
+	kCursorArrowIn,
+	kCursorArrowUp,
+	kCursorArrowOut,
+	kCursorScrollLeft,
+	kCursorScrollRight
 };
 
 /**
  * Represents the mouse cursor and handles associated events.
  */
 class Mouse {
+	static const int kCursorModes = 14;
+
 	OrlandoEngine *_vm;
-	MouseState _leftButton, _rightButton;
+	ButtonState _leftButton, _rightButton;
+	CursorMode _cursor;
+	Graphics::Surface *_cursorSurfaces[kCursorModes];
+
+	Common::String getCursorMacroName() const;
+	void updateCursor() const;
 
 public:
 	Mouse(OrlandoEngine *vm);
@@ -70,11 +94,15 @@ public:
 	 */
 	bool isOver(const Common::Rect &rect) const;
 	/** Returns the state of the left mouse button. */
-	MouseState getLeftButton() const { return _leftButton; }
+	ButtonState getLeftButton() const { return _leftButton; }
 	/** Returns the state of the right mouse button. */
-	MouseState getRightButton() const { return _rightButton; }
-	/** Toggles the mouse visiblity state. */
-	void show(bool visible) const;
+	ButtonState getRightButton() const { return _rightButton; }
+	/** Returns the visibility of the mouse cursor. */
+	bool getVisible() const;
+	/** Changes the visibility of the mouse cursor. */
+	void setVisible(bool visible) const;
+
+	void setCursor(CursorMode mode);
 };
 
 } // End of namespace Orlando
