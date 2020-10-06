@@ -34,10 +34,17 @@ class OrlandoEngine;
  */
 class Debugger : public GUI::Debugger {
 	OrlandoEngine *_vm;
+	bool _showWalks, _showElements, _showAreas, _showWindows;
 
 public:
 	Debugger(OrlandoEngine *vm);
+	/** Draws debug info. */
+	void onFrame() override;
+
+	/** Runs a script command. */
 	bool cmdRun(int argc, const char **argv);
+	/** Prints the current scene name. */
+	bool cmdScene(int argc, const char **argv);
 };
 
 } // End of namespace Orlando

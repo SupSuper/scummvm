@@ -530,34 +530,7 @@ bool Scene::run() {
 		(*i)->drawTo(graphics);
 	}
 
-	debugDraw(graphics);
-
 	return true;
-}
-
-void Scene::debugDraw(GraphicsManager *graphics) const {
-#ifdef _DEBUG
-	for (Common::Array<Triangle>::const_iterator i = _walkRegions.begin(); i != _walkRegions.end(); ++i) {
-		//graphics->drawPolygon(*i, graphics->RGBToColor(0, 0, 255));
-	}
-
-	for (Common::HashMap<Common::String, Element *>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
-		Element *element = i->_value;
-		if (element->getWindow()->isVisible() && element->_surface != nullptr) {
-			Common::Rect rect(element->_surface->w, element->_surface->h);
-			rect.moveTo(element->getPosition());
-			//graphics->drawPolygon(rect, graphics->RGBToColor(255, 0, 255));
-			//graphics->drawPolygon(element->_region, graphics->RGBToColor(255, 0, 0));
-		}
-	}
-
-	for (Common::HashMap<Common::String, Area *>::const_iterator i = _areas.begin(); i != _areas.end(); ++i) {
-		Area *area = i->_value;
-		for (Common::Array<Triangle>::const_iterator j = area->_regions.begin(); j != area->_regions.end(); ++j) {
-			//graphics->drawPolygon(*j, graphics->RGBToColor(0, 255, 255));
-		}
-	}
-#endif
 }
 
 } // End of namespace Orlando

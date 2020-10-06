@@ -22,19 +22,79 @@
 
 #include "common/scummsys.h"
 #include "common/str-array.h"
+#include "graphics/surface.h"
+#include "graphics/managed_surface.h"
 
 #include "orlando/debugger.h"
 #include "orlando/orlando.h"
 #include "orlando/macro.h"
 #include "orlando/interp.h"
+#include "orlando/scene.h"
+#include "orlando/element.h"
+#include "orlando/area.h"
+#include "orlando/window.h"
 
 namespace Orlando {
 
-Debugger::Debugger(OrlandoEngine *vm) : GUI::Debugger(), _vm(vm) {
+Debugger::Debugger(OrlandoEngine *vm) : GUI::Debugger(), _vm(vm),
+	_showWalks(false), _showElements(false), _showAreas(false), _showWindows(false) {
 	registerCmd("run", WRAP_METHOD(Debugger, cmdRun));
+	registerCmd("scene", WRAP_METHOD(Debugger, cmdScene));
+
+	registerVar("walks", &_showWalks);
+	registerVar("elements", &_showElements);
+	registerVar("areas", &_showAreas);
+	registerVar("windows", &_showWindows);
+}
+
+void Debugger::onFrame() {
+	GUI::Debugger::onFrame();
+
+	GraphicsManager *graphics = _vm->getGraphicsManager();
+	Scene *scene = _vm->getScene();
+
+	if (_showWalks) {
+		for (Common::Array<Triangle>::const_iterator i = scene->_walkRegions.begin(); i != scene->_walkRegions.end(); ++i) {
+			graphics->drawPolygon(*i, graphics->RGBToColor(0, 0, 255));
+		}
+	}
+
+	if (_showElements) {
+		for (Common::HashMap<Common::String, Element *>::const_iterator i = scene->_elements.begin(); i != scene->_elements.end(); ++i) {
+			Element *element = i->_value;
+			if (element->getWindow()->isVisible() && element->_surface != nullptr) {
+				Common::Rect rect(element->_surface->w, element->_surface->h);
+				rect.moveTo(element->getPosition());
+				graphics->drawPolygon(rect, graphics->RGBToColor(0, 255, 0));
+				graphics->drawPolygon(element->_region, graphics->RGBToColor(0, 64, 0));
+			}
+		}
+	}
+
+	if (_showAreas) {
+		for (Common::HashMap<Common::String, Area *>::const_iterator i = scene->_areas.begin(); i != scene->_areas.end(); ++i) {
+			Area *area = i->_value;
+			for (Common::Array<Triangle>::const_iterator j = area->_regions.begin(); j != area->_regions.end(); ++j) {
+				graphics->drawPolygon(*j, graphics->RGBToColor(0, 255, 255));
+			}
+		}
+	}
+
+	if (_showWindows) {
+		for (Common::List<Window*>::const_iterator i = scene->_windows.begin(); i != scene->_windows.end(); ++i) {
+			if ((*i)->isVisible()) {
+				Common::Rect rect((*i)->_surface->w, (*i)->_surface->h);
+				rect.moveTo((*i)->_pos);
+				graphics->drawPolygon(rect, graphics->RGBToColor(255, 0, 255));
+			}
+		}
+	}
 }
 
 bool Debugger::cmdRun(int argc, const char **argv) {
+	if (!_vm->getJack()) {
+		_vm->newGame();
+	}
 	if (argc >= 2) {
 		Common::StringArray args;
 		args.reserve(argc - 1);
@@ -52,6 +112,11 @@ bool Debugger::cmdRun(int argc, const char **argv) {
 			return false;
 		}
 	}
+	return true;
+}
+
+bool Debugger::cmdScene(int argc, const char **argv) {
+	debugPrintf("%s\n", _vm->getScene()->getId().c_str());
 	return true;
 }
 

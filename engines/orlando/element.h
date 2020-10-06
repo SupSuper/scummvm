@@ -42,6 +42,8 @@ class Scene;
  * Represents a graphical element on a scene.
  */
 class Element {
+	friend class Debugger;
+
 	Common::String _id;
 	int _bpp;
 	Common::Point _pos;
@@ -50,7 +52,6 @@ class Element {
 	Graphics::Surface *_surface;
 	Animation *_anim;
 
-	friend class Scene; // Debug
 public:
 	Element(const Common::String &id);
 	~Element();

@@ -56,6 +56,8 @@ class Window;
  * Represents a game room, screen, etc.
  */
 class Scene {
+	friend class Debugger;
+
 protected:
 	OrlandoEngine *_vm;
 	Common::String _id;
@@ -104,12 +106,12 @@ protected:
 	/** Activates a macro if it exists. */
 	void activateMacro(const Common::String &id);
 
-	void debugDraw(GraphicsManager *graphics) const;
 public:
 	Scene(OrlandoEngine *vm, const Common::String &id);
 	virtual ~Scene();
 
 	GraphicsManager *getGraphicsManager() const;
+	Common::String getId() const { return _id; }
 	Element *getElement(const Common::String &id) { return _elements.getVal(id, nullptr); }
 	Dialog *getDialog(int id) { return _dialogs.getVal(id, nullptr); }
 	Face *getFace(const Common::String &id) { return _faces.getVal(id, nullptr); }

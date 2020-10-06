@@ -39,6 +39,8 @@ class GraphicsManager;
  * Elements draw to this buffer instead of directly to the screen.
  */
 class Window {
+	friend class Debugger;
+
 	Graphics::ManagedSurface *_surface;
 	Common::Point _pos;
 	bool _visible;

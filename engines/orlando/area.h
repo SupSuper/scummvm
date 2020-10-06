@@ -35,10 +35,11 @@ class TextParser;
  * Represents an interactive hotspot on a scene.
  */
 class Area {
+	friend class Debugger;
+
 	Common::String _id;
 	Common::Array<Triangle> _regions;
 
-	friend class Scene; // Debug
 public:
 	Area(const Common::String &id);
 	Common::String getId() const { return _id; }
