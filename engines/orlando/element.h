@@ -77,6 +77,8 @@ public:
 	void update(uint32 time) const;
 	void draw() const;
 	bool contains(const Common::Point &pos) const;
+	bool isOver(const Common::Point &pos) const;
+	bool isUnder(const Common::Point &pos) const;
 };
 
 } // End of namespace Orlando

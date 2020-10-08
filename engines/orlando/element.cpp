@@ -96,4 +96,20 @@ bool Element::contains(const Common::Point &p) const {
 	return false;
 }
 
+bool Element::isOver(const Common::Point &pos) const {
+	int16 baseY = _region.p[0].y;
+	for (uint32 i = 1; i < _region.kPoints; i++) {
+		baseY = MAX(baseY, _region.p[i].y);
+	}
+	return baseY > pos.y;
+}
+
+bool Element::isUnder(const Common::Point &pos) const {
+	int16 baseY = _region.p[0].y;
+	for (uint32 i = 1; i < _region.kPoints; i++) {
+		baseY = MAX(baseY, _region.p[i].y);
+	}
+	return baseY < pos.y;
+}
+
 } // End of namespace Orlando

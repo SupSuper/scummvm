@@ -44,14 +44,17 @@ class Window {
 	Graphics::ManagedSurface *_surface;
 	Common::Point _pos;
 	bool _visible;
+	uint32 _order;
 
 public:
-	Window(const Common::Rect &bounds);
+	Window(const Common::Rect &bounds, uint32 order);
 	~Window();
 	bool isVisible() const { return _visible; }
 	void setVisible(bool visible) { _visible = visible; }
+	uint32 getOrder() const { return _order; }
+	void setOrder(uint32 order) { _order = order; }
 
-	void change(const Common::Rect &bounds);
+	void resize(const Common::Rect &bounds);
 	void drawFrom(const Graphics::Surface *surface, const Common::Point &pos = Common::Point(), bool flipped = false, float scale = 1.0f) const;
 	void drawTo(GraphicsManager *graphics) const;
 };

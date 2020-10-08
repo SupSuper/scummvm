@@ -243,11 +243,11 @@ bool ScriptInterpreter::cmdChWindow(const MacroCommand &cmd) {
 
 	Person *person = _vm->getScene()->getPerson(id);
 	if (person != nullptr) {
-		person->getWindow()->change(window);
+		person->getWindow()->resize(window);
 	} else {
 		Element *element = _vm->getScene()->getElement(id);
 		if (element != nullptr) {
-			element->getWindow()->change(window);
+			element->getWindow()->resize(window);
 		} else {
 			warning("ScriptInterpreter: Window %s not found", id.c_str());
 		}
@@ -462,7 +462,7 @@ bool ScriptInterpreter::cmdPUnderP(const MacroCommand &cmd) {
 	Person *person1 = _vm->getScene()->getPerson(id1);
 	Person *person2 = _vm->getScene()->getPerson(id2);
 
-	_vm->getScene()->moveWindow(person1->getWindow(), person2->getWindow(), false);
+	_vm->getScene()->moveWindowUnder(person1->getWindow(), person2->getWindow());
 	return true;
 }
 
@@ -472,7 +472,7 @@ bool ScriptInterpreter::cmdPUnderE(const MacroCommand &cmd) {
 	Person *person = _vm->getScene()->getPerson(id1);
 	Element *element = _vm->getScene()->getElement(id2);
 
-	_vm->getScene()->moveWindow(person->getWindow(), element->getWindow(), false);
+	_vm->getScene()->moveWindowUnder(person->getWindow(), element->getWindow());
 	return true;
 }
 
@@ -525,7 +525,7 @@ bool ScriptInterpreter::cmdPOverE(const MacroCommand &cmd) {
 	Person *person = _vm->getScene()->getPerson(id1);
 	Element *element = _vm->getScene()->getElement(id2);
 
-	_vm->getScene()->moveWindow(person->getWindow(), element->getWindow(), true);
+	_vm->getScene()->moveWindowOver(person->getWindow(), element->getWindow());
 	return true;
 }
 
@@ -600,7 +600,7 @@ bool ScriptInterpreter::cmdEOverE(const MacroCommand &cmd) {
 	Element *element1 = _vm->getScene()->getElement(id1);
 	Element *element2 = _vm->getScene()->getElement(id2);
 
-	_vm->getScene()->moveWindow(element1->getWindow(), element2->getWindow(), true);
+	_vm->getScene()->moveWindowOver(element1->getWindow(), element2->getWindow());
 	return true;
 }
 

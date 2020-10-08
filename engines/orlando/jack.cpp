@@ -114,7 +114,7 @@ void Jack::setPerspective(int yMin, int yMax, float scale) {
 	_scalePersp = scale;
 }
 
-void Jack::walkTo(Common::Point dest, uint32 time, int dir) {
+void Jack::walkTo(const Common::Point &dest, uint32 time, int dir) {
 	const int kJackDirections[] = { 0, 3, 1, -4, 2, 4, -1, -3 };
 	if (dir != kDirectionNone) {
 		for (int i = 0; i < kDirections; i++) {

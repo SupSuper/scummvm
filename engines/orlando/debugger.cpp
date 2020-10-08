@@ -81,7 +81,7 @@ void Debugger::onFrame() {
 	}
 
 	if (_showWindows) {
-		for (Common::List<Window*>::const_iterator i = scene->_windows.begin(); i != scene->_windows.end(); ++i) {
+		for (Common::Array<Window*>::const_iterator i = scene->_windows.begin(); i != scene->_windows.end(); ++i) {
 			if ((*i)->isVisible()) {
 				Common::Rect rect((*i)->_surface->w, (*i)->_surface->h);
 				rect.moveTo((*i)->_pos);

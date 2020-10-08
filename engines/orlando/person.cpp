@@ -100,15 +100,17 @@ void Person::setData(uint32 delay, float scale, int perspective, int walk) {
 	_walkSpeed = walk;
 }
 
-void Person::update(uint32 time) {
+void Person::update(uint32 time, Scene *scene) {
 	while (isWalking() && time >= _time + _delay) {
 		_time += _delay;
 		_curFrame = wrap(_curFrame + _dirWalk, 0, (int)_framesWalk[_dir].size());
 
 		setPosition(_pos + _walk * _scaleDraw);
-		draw(_framesWalk[_dir][_curFrame], _flipped);
+		scene->zSort(this);
 		if (ABS(_pos.x - _dest.x) < 10 && ABS(_pos.y - _dest.y) < 5) {
 			stay();
+		} else {
+			draw(_framesWalk[_dir][_curFrame], _flipped);
 		}
 	}
 	if (_ins != nullptr) {
@@ -126,7 +128,7 @@ void Person::draw(const PFrame &frame, bool flipped) {
 	_window->drawFrom(frame.surface, (Common::Point)drawPos, flipped, _scaleDraw);
 }
 
-void Person::walkTo(Common::Point dest, uint32 time, int dir) {
+void Person::walkTo(const Common::Point &dest, uint32 time, int dir) {
 	const float kScaleY = 0.3f;
 	const float kDirAngles[] = { 22.0f, 67.0f, 112.0f, 157.0f, 202.0f, 248.0f, 292.0f, 338.0f };
 
@@ -188,6 +190,14 @@ void Person::setDirection(int dir) {
 
 void Person::stay(int dir) {
 	_walk = Vector2(0, 0);
+}
+
+bool Person::isOver(const Common::Point& pos) const {
+	return _pos.y > pos.y;
+}
+
+bool Person::isUnder(const Common::Point &pos) const {
+	return _pos.y < pos.y;
 }
 
 } // End of namespace Orlando

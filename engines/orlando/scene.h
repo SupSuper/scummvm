@@ -69,6 +69,7 @@ protected:
 	Common::Array<Common::Point> _lightSources;
 	Common::Array<Triangle> _walkRegions;
 	TextColor _textColors[3];
+	Common::Array<Window*> _windows;
 
 	Common::HashMap<Common::String, Element*> _elements;
 	Common::HashMap<int, Dialog*> _dialogs;
@@ -78,8 +79,6 @@ protected:
 	Common::HashMap<Common::String, Insertion*> _insertions;
 	Common::HashMap<Common::String, Film*> _films;
 	Common::HashMap<Common::String, Macro*> _macros;
-
-	Common::List<Window*> _windows;
 
 	/** Loads configurations and graphics. */
 	bool loadCcg();
@@ -126,8 +125,12 @@ public:
 
 	Common::File *loadFile(const Common::String &filename, bool optional = false);
 	Graphics::Surface *loadSurface(const Common::String &filename, int bpp);
-	/** Places w1 before (under) or after (over) w2. */
-	void moveWindow(Window *w1, Window *w2, bool after);
+	/** Places w1 after (over) w2. */
+	void moveWindowOver(Window *w1, Window *w2);
+	/** Places w1 before (under) w2. */
+	void moveWindowUnder(Window *w1, Window *w2);
+	/** Updates the sorting order of a person. */
+	void zSort(Person *person);
 	/**
 	 * Initializes the scene and its contents.
 	 * @return False if a resource is missing.

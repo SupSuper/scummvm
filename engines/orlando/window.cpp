@@ -29,17 +29,16 @@
 
 namespace Orlando {
 
-Window::Window(const Common::Rect &bounds) :
+Window::Window(const Common::Rect &bounds, uint32 order) :
 	_surface(new Graphics::ManagedSurface(bounds.width(), bounds.height(), GraphicsManager::kScreenFormat)),
-	_pos(bounds.left, bounds.top),
-	_visible(true) {
+	_pos(bounds.left, bounds.top), _visible(true), _order(order) {
 }
 
 Window::~Window() {
 	delete _surface;
 }
 
-void Window::change(const Common::Rect &bounds) {
+void Window::resize(const Common::Rect &bounds) {
 	Common::Point oldPos = _pos;
 	Graphics::ManagedSurface *oldSurface = _surface;
 

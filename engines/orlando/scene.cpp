@@ -356,7 +356,7 @@ bool Scene::loadMcc() {
 }
 
 Window *Scene::addWindow() {
-	Window *window = new Window(Common::Rect(_background->w, _background->h));
+	Window *window = new Window(Common::Rect(_background->w, _background->h), _windows.size());
 	_windows.push_back(window);
 	return window;
 }
@@ -405,23 +405,58 @@ Graphics::Surface *Scene::loadSurface(const Common::String &filename, int bpp) {
 	}
 }
 
-void Scene::moveWindow(Window *w1, Window *w2, bool after) {
-	bool removeOld = false, addNew = false;
-	for (Common::List<Window *>::iterator i = _windows.begin(); i != _windows.end(); ++i) {
-		// Remove w1 from the old position
-		if (!removeOld && (*i) == w1) {
-			i = _windows.erase(i);
-			removeOld = true;
+void Scene::moveWindowOver(Window *w1, Window *w2) {
+	uint32 order1 = w1->getOrder();
+	uint32 order2 = w2->getOrder();
+	if (order1 >= order2)
+		return;
+
+	// Shift all windows back one (between w1 and w2)
+	for (uint32 i = order1; i < order2; i++) {
+		_windows[i] = _windows[i + 1];
+		_windows[i]->setOrder(i);
+	}
+	// Place w1 at w2 position
+	_windows[order2] = w1;
+	w1->setOrder(order2);
+}
+
+void Scene::moveWindowUnder(Window *w1, Window *w2) {
+	uint32 order1 = w1->getOrder();
+	uint32 order2 = w2->getOrder();
+	if (order1 < order2)
+		return;
+
+	// Shift all windows forward one (between w1 and w2)
+	for (uint32 i = order1; i > order2; i--) {
+		_windows[i] = _windows[i - 1];
+		_windows[i]->setOrder(i);
+	}
+	// Place w1 at w2 position
+	_windows[order2] = w1;
+	w1->setOrder(order2);
+}
+
+void Scene::zSort(Person *person) {
+	for (Common::HashMap<Common::String, Person *>::const_iterator i = _persons.begin(); i != _persons.end(); ++i) {
+		Person *p = i->_value;
+		if (p == person || !p->getWindow()->isVisible())
+			continue;
+		if (p->isUnder(person->getPosition()) && p->getWindow()->getOrder() > person->getWindow()->getOrder()) {
+			moveWindowOver(person->getWindow(), p->getWindow());
+		} else if (p->isOver(person->getPosition()) && p->getWindow()->getOrder() < person->getWindow()->getOrder()) {
+			moveWindowUnder(person->getWindow(), p->getWindow());
 		}
-		// Insert w1 at the new position
-		if (!addNew && (*i) == w2) {
-			if (after)
-				i++;
-			_windows.insert(i, w1);
-			addNew = true;
+	}
+	for (Common::HashMap<Common::String, Element *>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
+		Element *element = i->_value;
+		if (!element->getWindow()->isVisible())
+			continue;
+		if (element->isUnder(person->getPosition()) && element->getWindow()->getOrder() > person->getWindow()->getOrder()) {
+			moveWindowOver(person->getWindow(), element->getWindow());
+		} else if (element->isOver(person->getPosition()) && element->getWindow()->getOrder() < person->getWindow()->getOrder()) {
+			moveWindowUnder(person->getWindow(), element->getWindow());
 		}
-		if (removeOld && addNew)
-			break;
 	}
 }
 
@@ -477,7 +512,7 @@ bool Scene::run() {
 
 	// Handle player input
 	if (_vm->getJack()) {
-		_vm->getJack()->update(time);
+		_vm->getJack()->update(time, this);
 
 		if (!locked) {
 			if (_vm->getMouse()->getLeftButton() == kButtonReleased) {
@@ -520,13 +555,13 @@ bool Scene::run() {
 		i->_value->update(time);
 	}
 	for (Common::HashMap<Common::String, Person*>::const_iterator i = _persons.begin(); i != _persons.end(); ++i) {
-		i->_value->update(time);
+		i->_value->update(time, this);
 	}
 
 	// Draw scene windows
 	GraphicsManager *graphics = _vm->getGraphicsManager();
 	graphics->draw(*_background);
-	for (Common::List<Window*>::const_iterator i = _windows.begin(); i != _windows.end(); ++i) {
+	for (Common::Array<Window*>::const_iterator i = _windows.begin(); i != _windows.end(); ++i) {
 		(*i)->drawTo(graphics);
 	}
 

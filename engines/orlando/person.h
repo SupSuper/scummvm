@@ -96,10 +96,12 @@ public:
 
 	bool load(TextParser &parser, Scene *scene);
 	void setData(uint32 delay, float scale, int perspective, int walk);
-	void update(uint32 time);
+	void update(uint32 time, Scene *scene);
 	void draw(const PFrame &frame, bool flipped);
-	virtual void walkTo(Common::Point dest, uint32 time, int dir = kDirectionNone);
+	virtual void walkTo(const Common::Point &dest, uint32 time, int dir = kDirectionNone);
 	virtual void stay(int dir = kDirectionNone);
+	bool isOver(const Common::Point &pos) const;
+	bool isUnder(const Common::Point &pos) const;
 };
 
 } // End of namespace Orlando
