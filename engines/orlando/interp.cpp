@@ -210,7 +210,7 @@ bool ScriptInterpreter::runCommand(Macro *macro, const MacroCommand &cmd, uint32
 	ScriptHandler handler = kCommandHandlers[cmd.type];
 	bool done = (this->*handler)(cmd);
 	if (done)
-		debug("ScriptInterpreter: Executing [%s] %s", macro->getId().c_str(), cmd.args[0].c_str());
+		debug("ScriptInterpreter: Executing [%s] %s", macro->getId().c_str(), cmd.line.c_str());
 	return done;
 }
 

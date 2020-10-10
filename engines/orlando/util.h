@@ -63,6 +63,21 @@ inline void replaceChar(Common::String &str, char find, char replace) {
 			*c = replace;
 	}
 }
+/**
+ * Concatenates an array into a delimited string.
+ * @param arr Source array.
+ * @param separator Separator between elements.
+ * @return A delimited string.
+ */
+inline Common::String join(const Common::StringArray &arr, char separator) {
+	Common::String str;
+	for (Common::StringArray::const_iterator i = arr.begin(); i != arr.end(); ++i) {
+		str += *i;
+		str += separator;
+	}
+	str.deleteLastChar();
+	return str;
+}
 
 inline int toInt(const Common::String &str) {
 	return atoi(str.c_str());

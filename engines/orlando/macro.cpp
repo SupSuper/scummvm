@@ -218,6 +218,7 @@ void Macro::load(TextParser &parser) {
 		}
 		parser.rewind();
 		cmd.args = parser.readLine();
+		cmd.line = join(cmd.args, ' ');
 		_commands.push_back(cmd);
 	}
 }
@@ -226,6 +227,7 @@ const MacroCommand &Macro::loadCommand(Common::StringArray args) {
 	MacroCommand cmd;
 	cmd.type = getType(args[0]);
 	cmd.args = args;
+	cmd.line = join(cmd.args, ' ');
 	_commands.push_back(cmd);
 	return _commands.front();
 }

@@ -192,6 +192,7 @@ enum CommandType {
 struct MacroCommand {
 	CommandType type;
 	Common::StringArray args;
+	Common::String line; // debug
 };
 
 /**
