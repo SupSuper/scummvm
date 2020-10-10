@@ -193,10 +193,14 @@ void Person::stay(int dir) {
 }
 
 bool Person::isOver(const Common::Point& pos) const {
+	if (!_window->isVisible())
+		return false;
 	return _pos.y > pos.y;
 }
 
 bool Person::isUnder(const Common::Point &pos) const {
+	if (!_window->isVisible())
+		return false;
 	return _pos.y < pos.y;
 }
 

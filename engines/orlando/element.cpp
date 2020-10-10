@@ -50,9 +50,9 @@ bool Element::load(TextParser &parser, Scene *scene) {
 	_pos.y = parser.readInt();
 	parser.readFloat();
 	parser.readFloat();
-	for (int i = 0; i < _region.kPoints; i++) {
-		_region.p[i].x = _pos.x + parser.readInt();
-		_region.p[i].y = _pos.y + parser.readInt();
+	for (int i = 0; i < _walkRegion.kPoints; i++) {
+		_walkRegion.p[i].x = parser.readInt();
+		_walkRegion.p[i].y = parser.readInt();
 	}
 
 	if (!_id.hasPrefix("FLX")) {
@@ -97,19 +97,37 @@ bool Element::contains(const Common::Point &p) const {
 }
 
 bool Element::isOver(const Common::Point &pos) const {
-	int16 baseY = _region.p[0].y;
-	for (uint32 i = 1; i < _region.kPoints; i++) {
-		baseY = MAX(baseY, _region.p[i].y);
+	if (!_window->isVisible())
+		return false;
+	int16 baseY = _walkRegion.p[0].y;
+	for (uint32 i = 1; i < _walkRegion.kPoints; i++) {
+		baseY = MAX(baseY, _walkRegion.p[i].y);
 	}
-	return baseY > pos.y;
+	return _pos.y + baseY > pos.y;
 }
 
 bool Element::isUnder(const Common::Point &pos) const {
-	int16 baseY = _region.p[0].y;
-	for (uint32 i = 1; i < _region.kPoints; i++) {
-		baseY = MAX(baseY, _region.p[i].y);
+	if (!_window->isVisible())
+		return false;
+	int16 baseY = _walkRegion.p[0].y;
+	for (uint32 i = 1; i < _walkRegion.kPoints; i++) {
+		baseY = MAX(baseY, _walkRegion.p[i].y);
 	}
-	return baseY < pos.y;
+	return _pos.y + baseY < pos.y;
+}
+
+Common::Rect Element::getDrawRegion() const {
+	Common::Rect rect(_surface->w, _surface->h);
+	rect.moveTo(_pos);
+	return rect;
+}
+
+Quad Element::getWalkRegion() const {
+	Quad quad = Quad();
+	for (int i = 0; i < _walkRegion.kPoints; i++) {
+		quad.p[i] = _pos + _walkRegion.p[i];
+	}
+	return quad;
 }
 
 } // End of namespace Orlando

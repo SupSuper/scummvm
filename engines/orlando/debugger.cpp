@@ -63,10 +63,8 @@ void Debugger::onFrame() {
 		for (Common::HashMap<Common::String, Element *>::const_iterator i = scene->_elements.begin(); i != scene->_elements.end(); ++i) {
 			Element *element = i->_value;
 			if (element->getWindow()->isVisible() && element->_surface != nullptr) {
-				Common::Rect rect(element->_surface->w, element->_surface->h);
-				rect.moveTo(element->getPosition());
-				graphics->drawPolygon(rect, graphics->RGBToColor(0, 255, 0));
-				graphics->drawPolygon(element->_region, graphics->RGBToColor(0, 64, 0));
+				graphics->drawPolygon(element->getDrawRegion(), graphics->RGBToColor(0, 255, 0));
+				graphics->drawPolygon(element->getWalkRegion(), graphics->RGBToColor(0, 64, 0));
 			}
 		}
 	}

@@ -57,6 +57,8 @@ public:
 	void resize(const Common::Rect &bounds);
 	void drawFrom(const Graphics::Surface *surface, const Common::Point &pos = Common::Point(), bool flipped = false, float scale = 1.0f) const;
 	void drawTo(GraphicsManager *graphics) const;
+	bool isOver(const Window *window) const;
+	bool isUnder(const Window *window) const;
 };
 
 } // End of namespace Orlando

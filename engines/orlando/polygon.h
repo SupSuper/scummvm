@@ -33,8 +33,6 @@ template <uint N>
 struct Polygon {
 	static const uint kPoints = N;
 	Common::Point p[N];
-	int16 &x(unsigned int i) { return p[i].x; }
-	int16 &y(unsigned int i) { return p[i].y; }
 	bool contains(Common::Point i) const {
 		int yflag0;
 		int yflag1;

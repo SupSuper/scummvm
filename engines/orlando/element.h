@@ -48,7 +48,7 @@ class Element {
 	int _bpp;
 	Common::Point _pos;
 	Window *_window;
-	Quad _region;
+	Quad _walkRegion;
 	Graphics::Surface *_surface;
 	Animation *_anim;
 
@@ -79,6 +79,8 @@ public:
 	bool contains(const Common::Point &pos) const;
 	bool isOver(const Common::Point &pos) const;
 	bool isUnder(const Common::Point &pos) const;
+	Common::Rect getDrawRegion() const;
+	Quad getWalkRegion() const;
 };
 
 } // End of namespace Orlando

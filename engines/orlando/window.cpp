@@ -66,4 +66,12 @@ void Window::drawTo(GraphicsManager *graphics) const {
 		graphics->drawTransparent(*_surface, _pos);
 }
 
+bool Window::isOver(const Window *window) const {
+	return _order > window->getOrder();
+}
+
+bool Window::isUnder(const Window *window) const {
+	return _order < window->getOrder();
+}
+
 } // End of namespace Orlando

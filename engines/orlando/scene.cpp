@@ -440,22 +440,20 @@ void Scene::moveWindowUnder(Window *w1, Window *w2) {
 void Scene::zSort(Person *person) {
 	for (Common::HashMap<Common::String, Person *>::const_iterator i = _persons.begin(); i != _persons.end(); ++i) {
 		Person *p = i->_value;
-		if (p == person || !p->getWindow()->isVisible())
+		if (p == person)
 			continue;
-		if (p->isUnder(person->getPosition()) && p->getWindow()->getOrder() > person->getWindow()->getOrder()) {
-			moveWindowOver(person->getWindow(), p->getWindow());
-		} else if (p->isOver(person->getPosition()) && p->getWindow()->getOrder() < person->getWindow()->getOrder()) {
-			moveWindowUnder(person->getWindow(), p->getWindow());
+		if (p->isUnder(person->getPosition()) && p->getWindow()->isOver(person->getWindow())) {
+			moveWindowUnder(p->getWindow(), person->getWindow());
+		} else if (p->isOver(person->getPosition()) && p->getWindow()->isUnder(person->getWindow())) {
+			moveWindowOver(p->getWindow(), person->getWindow());
 		}
 	}
 	for (Common::HashMap<Common::String, Element *>::const_iterator i = _elements.begin(); i != _elements.end(); ++i) {
 		Element *element = i->_value;
-		if (!element->getWindow()->isVisible())
-			continue;
-		if (element->isUnder(person->getPosition()) && element->getWindow()->getOrder() > person->getWindow()->getOrder()) {
-			moveWindowOver(person->getWindow(), element->getWindow());
-		} else if (element->isOver(person->getPosition()) && element->getWindow()->getOrder() < person->getWindow()->getOrder()) {
-			moveWindowUnder(person->getWindow(), element->getWindow());
+		if (element->isUnder(person->getPosition()) && element->getWindow()->isOver(person->getWindow())) {
+			moveWindowUnder(element->getWindow(), person->getWindow());
+		} else if (element->isOver(person->getPosition()) && element->getWindow()->isUnder(person->getWindow())) {
+			moveWindowOver(element->getWindow(), person->getWindow());
 		}
 	}
 }
