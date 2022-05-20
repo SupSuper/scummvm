@@ -2,7 +2,9 @@ MODULE := engines/raunes
 
 MODULE_OBJS = \
 	raunes.o \
-	metaengine.o
+	metaengine.o \
+	graphics.o \
+	datfile.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_RAUNES), DYNAMIC_PLUGIN)

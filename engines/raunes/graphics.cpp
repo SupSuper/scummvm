@@ -22,55 +22,52 @@
 
 #include "common/scummsys.h"
 
-#include "common/config-manager.h"
-#include "common/debug.h"
-#include "common/debug-channels.h"
-#include "common/error.h"
-#include "common/events.h"
 #include "common/file.h"
-#include "common/fs.h"
 #include "common/system.h"
-
-#include "engines/util.h"
+#include "graphics/palette.h"
 #include "graphics/surface.h"
+#include "image/pcx.h"
 
-#include "raunes/raunes.h"
 #include "raunes/graphics.h"
+#include "raunes/datfile.h"
 
 namespace Raunes {
 
-RaunesEngine::RaunesEngine(OSystem *syst)
-	: Engine(syst) {
-	_graphics = new GraphicsManager();
+GraphicsManager::GraphicsManager() {
+	_data = new DatArchive();
 }
 
-RaunesEngine::~RaunesEngine() {
-	delete _graphics;
+GraphicsManager::~GraphicsManager() {
+	delete _data;
 }
 
-Common::Error RaunesEngine::run() {
-	initGraphics(320, 200);
-
-	if (!_graphics->loadDat()) {
-		return Common::kNoGameDataFoundError;
+bool GraphicsManager::loadDat() {
+	Common::File *file = new Common::File();
+	if (file->open("RAUNES.DAT")) {
+		return _data->open(file);
+	} else {
+		warning("GraphicsManager: RAUNES.DAT not found");
+		delete file;
+		return false;
 	}
-	Graphics::Surface *test = _graphics->loadPcx("LOGO.PCX");
-	g_system->copyRectToScreen(test->getPixels(), test->pitch, 0, 0, test->w, test->h);
-	g_system->updateScreen();
-
-	Common::Event evt;
-	while (!shouldQuit()) {
-		g_system->getEventManager()->pollEvent(evt);
-		g_system->delayMillis(10);
-	}
-
-	return Common::kNoError;
 }
 
-bool RaunesEngine::hasFeature(EngineFeature f) const {
-	return (f == kSupportsReturnToLauncher) ||
-		   (f == kSupportsLoadingDuringRuntime) ||
-		   (f == kSupportsSavingDuringRuntime);
+Graphics::Surface *GraphicsManager::loadPcx(const Common::String &filename) {
+	Common::SeekableReadStream *file = _data->createReadStreamForMember(filename);
+	if (file == nullptr) {
+		warning("GraphicsManager: %s not found", filename.c_str());
+		return nullptr;
+	} else {
+		Image::PCXDecoder pcx = Image::PCXDecoder();
+		if (!pcx.loadStream(*file)) {
+			warning("GraphicsManager: %s is corrupted", filename.c_str());
+			return nullptr;
+		}
+		g_system->getPaletteManager()->setPalette(pcx.getPalette(), pcx.getPaletteStartIndex(), pcx.getPaletteColorCount());
+		Graphics::Surface *surf = new Graphics::Surface();
+		surf->copyFrom(*pcx.getSurface());
+		return surf;
+	}
 }
 
 } // End of namespace Raunes

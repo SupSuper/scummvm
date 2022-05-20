@@ -20,24 +20,27 @@
  *
  */
 
-#ifndef RAUNES_RAUNES_H
-#define RAUNES_RAUNES_H
+#ifndef RAUNES_GRAPHICS_H
+#define RAUNES_GRAPHICS_H
 
-#include "engines/engine.h"
+#include "common/archive.h"
+
+namespace Graphics {
+	struct Surface;
+}
 
 namespace Raunes {
 
-class GraphicsManager;
+class DatArchive;
 
-class RaunesEngine : public Engine {
-	GraphicsManager *_graphics;
+class GraphicsManager {
+	DatArchive *_data;
 
 public:
-	RaunesEngine(OSystem *syst);
-	~RaunesEngine();
-
-	Common::Error run() override;
-	bool hasFeature(EngineFeature f) const override;
+	GraphicsManager();
+	~GraphicsManager();
+	bool loadDat();
+	Graphics::Surface *loadPcx(const Common::String &filename);
 };
 
 } // End of namespace Raunes

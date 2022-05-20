@@ -20,26 +20,41 @@
  *
  */
 
-#ifndef RAUNES_RAUNES_H
-#define RAUNES_RAUNES_H
+#ifndef RAUNES_DATFILE_H
+#define RAUNES_DATFILE_H
 
-#include "engines/engine.h"
+#include "common/archive.h"
+#include "common/array.h"
 
 namespace Raunes {
 
-class GraphicsManager;
-
-class RaunesEngine : public Engine {
-	GraphicsManager *_graphics;
-
-public:
-	RaunesEngine(OSystem *syst);
-	~RaunesEngine();
-
-	Common::Error run() override;
-	bool hasFeature(EngineFeature f) const override;
+struct DatFile {
+	Common::String filename;
+	int position;
+	int size;
+	int width;
+	int height;
 };
 
-} // End of namespace Raunes
+class DatArchive : public Common::Archive {
+	Common::Array<DatFile> _files;
+	Common::SeekableReadStream *_stream;
+
+	static const int kHeaderSize = 46;
+	const DatFile *findFile(const Common::Path &name) const;
+
+public:
+	DatArchive();
+	~DatArchive();
+	bool open(Common::SeekableReadStream *stream);
+
+	// Common::Archive API implementation
+	bool hasFile(const Common::Path &name) const override;
+	int listMembers(Common::ArchiveMemberList &list) const override;
+	const Common::ArchiveMemberPtr getMember(const Common::Path &name) const override;
+	Common::SeekableReadStream *createReadStreamForMember(const Common::Path &name) const override;
+};
+
+} // End of namespace Orlando
 
 #endif
