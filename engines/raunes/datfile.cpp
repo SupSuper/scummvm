@@ -26,17 +26,6 @@
 
 namespace Raunes {
 
-const DatFile *DatArchive::findFile(const Common::Path &name) const {
-	Common::String str = name.toString();
-	str.toUppercase();
-	for (Common::Array<DatFile>::const_iterator i = _files.begin(); i != _files.end(); ++i) {
-		if (i->filename == str) {
-			return i;
-		}
-	}
-	return nullptr;
-}
-
 DatArchive::DatArchive() : _stream(nullptr) {}
 
 DatArchive::~DatArchive() {
@@ -51,6 +40,7 @@ bool DatArchive::open(Common::SeekableReadStream *stream) {
 	}
 
 	// Validate header
+	const int kHeaderSize = 46;
 	const char kHeader[] = "Udoiana Raunes - Special Edition Datafile ";
 	Common::String header = stream->readString(0, ARRAYSIZE(kHeader) - 1);
 	if (!header.equals(kHeader)) {
@@ -62,51 +52,42 @@ bool DatArchive::open(Common::SeekableReadStream *stream) {
 	stream->skip(dataBytes);
 
 	int numFiles = stream->readUint32LE();
+	_files.reserve(numFiles);
 	for (int i = 0; i < numFiles; i++) {
 		DatFile file;
 		stream->skip(1); // length
 		file.filename = stream->readString(0, 12);
-		file.position = stream->readUint32LE();
+		file.position = kHeaderSize + stream->readUint32LE();
 		file.width = stream->readUint16LE();
 		file.height = stream->readUint16LE();
 		_files.push_back(file);
-		// Precalculate size
-		if (i > 0)
-			_files[i-1].size = _files[i].position - _files[i-1].position;
 	}
-	_files[numFiles - 1].size = kHeaderSize + dataBytes - _files[numFiles - 1].position;
 
 	return true;
 }
 
-bool DatArchive::hasFile(const Common::Path &name) const {
-	return (findFile(name) != nullptr);
-}
-
-int DatArchive::listMembers(Common::ArchiveMemberList &list) const {
+const DatFile *DatArchive::findFile(Common::String name) const {
+	name.toUppercase();
 	for (Common::Array<DatFile>::const_iterator i = _files.begin(); i != _files.end(); ++i) {
-		list.push_back(Common::ArchiveMemberPtr(new Common::GenericArchiveMember(i->filename, this)));
+		if (i->filename == name) {
+			return i;
+		}
 	}
-	return _files.size();
+	return nullptr;
 }
 
-const Common::ArchiveMemberPtr DatArchive::getMember(const Common::Path &name) const {
-	const DatFile *file = findFile(name);
-	if (file == nullptr) {
-		return Common::ArchiveMemberPtr();
-	} else {
-		return Common::ArchiveMemberPtr(new Common::GenericArchiveMember(file->filename, this));
-	}
-}
-
-Common::SeekableReadStream *DatArchive::createReadStreamForMember(const Common::Path &name) const {
-	const DatFile *file = findFile(name);
+Common::SeekableReadStream *DatArchive::readFile(const DatFile *file) {
 	if (file == nullptr) {
 		return nullptr;
-	} else {
-		_stream->seek(kHeaderSize + file->position);
-		return _stream->readStream(file->size);
 	}
+	uint32 size = file->width * file->height;
+	if (size == 0) {
+		const DatFile *next = file + 1;
+		size = next->position - file->position;
+	}
+	_stream->seek(file->position);
+	Common::SeekableReadStream *stream = _stream->readStream(size);
+	return stream;
 }
 
 } // End of namespace Raunes

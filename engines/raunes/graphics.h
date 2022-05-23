@@ -23,7 +23,7 @@
 #ifndef RAUNES_GRAPHICS_H
 #define RAUNES_GRAPHICS_H
 
-#include "common/archive.h"
+#include "raunes/datfile.h"
 
 namespace Graphics {
 	struct Surface;
@@ -31,16 +31,15 @@ namespace Graphics {
 
 namespace Raunes {
 
-class DatArchive;
-
 class GraphicsManager {
-	DatArchive *_data;
+	DatArchive _data;
 
 public:
 	GraphicsManager();
 	~GraphicsManager();
 	bool loadDat();
 	Graphics::Surface *loadPcx(const Common::String &filename);
+	Graphics::Surface *loadGrf(const Common::String &filename);
 };
 
 } // End of namespace Raunes

@@ -54,7 +54,9 @@ Common::Error RaunesEngine::run() {
 	if (!_graphics->loadDat()) {
 		return Common::kNoGameDataFoundError;
 	}
-	Graphics::Surface *test = _graphics->loadPcx("LOGO.PCX");
+	Graphics::Surface *test = _graphics->loadPcx("RAUM0.PCX");
+	g_system->copyRectToScreen(test->getPixels(), test->pitch, 0, 0, test->w, test->h);
+	test = _graphics->loadGrf("MENUE.GRF");
 	g_system->copyRectToScreen(test->getPixels(), test->pitch, 0, 0, test->w, test->h);
 	g_system->updateScreen();
 

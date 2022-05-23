@@ -34,17 +34,15 @@
 namespace Raunes {
 
 GraphicsManager::GraphicsManager() {
-	_data = new DatArchive();
 }
 
 GraphicsManager::~GraphicsManager() {
-	delete _data;
 }
 
 bool GraphicsManager::loadDat() {
 	Common::File *file = new Common::File();
 	if (file->open("RAUNES.DAT")) {
-		return _data->open(file);
+		return _data.open(file);
 	} else {
 		warning("GraphicsManager: RAUNES.DAT not found");
 		delete file;
@@ -53,21 +51,39 @@ bool GraphicsManager::loadDat() {
 }
 
 Graphics::Surface *GraphicsManager::loadPcx(const Common::String &filename) {
-	Common::SeekableReadStream *file = _data->createReadStreamForMember(filename);
-	if (file == nullptr) {
+	const DatFile *file = _data.findFile(filename);
+	Common::SeekableReadStream *stream = _data.readFile(file);
+	if (stream == nullptr) {
 		warning("GraphicsManager: %s not found", filename.c_str());
 		return nullptr;
-	} else {
-		Image::PCXDecoder pcx = Image::PCXDecoder();
-		if (!pcx.loadStream(*file)) {
-			warning("GraphicsManager: %s is corrupted", filename.c_str());
-			return nullptr;
-		}
-		g_system->getPaletteManager()->setPalette(pcx.getPalette(), pcx.getPaletteStartIndex(), pcx.getPaletteColorCount());
-		Graphics::Surface *surf = new Graphics::Surface();
-		surf->copyFrom(*pcx.getSurface());
-		return surf;
 	}
+
+	Image::PCXDecoder pcx = Image::PCXDecoder();
+	if (!pcx.loadStream(*stream)) {
+		warning("GraphicsManager: %s is corrupted", filename.c_str());
+		delete stream;
+		return nullptr;
+	}
+	g_system->getPaletteManager()->setPalette(pcx.getPalette(), pcx.getPaletteStartIndex(), pcx.getPaletteColorCount());
+	Graphics::Surface *surface = new Graphics::Surface();
+	surface->copyFrom(*pcx.getSurface());
+	delete stream;
+	return surface;
+}
+
+Graphics::Surface *GraphicsManager::loadGrf(const Common::String &filename) {
+	const DatFile *file = _data.findFile(filename);
+	Common::SeekableReadStream *stream = _data.readFile(file);
+	if (stream == nullptr) {
+		warning("GraphicsManager: %s not found", filename.c_str());
+		return nullptr;
+	}
+
+	Graphics::Surface *surface = new Graphics::Surface();
+	surface->create(file->width, file->height, Graphics::PixelFormat::createFormatCLUT8());
+	stream->read(surface->getPixels(), surface->w * surface->h);
+	delete stream;
+	return surface;
 }
 
 } // End of namespace Raunes
