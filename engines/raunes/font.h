@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef RAUNES_DATFILE_H
-#define RAUNES_DATFILE_H
+#ifndef RAUNES_FONT_H
+#define RAUNES_FONT_H
 
 #include "common/array.h"
 #include "common/str.h"
@@ -29,26 +29,30 @@
 namespace Common {
 class SeekableReadStream;
 }
+namespace Graphics {
+struct Surface;
+}
 
 namespace Raunes {
 
-struct DatFile {
-	Common::String filename;
-	int position;
-	int width;
-	int height;
-};
+class SnagFont {
+	static const int kChars = 256;
 
-class DatArchive {
-	Common::Array<DatFile> _files;
-	Common::SeekableReadStream *_stream;
+	int _width[kChars];
+	int _position[kChars];
+	Common::Array<uint8> _pixels;
+	uint8 _foreColor, _backColor, _shadowColor, _underlineColor;
+	bool _shadow, _italic;
+	int _underline, _height;
+
+	void drawPixel(Graphics::Surface *dst, int x, int y, uint8 p) const;
+	void drawChar(Graphics::Surface *dst, int x, int y, uint8 chr, bool shadow = false) const;
 
 public:
-	DatArchive();
-	~DatArchive();
+	SnagFont();
 	bool open(Common::SeekableReadStream *stream);
-	const DatFile *findFile(Common::String name) const;
-	Common::SeekableReadStream *readFile(const DatFile *file);
+	int drawText(Graphics::Surface *dst, int x, int y, const Common::String &str);
+	int drawTextCenter(Graphics::Surface *dst, int x, int y, const Common::String &str);
 };
 
 } // End of namespace Raunes

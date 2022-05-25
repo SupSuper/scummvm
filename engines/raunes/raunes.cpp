@@ -36,6 +36,7 @@
 
 #include "raunes/raunes.h"
 #include "raunes/graphics.h"
+#include "raunes/font.h"
 
 namespace Raunes {
 
@@ -54,10 +55,19 @@ Common::Error RaunesEngine::run() {
 	if (!_graphics->loadDat()) {
 		return Common::kNoGameDataFoundError;
 	}
+	Graphics::Surface *scr = g_system->lockScreen();
 	Graphics::Surface *test = _graphics->loadPcx("RAUM0.PCX");
-	g_system->copyRectToScreen(test->getPixels(), test->pitch, 0, 0, test->w, test->h);
+	scr->copyRectToSurface(test->getPixels(), test->pitch, 0, 0, test->w, test->h);
 	test = _graphics->loadGrf("MENUE.GRF");
-	g_system->copyRectToScreen(test->getPixels(), test->pitch, 0, 0, test->w, test->h);
+	scr->copyRectToSurface(test->getPixels(), test->pitch, 0, 0, test->w, test->h);
+
+	Common::File file;
+	file.open("SELF.SF");
+	SnagFont font;
+	font.open(&file);
+	font.drawText(scr, 0, 100, "#b000This is a test string!");
+
+	g_system->unlockScreen();
 	g_system->updateScreen();
 
 	Common::Event evt;

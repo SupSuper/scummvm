@@ -22,6 +22,8 @@
 
 #include "common/scummsys.h"
 #include "common/stream.h"
+#include "common/textconsole.h"
+#include "common/util.h"
 #include "raunes/datfile.h"
 
 namespace Raunes {
@@ -47,20 +49,21 @@ bool DatArchive::open(Common::SeekableReadStream *stream) {
 		warning("DatArchive: No header found");
 		return false;
 	}
+
 	// Skip data chunk
 	int dataBytes = stream->readUint32LE();
 	stream->skip(dataBytes);
 
+	// Read file table
 	int numFiles = stream->readUint32LE();
-	_files.reserve(numFiles);
+	_files.resize(numFiles);
 	for (int i = 0; i < numFiles; i++) {
-		DatFile file;
+		DatFile *file = &_files[i];
 		stream->skip(1); // length
-		file.filename = stream->readString(0, 12);
-		file.position = kHeaderSize + stream->readUint32LE();
-		file.width = stream->readUint16LE();
-		file.height = stream->readUint16LE();
-		_files.push_back(file);
+		file->filename = stream->readString(0, 12);
+		file->position = kHeaderSize + stream->readUint32LE();
+		file->width = stream->readUint16LE();
+		file->height = stream->readUint16LE();
 	}
 
 	return true;
