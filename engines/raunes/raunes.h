@@ -42,8 +42,10 @@ public:
 	Common::Error run() override;
 	bool hasFeature(EngineFeature f) const override;
 
+	void delay(int ms);
 	void logo();
 	void intro();
+	void introWriteCenter(int x, int y, const Common::String &str);
 };
 
 } // End of namespace Raunes

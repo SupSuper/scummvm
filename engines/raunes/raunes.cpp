@@ -50,7 +50,7 @@ Common::Error RaunesEngine::run() {
 	_gfx.init();
 
 	logo();
-	_snd.play("raum1.snd", 22050);
+	_snd.play("RAUM1.SND", 22050);
 	intro();
 
 	Common::Event evt;
@@ -69,16 +69,72 @@ bool RaunesEngine::hasFeature(EngineFeature f) const {
 		   (f == kSupportsSavingDuringRuntime);
 }
 
+void RaunesEngine::delay(int ms) {
+	int time = 0;
+	Common::Event evt;
+	while (time < ms) {
+		while (g_system->getEventManager()->pollEvent(evt));
+		g_system->updateScreen();
+		g_system->delayMillis(10);
+		time += 10;
+	}
+}
+
 void RaunesEngine::logo() {
 	_gfx.setPage(0);
 	_gfx.showPage(1);
 	_gfx.clearScreen();
 	_gfx.showPcx("LOGO.PCX");
 	_gfx.swapPage();
+	delay(2000);
 }
 
 void RaunesEngine::intro() {
+	_gfx.drawBlock(0, 0, _gfx.kScreenW, _gfx.kScreenH, 0);
+	_gfx.swapPage();
+	_gfx.drawBlock(0, 0, _gfx.kScreenW, _gfx.kScreenH, 0);
+	_gfx.swapPage();
 
+	_gfx.setPage(2);
+	_gfx.showPcx("INTRO.PCX");
+	_gfx.write(0, 0, "#b255#f255");
+	int y = 5;
+	while (!shouldQuit()) {
+		_gfx.swapPage();
+		_gfx.blockMove(2, 0, 0, _gfx.getPage(), 0, 0, 200, 200);
+		_gfx.blockMove(2, 200, 0, _gfx.getPage(), 200, 0, 120, 200);
+		introWriteCenter(160, 210 - y, "It's spring 2005,");
+
+		introWriteCenter(160, 230 - y, "Eight years after Dr. Udoiana Raunes from Germany");
+		introWriteCenter(160, 240 - y, "was the leading actor");
+		introWriteCenter(160, 250 - y, "in an Indiana Jones fan game.");
+
+		introWriteCenter(160, 270 - y, "He restored the school order");
+		introWriteCenter(160, 280 - y, "in his small high school in Munich.");
+
+		introWriteCenter(160, 300 - y, "Eight years full of peace and harmony.");
+
+		introWriteCenter(160, 320 - y, "Now Dr. Raunes is looking for his retirement.");
+		introWriteCenter(160, 330 - y, "(poor guy, he invested");
+		introWriteCenter(160, 340 - y, "in the german state-run pension insurance)");
+
+		introWriteCenter(160, 360 - y, "Feeling happy that he never would have to appear");
+		introWriteCenter(160, 370 - y, "in a lousy fan game again");
+		introWriteCenter(160, 380 - y, "he enjoys nature");
+		introWriteCenter(160, 390 - y, "and walks through beautiful german forests");
+
+		introWriteCenter(160, 410 - y, "...until today...");
+
+		delay(100);
+		y++;
+	}
+}
+
+void RaunesEngine::introWriteCenter(int x, int y, const Common::String &str) {
+	Common::String s = "#f255";
+	if (y > 140 && y < 200) {
+		_gfx.writeCenter(x, y, s + str);
+	}
 }
 
 } // End of namespace Raunes

@@ -23,6 +23,7 @@
 #ifndef RAUNES_GRAPHICS_H
 #define RAUNES_GRAPHICS_H
 
+#include "common/str.h"
 #include "graphics/surface.h"
 #include "image/pcx.h"
 #include "raunes/datfile.h"
@@ -59,11 +60,16 @@ public:
 	void setPage(int page);
 	void showPage(int page);
 	void swapPage();
+	int getPage() const { return _page; }
 	void clearScreen();
+	void blockMove(int page1, int x1, int y1, int page2, int x2, int y2, int width, int height);
+	void drawBlock(int x, int y, int width, int height, int color);
 
 	bool loadPcx(const Common::String &filename);
 	Graphics::Surface *loadGrf(const Common::String &filename);
 	void showPcx(const Common::String &filename);
+	void write(int x, int y, const Common::String &str);
+	void writeCenter(int x, int y, const Common::String &str);
 };
 
 } // End of namespace Raunes

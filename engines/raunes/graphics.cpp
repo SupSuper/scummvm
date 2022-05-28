@@ -23,6 +23,7 @@
 #include "common/scummsys.h"
 
 #include "common/file.h"
+#include "common/rect.h"
 #include "common/system.h"
 #include "engines/util.h"
 #include "graphics/cursorman.h"
@@ -112,6 +113,16 @@ void GraphicsManager::clearScreen() {
 	g_system->fillScreen(0);
 }
 
+void GraphicsManager::blockMove(int page1, int x1, int y1, int page2, int x2, int y2, int width, int height) {
+	Graphics::Surface *surface1 = &_pages[page1];
+	Graphics::Surface *surface2 = &_pages[page2];
+	surface2->copyRectToSurface(*surface1, x2, y2, Common::Rect(x1, y1, x1 + width, y1 + height));
+}
+
+void GraphicsManager::drawBlock(int x, int y, int width, int height, int color) {
+	_drawPage->fillRect(Common::Rect(x, y, x + width, y + height), color);
+}
+
 bool GraphicsManager::loadPcx(const Common::String &filename) {
 	const DatFile *file = _data.findFile(filename);
 	Common::SeekableReadStream *stream = _data.readFile(file);
@@ -149,6 +160,14 @@ void GraphicsManager::showPcx(const Common::String &filename) {
 
 	const Graphics::Surface *surface = _pcx.getSurface();
 	_drawPage->copyRectToSurface(surface->getPixels(), surface->pitch, 0, 0, surface->w, surface->h);
+}
+
+void GraphicsManager::write(int x, int y, const Common::String &str) {
+	_font.write(_drawPage, x, y, str);
+}
+
+void GraphicsManager::writeCenter(int x, int y, const Common::String &str) {
+	_font.writeCenter(_drawPage, x, y, str);
 }
 
 } // End of namespace Raunes

@@ -86,7 +86,10 @@ bool SnagFont::open(Common::SeekableReadStream *stream) {
 	return true;
 }
 
-void SnagFont::drawPixel(Graphics::Surface* dst, int x, int y, uint8 p) const {
+void SnagFont::drawPixel(Graphics::Surface *dst, int x, int y, uint8 p) const {
+	if (x < 0 || x >= dst->w || y < 0 || y >= dst->h)
+		return;
+
 	if (p == Gfx::kTransparent) {
 		if (_backColor != Gfx::kTransparent) {
 			dst->setPixel(x, y, _backColor);
@@ -97,7 +100,7 @@ void SnagFont::drawPixel(Graphics::Surface* dst, int x, int y, uint8 p) const {
 		dst->setPixel(x, y, _foreColor + p - 247);
 	}
 }
-void SnagFont::drawChar(Graphics::Surface* dst, int x, int y, uint8 chr, bool shadow) const {
+void SnagFont::drawChar(Graphics::Surface *dst, int x, int y, uint8 chr, bool shadow) const {
 	if (dst == nullptr)
 		return;
 	if (_shadow && !shadow) {
@@ -178,7 +181,7 @@ int SnagFont::write(Graphics::Surface *dst, int x, int y, const Common::String &
 	return xi;
 }
 
-int SnagFont::writeCentered(Graphics::Surface *dst, int x, int y, const Common::String &str) {
+int SnagFont::writeCenter(Graphics::Surface *dst, int x, int y, const Common::String &str) {
 	int width = write(nullptr, 0, 0, str);
 	int xi = x - width / 2;
 	if (xi < 0) {

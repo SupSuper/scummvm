@@ -52,7 +52,7 @@ public:
 	SnagFont();
 	bool open(Common::SeekableReadStream *stream);
 	int write(Graphics::Surface *dst, int x, int y, const Common::String &str);
-	int writeCentered(Graphics::Surface *dst, int x, int y, const Common::String &str);
+	int writeCenter(Graphics::Surface *dst, int x, int y, const Common::String &str);
 };
 
 } // End of namespace Raunes
