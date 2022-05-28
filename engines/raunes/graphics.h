@@ -33,9 +33,7 @@ namespace Raunes {
 class RaunesEngine;
 
 class GraphicsManager {
-	static const int kScreenWidth = 320;
-	static const int kScreenHeight = 200;
-	static const int kScreenPages = 4;
+	static const int kPages = 4;
 
 	RaunesEngine *_vm;
 	DatArchive _data;
@@ -44,11 +42,15 @@ class GraphicsManager {
 
 	int _page;
 	Graphics::Surface *_drawPage;
-	Graphics::Surface _pages[kScreenPages];
+	Graphics::Surface _pages[kPages];
 
 	Graphics::Surface *_cursor;
 
 public:
+	static const int kScreenW = 320;
+	static const int kScreenH = 200;
+	static const int kTransparent = 255;
+
 	GraphicsManager(RaunesEngine *vm);
 	~GraphicsManager();
 	bool load();

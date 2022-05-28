@@ -28,8 +28,11 @@
 #include "graphics/surface.h"
 
 #include "raunes/font.h"
+#include "raunes/graphics.h"
 
 namespace Raunes {
+
+using Gfx = GraphicsManager;
 
 SnagFont::SnagFont() : _foreColor(15), _backColor(255), _shadowColor(8), _underlineColor(1),
 	_shadow(false), _italic(false), _underline(0), _height(0), _width{0}, _position{0} 
@@ -84,8 +87,8 @@ bool SnagFont::open(Common::SeekableReadStream *stream) {
 }
 
 void SnagFont::drawPixel(Graphics::Surface* dst, int x, int y, uint8 p) const {
-	if (p == 255) {
-		if (_backColor != 255) {
+	if (p == Gfx::kTransparent) {
+		if (_backColor != Gfx::kTransparent) {
 			dst->setPixel(x, y, _backColor);
 		}
 	} else if (p < 240) {
@@ -103,7 +106,7 @@ void SnagFont::drawChar(Graphics::Surface* dst, int x, int y, uint8 chr, bool sh
 	for (int yi = 0; yi < _height; yi++) {
 		for (int xi = 0; xi < _width[chr]; xi++) {
 			uint8 p = _pixels[_position[chr] + yi * _width[chr] + xi];
-			if (shadow && p != 255) {
+			if (shadow && p != Gfx::kTransparent) {
 				p = _shadowColor;
 			}
 			int xp = x + xi;
@@ -181,8 +184,8 @@ int SnagFont::writeCentered(Graphics::Surface *dst, int x, int y, const Common::
 	if (xi < 0) {
 		xi = 0;
 	}
-	if (xi + width > 319) {
-		xi = 319 - width;
+	if (xi + width >= Gfx::kScreenW) {
+		xi = Gfx::kScreenW - 1 - width;
 	}
 	int yi = y - _height / 2;
 	return write(dst, xi, yi, str);

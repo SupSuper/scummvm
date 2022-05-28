@@ -40,7 +40,7 @@ GraphicsManager::GraphicsManager(RaunesEngine *vm) : _vm(vm), _page(0), _drawPag
 }
 
 GraphicsManager::~GraphicsManager() {
-	for (int i = 0; i < kScreenPages; i++) {
+	for (int i = 0; i < kPages; i++) {
 		_pages[i].free();
 	}
 }
@@ -77,27 +77,27 @@ bool GraphicsManager::load() {
 
 void GraphicsManager::init() {
 	// Initialize screen
-	initGraphics(kScreenWidth, kScreenHeight);
-	for (int i = 0; i < kScreenPages; i++) {
-		_pages[i].create(kScreenWidth, kScreenHeight, Graphics::PixelFormat::createFormatCLUT8());
+	initGraphics(kScreenW, kScreenH);
+	for (int i = 0; i < kPages; i++) {
+		_pages[i].create(kScreenW, kScreenH, Graphics::PixelFormat::createFormatCLUT8());
 	}
 	_page = 0;
 	setPage(_page);
 	showPage(1 - _page);
 
 	// Initialize cursor
-	CursorMan.replaceCursor(_cursor->getPixels(), _cursor->w, _cursor->h, 0, 0, 255, false);
+	CursorMan.replaceCursor(_cursor->getPixels(), _cursor->w, _cursor->h, 0, 0, kTransparent, false);
 }
 
 void GraphicsManager::setPage(int page) {
 	if (page < 0)
-		page += kScreenPages;
+		page += kPages;
 	_drawPage = &_pages[page];
 }
 
 void GraphicsManager::showPage(int page) {
 	if (page < 0)
-		page += kScreenPages;
+		page += kPages;
 	Graphics::Surface *surface = &_pages[page];
 	g_system->copyRectToScreen(surface->getPixels(), surface->pitch, 0, 0, surface->w, surface->h);
 }
