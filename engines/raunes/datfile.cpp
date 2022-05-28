@@ -21,9 +21,11 @@
  */
 
 #include "common/scummsys.h"
+
 #include "common/stream.h"
 #include "common/textconsole.h"
 #include "common/util.h"
+
 #include "raunes/datfile.h"
 
 namespace Raunes {

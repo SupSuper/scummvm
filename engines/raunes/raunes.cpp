@@ -27,12 +27,7 @@
 #include "common/debug-channels.h"
 #include "common/error.h"
 #include "common/events.h"
-#include "common/file.h"
-#include "common/fs.h"
 #include "common/system.h"
-
-#include "engines/util.h"
-#include "graphics/surface.h"
 
 #include "raunes/raunes.h"
 #include "raunes/graphics.h"
@@ -49,31 +44,19 @@ RaunesEngine::~RaunesEngine() {
 }
 
 Common::Error RaunesEngine::run() {
-	initGraphics(320, 200);
-
-	if (!_gfx.loadDat()) {
+	if (!_gfx.load()) {
 		return Common::kNoGameDataFoundError;
 	}
-	Graphics::Surface *scr = g_system->lockScreen();
-	Graphics::Surface *test = _gfx.loadPcx("RAUM0.PCX");
-	scr->copyRectToSurface(test->getPixels(), test->pitch, 0, 0, test->w, test->h);
-	test = _gfx.loadGrf("MENUE.GRF");
-	scr->copyRectToSurface(test->getPixels(), test->pitch, 0, 0, test->w, test->h);
+	_gfx.init();
 
-	Common::File file;
-	file.open("SELF.SF");
-	SnagFont font;
-	font.open(&file);
-	font.write(scr, 0, 100, "#b000This is a test string!");
-
-	g_system->unlockScreen();
-	g_system->updateScreen();
-
+	logo();
 	_snd.play("raum1.snd", 22050);
+	intro();
 
 	Common::Event evt;
 	while (!shouldQuit()) {
-		g_system->getEventManager()->pollEvent(evt);
+		while (g_system->getEventManager()->pollEvent(evt));
+		g_system->updateScreen();
 		g_system->delayMillis(10);
 	}
 
@@ -84,6 +67,18 @@ bool RaunesEngine::hasFeature(EngineFeature f) const {
 	return (f == kSupportsReturnToLauncher) ||
 		   (f == kSupportsLoadingDuringRuntime) ||
 		   (f == kSupportsSavingDuringRuntime);
+}
+
+void RaunesEngine::logo() {
+	_gfx.setPage(0);
+	_gfx.showPage(1);
+	_gfx.clearScreen();
+	_gfx.showPcx("LOGO.PCX");
+	_gfx.swapPage();
+}
+
+void RaunesEngine::intro() {
+
 }
 
 } // End of namespace Raunes

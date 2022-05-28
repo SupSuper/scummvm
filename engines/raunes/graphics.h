@@ -23,26 +23,45 @@
 #ifndef RAUNES_GRAPHICS_H
 #define RAUNES_GRAPHICS_H
 
+#include "graphics/surface.h"
+#include "image/pcx.h"
 #include "raunes/datfile.h"
-
-namespace Graphics {
-	struct Surface;
-}
+#include "raunes/font.h"
 
 namespace Raunes {
 
 class RaunesEngine;
 
 class GraphicsManager {
+	static const int kScreenWidth = 320;
+	static const int kScreenHeight = 200;
+	static const int kScreenPages = 4;
+
 	RaunesEngine *_vm;
 	DatArchive _data;
+	SnagFont _font;
+	Image::PCXDecoder _pcx;
+
+	int _page;
+	Graphics::Surface *_drawPage;
+	Graphics::Surface _pages[kScreenPages];
+
+	Graphics::Surface *_cursor;
 
 public:
 	GraphicsManager(RaunesEngine *vm);
 	~GraphicsManager();
-	bool loadDat();
-	Graphics::Surface *loadPcx(const Common::String &filename);
+	bool load();
+	void init();
+
+	void setPage(int page);
+	void showPage(int page);
+	void swapPage();
+	void clearScreen();
+
+	bool loadPcx(const Common::String &filename);
 	Graphics::Surface *loadGrf(const Common::String &filename);
+	void showPcx(const Common::String &filename);
 };
 
 } // End of namespace Raunes

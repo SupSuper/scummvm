@@ -41,6 +41,9 @@ public:
 
 	Common::Error run() override;
 	bool hasFeature(EngineFeature f) const override;
+
+	void logo();
+	void intro();
 };
 
 } // End of namespace Raunes

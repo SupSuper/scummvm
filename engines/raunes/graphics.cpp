@@ -24,51 +24,108 @@
 
 #include "common/file.h"
 #include "common/system.h"
+#include "engines/util.h"
+#include "graphics/cursorman.h"
 #include "graphics/palette.h"
 #include "graphics/surface.h"
 #include "image/pcx.h"
 
 #include "raunes/graphics.h"
 #include "raunes/datfile.h"
+#include "raunes/raunes.h"
 
 namespace Raunes {
 
-GraphicsManager::GraphicsManager(RaunesEngine *vm) : _vm(vm) {
+GraphicsManager::GraphicsManager(RaunesEngine *vm) : _vm(vm), _page(0), _drawPage(nullptr), _pages{} {
 }
 
 GraphicsManager::~GraphicsManager() {
-}
-
-bool GraphicsManager::loadDat() {
-	Common::File *file = new Common::File();
-	if (file->open("RAUNES.DAT")) {
-		return _data.open(file);
-	} else {
-		warning("GraphicsManager: RAUNES.DAT not found");
-		delete file;
-		return false;
+	for (int i = 0; i < kScreenPages; i++) {
+		_pages[i].free();
 	}
 }
 
-Graphics::Surface *GraphicsManager::loadPcx(const Common::String &filename) {
+bool GraphicsManager::load() {
+	// Load DAT archive
+	Common::File *datFile = new Common::File();
+	if (datFile->open("RAUNES.DAT")) {
+		if (!_data.open(datFile)) {
+			return false;
+		}
+	} else {
+		warning("GraphicsManager: RAUNES.DAT not found");
+		delete datFile;
+		return false;
+	}
+
+	// Load font
+	Common::File fontFile;
+	if (fontFile.open("SELF.SF")) {
+		if (!_font.open(&fontFile)) {
+			return false;
+		}
+	} else {
+		warning("GraphicsManager: SELF.SF not found");
+		return false;
+	}
+
+	// Load graphics
+	_cursor = loadGrf("ITEM0A.GRF");
+
+	return true;
+}
+
+void GraphicsManager::init() {
+	// Initialize screen
+	initGraphics(kScreenWidth, kScreenHeight);
+	for (int i = 0; i < kScreenPages; i++) {
+		_pages[i].create(kScreenWidth, kScreenHeight, Graphics::PixelFormat::createFormatCLUT8());
+	}
+	_page = 0;
+	setPage(_page);
+	showPage(1 - _page);
+
+	// Initialize cursor
+	CursorMan.replaceCursor(_cursor->getPixels(), _cursor->w, _cursor->h, 0, 0, 255, false);
+}
+
+void GraphicsManager::setPage(int page) {
+	if (page < 0)
+		page += kScreenPages;
+	_drawPage = &_pages[page];
+}
+
+void GraphicsManager::showPage(int page) {
+	if (page < 0)
+		page += kScreenPages;
+	Graphics::Surface *surface = &_pages[page];
+	g_system->copyRectToScreen(surface->getPixels(), surface->pitch, 0, 0, surface->w, surface->h);
+}
+
+void GraphicsManager::swapPage() {
+	_page = 1 - _page;
+	setPage(_page);
+	showPage(1 - _page);
+}
+
+void GraphicsManager::clearScreen() {
+	g_system->fillScreen(0);
+}
+
+bool GraphicsManager::loadPcx(const Common::String &filename) {
 	const DatFile *file = _data.findFile(filename);
 	Common::SeekableReadStream *stream = _data.readFile(file);
 	if (stream == nullptr) {
 		warning("GraphicsManager: %s not found", filename.c_str());
-		return nullptr;
+		return false;
 	}
-
-	Image::PCXDecoder pcx = Image::PCXDecoder();
-	if (!pcx.loadStream(*stream)) {
+	if (!_pcx.loadStream(*stream)) {
 		warning("GraphicsManager: %s is corrupted", filename.c_str());
 		delete stream;
-		return nullptr;
+		return false;
 	}
-	g_system->getPaletteManager()->setPalette(pcx.getPalette(), pcx.getPaletteStartIndex(), pcx.getPaletteColorCount());
-	Graphics::Surface *surface = new Graphics::Surface();
-	surface->copyFrom(*pcx.getSurface());
 	delete stream;
-	return surface;
+	return true;
 }
 
 Graphics::Surface *GraphicsManager::loadGrf(const Common::String &filename) {
@@ -84,6 +141,14 @@ Graphics::Surface *GraphicsManager::loadGrf(const Common::String &filename) {
 	stream->read(surface->getPixels(), surface->w * surface->h);
 	delete stream;
 	return surface;
+}
+
+void GraphicsManager::showPcx(const Common::String &filename) {
+	loadPcx(filename);
+	g_system->getPaletteManager()->setPalette(_pcx.getPalette(), _pcx.getPaletteStartIndex(), _pcx.getPaletteColorCount());
+
+	const Graphics::Surface *surface = _pcx.getSurface();
+	_drawPage->copyRectToSurface(surface->getPixels(), surface->pitch, 0, 0, surface->w, surface->h);
 }
 
 } // End of namespace Raunes

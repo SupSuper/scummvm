@@ -21,10 +21,12 @@
  */
 
 #include "common/scummsys.h"
+
 #include "common/stream.h"
 #include "common/textconsole.h"
 #include "common/util.h"
 #include "graphics/surface.h"
+
 #include "raunes/font.h"
 
 namespace Raunes {
@@ -124,7 +126,7 @@ void SnagFont::drawChar(Graphics::Surface* dst, int x, int y, uint8 chr, bool sh
 int SnagFont::write(Graphics::Surface *dst, int x, int y, const Common::String &str) {
 	int xi = x;
 	Common::String num;
-	for (int i = 0; i < str.size(); i++) {
+	for (uint i = 0; i < str.size(); i++) {
 		if (str[i] == '#') {
 			i++;
 			switch (str[i]) {
