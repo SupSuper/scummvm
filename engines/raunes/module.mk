@@ -5,7 +5,8 @@ MODULE_OBJS = \
 	metaengine.o \
 	graphics.o \
 	datfile.o \
-	font.o
+	font.o \
+	sound.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_RAUNES), DYNAMIC_PLUGIN)

@@ -24,15 +24,18 @@
 #define RAUNES_RAUNES_H
 
 #include "engines/engine.h"
+#include "raunes/graphics.h"
+#include "raunes/sound.h"
 
 namespace Raunes {
 
 class GraphicsManager;
 
 class RaunesEngine : public Engine {
-	GraphicsManager *_graphics;
-
 public:
+	GraphicsManager _gfx;
+	SoundManager _snd;
+
 	RaunesEngine(OSystem *syst);
 	~RaunesEngine();
 

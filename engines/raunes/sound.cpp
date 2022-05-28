@@ -20,41 +20,35 @@
  *
  */
 
-#ifndef RAUNES_FONT_H
-#define RAUNES_FONT_H
+#include "common/scummsys.h"
 
-#include "common/array.h"
-#include "common/str.h"
+#include "common/file.h"
+#include "common/system.h"
+#include "audio/decoders/raw.h"
+#include "audio/audiostream.h"
+#include "audio/mixer.h"
 
-namespace Common {
-class SeekableReadStream;
-}
-namespace Graphics {
-struct Surface;
-}
+#include "raunes/sound.h"
+#include "raunes/raunes.h"
 
 namespace Raunes {
 
-class SnagFont {
-	static const int kChars = 256;
+SoundManager::SoundManager(RaunesEngine *vm) : _vm(vm) {
+}
 
-	int _width[kChars];
-	int _position[kChars];
-	Common::Array<uint8> _pixels;
-	uint8 _foreColor, _backColor, _shadowColor, _underlineColor;
-	bool _shadow, _italic;
-	int _underline, _height;
+SoundManager::~SoundManager() {
+}
 
-	void drawPixel(Graphics::Surface *dst, int x, int y, uint8 p) const;
-	void drawChar(Graphics::Surface *dst, int x, int y, uint8 chr, bool shadow = false) const;
-
-public:
-	SnagFont();
-	bool open(Common::SeekableReadStream *stream);
-	int write(Graphics::Surface *dst, int x, int y, const Common::String &str);
-	int writeCentered(Graphics::Surface *dst, int x, int y, const Common::String &str);
-};
+void SoundManager::play(const Common::String& filename, int rate) {
+	Common::File *file = new Common::File();
+	if (!file->open(filename)) {
+		delete file;
+		warning("SoundManager: %s not found", filename.c_str());
+		return;
+	}
+	_vm->_mixer->stopAll();
+	Audio::SeekableAudioStream *audio = Audio::makeRawStream(file, rate, Audio::FLAG_UNSIGNED | Audio::FLAG_LITTLE_ENDIAN);
+	_vm->_mixer->playStream(Audio::Mixer::kMusicSoundType, nullptr, Audio::makeLoopingAudioStream(audio, 0));
+}
 
 } // End of namespace Raunes
-
-#endif

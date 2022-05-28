@@ -33,7 +33,7 @@
 
 namespace Raunes {
 
-GraphicsManager::GraphicsManager() {
+GraphicsManager::GraphicsManager(RaunesEngine *vm) : _vm(vm) {
 }
 
 GraphicsManager::~GraphicsManager() {

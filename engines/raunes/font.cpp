@@ -121,7 +121,7 @@ void SnagFont::drawChar(Graphics::Surface* dst, int x, int y, uint8 chr, bool sh
 	}
 }
 
-int SnagFont::drawText(Graphics::Surface *dst, int x, int y, const Common::String &str) {
+int SnagFont::write(Graphics::Surface *dst, int x, int y, const Common::String &str) {
 	int xi = x;
 	Common::String num;
 	for (int i = 0; i < str.size(); i++) {
@@ -173,8 +173,8 @@ int SnagFont::drawText(Graphics::Surface *dst, int x, int y, const Common::Strin
 	return xi;
 }
 
-int SnagFont::drawTextCenter(Graphics::Surface *dst, int x, int y, const Common::String &str) {
-	int width = drawText(nullptr, 0, 0, str);
+int SnagFont::writeCentered(Graphics::Surface *dst, int x, int y, const Common::String &str) {
+	int width = write(nullptr, 0, 0, str);
 	int xi = x - width / 2;
 	if (xi < 0) {
 		xi = 0;
@@ -183,7 +183,7 @@ int SnagFont::drawTextCenter(Graphics::Surface *dst, int x, int y, const Common:
 		xi = 319 - width;
 	}
 	int yi = y - _height / 2;
-	return drawText(dst, xi, yi, str);
+	return write(dst, xi, yi, str);
 }
 
 } // End of namespace Raunes

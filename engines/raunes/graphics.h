@@ -31,11 +31,14 @@ namespace Graphics {
 
 namespace Raunes {
 
+class RaunesEngine;
+
 class GraphicsManager {
+	RaunesEngine *_vm;
 	DatArchive _data;
 
 public:
-	GraphicsManager();
+	GraphicsManager(RaunesEngine *vm);
 	~GraphicsManager();
 	bool loadDat();
 	Graphics::Surface *loadPcx(const Common::String &filename);

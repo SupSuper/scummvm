@@ -37,38 +37,39 @@
 #include "raunes/raunes.h"
 #include "raunes/graphics.h"
 #include "raunes/font.h"
+#include "raunes/sound.h"
 
 namespace Raunes {
 
 RaunesEngine::RaunesEngine(OSystem *syst)
-	: Engine(syst) {
-	_graphics = new GraphicsManager();
+	: Engine(syst), _gfx(this), _snd(this) {
 }
 
 RaunesEngine::~RaunesEngine() {
-	delete _graphics;
 }
 
 Common::Error RaunesEngine::run() {
 	initGraphics(320, 200);
 
-	if (!_graphics->loadDat()) {
+	if (!_gfx.loadDat()) {
 		return Common::kNoGameDataFoundError;
 	}
 	Graphics::Surface *scr = g_system->lockScreen();
-	Graphics::Surface *test = _graphics->loadPcx("RAUM0.PCX");
+	Graphics::Surface *test = _gfx.loadPcx("RAUM0.PCX");
 	scr->copyRectToSurface(test->getPixels(), test->pitch, 0, 0, test->w, test->h);
-	test = _graphics->loadGrf("MENUE.GRF");
+	test = _gfx.loadGrf("MENUE.GRF");
 	scr->copyRectToSurface(test->getPixels(), test->pitch, 0, 0, test->w, test->h);
 
 	Common::File file;
 	file.open("SELF.SF");
 	SnagFont font;
 	font.open(&file);
-	font.drawText(scr, 0, 100, "#b000This is a test string!");
+	font.write(scr, 0, 100, "#b000This is a test string!");
 
 	g_system->unlockScreen();
 	g_system->updateScreen();
+
+	_snd.play("raum1.snd", 22050);
 
 	Common::Event evt;
 	while (!shouldQuit()) {

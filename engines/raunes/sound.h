@@ -20,39 +20,22 @@
  *
  */
 
-#ifndef RAUNES_FONT_H
-#define RAUNES_FONT_H
+#ifndef RAUNES_SOUND_H
+#define RAUNES_SOUND_H
 
-#include "common/array.h"
 #include "common/str.h"
-
-namespace Common {
-class SeekableReadStream;
-}
-namespace Graphics {
-struct Surface;
-}
 
 namespace Raunes {
 
-class SnagFont {
-	static const int kChars = 256;
+class RaunesEngine;
 
-	int _width[kChars];
-	int _position[kChars];
-	Common::Array<uint8> _pixels;
-	uint8 _foreColor, _backColor, _shadowColor, _underlineColor;
-	bool _shadow, _italic;
-	int _underline, _height;
-
-	void drawPixel(Graphics::Surface *dst, int x, int y, uint8 p) const;
-	void drawChar(Graphics::Surface *dst, int x, int y, uint8 chr, bool shadow = false) const;
+class SoundManager {
+	RaunesEngine *_vm;
 
 public:
-	SnagFont();
-	bool open(Common::SeekableReadStream *stream);
-	int write(Graphics::Surface *dst, int x, int y, const Common::String &str);
-	int writeCentered(Graphics::Surface *dst, int x, int y, const Common::String &str);
+	SoundManager(RaunesEngine *vm);
+	~SoundManager();
+	void play(const Common::String &filename, int rate);
 };
 
 } // End of namespace Raunes
