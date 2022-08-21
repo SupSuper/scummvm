@@ -79,11 +79,11 @@ public:
 		_guiOptions = GUIO2(GUIO_NOMIDI, GUIO_NOSPEECH);
 	}
 
-	const char *getEngineId() const override {
+	const char *getName() const override {
 		return "raunes";
 	}
 
-	const char *getName() const override {
+	const char *getEngineName() const override {
 		return "Udoiana Raunes";
 	}
 
