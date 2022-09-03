@@ -20,25 +20,43 @@
  *
  */
 
-#include "raunes/raunes.h"
-#include "engines/advancedDetector.h"
+#ifndef RAUNES_LOGIC_H
+#define RAUNES_LOGIC_H
 
-class RaunesMetaEngine : public AdvancedMetaEngine {
+namespace Raunes {
+
+class RaunesEngine;
+
+class LogicManager {
+protected:
+	RaunesEngine *_vm;
+
 public:
-	const char *getName() const override {
-		return "raunes";
-	}
-
-	Common::Error createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const override;
+	LogicManager(RaunesEngine *vm) : _vm(vm) {}
+	virtual ~LogicManager() = default;
+	virtual void logo() = 0;
+	virtual void intro() = 0;
+	virtual void introWriteCenter(int x, int y, const Common::String &str) = 0;
 };
 
-Common::Error RaunesMetaEngine::createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const {
-	*engine = new Raunes::RaunesEngine(syst, desc);
-	return Common::kNoError;
-}
+// Udoiana Raunes - Special Edition (German)
+class Logic_v2de : public LogicManager {
+public:
+	Logic_v2de(RaunesEngine *vm) : LogicManager(vm) {}
+	void logo() override;
+	void intro() override;
+	void introWriteCenter(int x, int y, const Common::String &str) override;
+};
 
-#if PLUGIN_ENABLED_DYNAMIC(RAUNES)
-REGISTER_PLUGIN_DYNAMIC(RAUNES, PLUGIN_TYPE_ENGINE, RaunesMetaEngine);
-#else
-REGISTER_PLUGIN_STATIC(RAUNES, PLUGIN_TYPE_ENGINE, RaunesMetaEngine);
+// Udoiana Raunes in search for Indiana Jones 4
+class Logic_v3 : public LogicManager {
+public:
+	Logic_v3(RaunesEngine *vm) : LogicManager(vm) {}
+	void logo() override;
+	void intro() override;
+	void introWriteCenter(int x, int y, const Common::String &str) override;
+};
+
+} // End of namespace Raunes
+
 #endif

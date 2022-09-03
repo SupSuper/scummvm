@@ -110,7 +110,10 @@ void GraphicsManager::swapPage() {
 }
 
 void GraphicsManager::clearScreen() {
-	g_system->fillScreen(0);
+	drawBlock(0, 0, kScreenW, kScreenH, 0);
+	swapPage();
+	drawBlock(0, 0, kScreenW, kScreenH, 0);
+	swapPage();
 }
 
 void GraphicsManager::blockMove(int page1, int x1, int y1, int page2, int x2, int y2, int width, int height) {

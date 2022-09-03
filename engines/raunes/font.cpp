@@ -138,7 +138,7 @@ int SnagFont::write(Graphics::Surface *dst, int x, int y, const Common::String &
 			switch (str[i]) {
 			case '#':
 				drawChar(dst, xi, y, str[i]);
-				xi += _width[str[i]];
+				xi += _width[(uint8)str[i]];
 				break;
 			case 'f':
 				num = str.substr(i + 1, 3);
@@ -175,7 +175,7 @@ int SnagFont::write(Graphics::Surface *dst, int x, int y, const Common::String &
 			}
 		} else {
 			drawChar(dst, xi, y, str[i]);
-			xi += _width[str[i]];
+			xi += _width[(uint8)str[i]];
 		}
 	}
 	return xi;

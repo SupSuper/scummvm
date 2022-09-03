@@ -24,28 +24,27 @@
 #define RAUNES_RAUNES_H
 
 #include "engines/engine.h"
+#include "engines/advancedDetector.h"
 #include "raunes/graphics.h"
 #include "raunes/sound.h"
 
 namespace Raunes {
 
-class GraphicsManager;
+class LogicManager;
 
 class RaunesEngine : public Engine {
 public:
 	GraphicsManager _gfx;
 	SoundManager _snd;
+	LogicManager *_game;
 
-	RaunesEngine(OSystem *syst);
+	RaunesEngine(OSystem *syst, const ADGameDescription *desc);
 	~RaunesEngine();
 
 	Common::Error run() override;
 	bool hasFeature(EngineFeature f) const override;
 
 	void delay(int ms);
-	void logo();
-	void intro();
-	void introWriteCenter(int x, int y, const Common::String &str);
 };
 
 } // End of namespace Raunes

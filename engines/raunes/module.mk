@@ -6,7 +6,9 @@ MODULE_OBJS = \
 	graphics.o \
 	datfile.o \
 	font.o \
-	sound.o
+	sound.o \
+	logic_v3.o \
+	logic_v2de.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_RAUNES), DYNAMIC_PLUGIN)
