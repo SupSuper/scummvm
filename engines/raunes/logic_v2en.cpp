@@ -20,33 +20,25 @@
  *
  */
 
-#ifndef RAUNES_RAUNES_H
-#define RAUNES_RAUNES_H
+#include "common/scummsys.h"
 
-#include "engines/engine.h"
-#include "engines/advancedDetector.h"
 #include "raunes/graphics.h"
-#include "raunes/sound.h"
+#include "raunes/logic.h"
+#include "raunes/raunes.h"
 
 namespace Raunes {
 
-class LogicManager;
+void Logic_v2en::logo() {
+	_vm->_gfx.setPage(0);
+	_vm->_gfx.showPage(1);
+	_vm->_gfx.clearScreen();
+	_vm->_gfx.showPcx("LOGO.PCX");
+	_vm->_gfx.swapPage();
+	_vm->delay(15000);
+	if (_vm->shouldQuit())
+		return;
+	_vm->_gfx.showPcx("INTRO2.PCX");
+	_vm->delay(35000);
+}
 
-class RaunesEngine : public Engine {
-public:
-	GraphicsManager _gfx;
-	SoundManager _snd;
-	LogicManager *_game;
-
-	RaunesEngine(OSystem *syst, const ADGameDescription *desc);
-	~RaunesEngine();
-
-	Common::Error run() override;
-	bool hasFeature(EngineFeature f) const override;
-
-	bool delay(int ms);
-};
-
-} // End of namespace Raunes
-
-#endif
+} // namespace Raunes

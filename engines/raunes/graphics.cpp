@@ -46,7 +46,16 @@ GraphicsManager::~GraphicsManager() {
 	}
 }
 
-bool GraphicsManager::load() {
+bool GraphicsManager::init() {
+	// Initialize screen
+	initGraphics(kScreenW, kScreenH);
+	for (int i = 0; i < kPages; i++) {
+		_pages[i].create(kScreenW, kScreenH, Graphics::PixelFormat::createFormatCLUT8());
+	}
+	_page = 0;
+	setPage(_page);
+	showPage(1 - _page);
+
 	// Load DAT archive
 	Common::File *datFile = new Common::File();
 	if (datFile->open("RAUNES.DAT")) {
@@ -70,24 +79,7 @@ bool GraphicsManager::load() {
 		return false;
 	}
 
-	// Load graphics
-	_cursor = loadGrf("ITEM0A.GRF");
-
 	return true;
-}
-
-void GraphicsManager::init() {
-	// Initialize screen
-	initGraphics(kScreenW, kScreenH);
-	for (int i = 0; i < kPages; i++) {
-		_pages[i].create(kScreenW, kScreenH, Graphics::PixelFormat::createFormatCLUT8());
-	}
-	_page = 0;
-	setPage(_page);
-	showPage(1 - _page);
-
-	// Initialize cursor
-	CursorMan.replaceCursor(_cursor->getPixels(), _cursor->w, _cursor->h, 0, 0, kTransparent, false);
 }
 
 void GraphicsManager::setPage(int page) {
@@ -126,7 +118,7 @@ void GraphicsManager::drawBlock(int x, int y, int width, int height, int color) 
 	_drawPage->fillRect(Common::Rect(x, y, x + width, y + height), color);
 }
 
-bool GraphicsManager::loadPcx(const Common::String &filename) {
+bool GraphicsManager::loadPcx(const Common::String &filename, Graphics::Surface *dest) {
 	const DatFile *file = _data.findFile(filename);
 	Common::SeekableReadStream *stream = _data.readFile(file);
 	if (stream == nullptr) {
@@ -138,31 +130,35 @@ bool GraphicsManager::loadPcx(const Common::String &filename) {
 		delete stream;
 		return false;
 	}
+
+	const Graphics::Surface *src = _pcx.getSurface();
+	if (dest->w == 0) {
+		dest->create(src->w, src->h, Graphics::PixelFormat::createFormatCLUT8());
+	}
+	dest->copyRectToSurface(src->getPixels(), src->pitch, 0, 0, src->w, src->h);
 	delete stream;
 	return true;
 }
 
-Graphics::Surface *GraphicsManager::loadGrf(const Common::String &filename) {
+bool GraphicsManager::loadGrf(const Common::String &filename, Graphics::Surface *dest) {
 	const DatFile *file = _data.findFile(filename);
 	Common::SeekableReadStream *stream = _data.readFile(file);
 	if (stream == nullptr) {
 		warning("GraphicsManager: %s not found", filename.c_str());
-		return nullptr;
+		return false;
 	}
 
-	Graphics::Surface *surface = new Graphics::Surface();
-	surface->create(file->width, file->height, Graphics::PixelFormat::createFormatCLUT8());
-	stream->read(surface->getPixels(), surface->w * surface->h);
+	dest->create(file->width, file->height, Graphics::PixelFormat::createFormatCLUT8());
+	stream->read(dest->getPixels(), dest->w * dest->h);
 	delete stream;
-	return surface;
+	return true;
 }
 
 void GraphicsManager::showPcx(const Common::String &filename) {
-	loadPcx(filename);
-	g_system->getPaletteManager()->setPalette(_pcx.getPalette(), _pcx.getPaletteStartIndex(), _pcx.getPaletteColorCount());
-
-	const Graphics::Surface *surface = _pcx.getSurface();
-	_drawPage->copyRectToSurface(surface->getPixels(), surface->pitch, 0, 0, surface->w, surface->h);
+	if (loadPcx(filename, _drawPage)) {
+		g_system->getPaletteManager()->setPalette(_pcx.getPalette(), _pcx.getPaletteStartIndex(), _pcx.getPaletteColorCount());
+		g_system->copyRectToScreen(_drawPage->getPixels(), _drawPage->pitch, 0, 0, _drawPage->w, _drawPage->h);
+	}
 }
 
 void GraphicsManager::write(int x, int y, const Common::String &str) {
@@ -171,6 +167,16 @@ void GraphicsManager::write(int x, int y, const Common::String &str) {
 
 void GraphicsManager::writeCenter(int x, int y, const Common::String &str) {
 	_font.writeCenter(_drawPage, x, y, str);
+}
+
+void GraphicsManager::setCursor(const Common::String &filename) {
+	loadGrf(filename, &_cursor);
+	CursorMan.replaceCursor(_cursor.getPixels(), _cursor.w, _cursor.h, 0, 0, kTransparent, false);
+}
+
+void GraphicsManager::updatePage2() {
+	blockMove(3, 0, 0, 2, 0, 0, 200, 147);
+	blockMove(3, 200, 0, 2, 200, 0, 120, 147);
 }
 
 } // End of namespace Raunes

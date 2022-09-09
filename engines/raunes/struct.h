@@ -20,31 +20,47 @@
  *
  */
 
-#ifndef RAUNES_RAUNES_H
-#define RAUNES_RAUNES_H
+#ifndef RAUNES_STRUCT_H
+#define RAUNES_STRUCT_H
 
-#include "engines/engine.h"
-#include "engines/advancedDetector.h"
-#include "raunes/graphics.h"
-#include "raunes/sound.h"
+#define RAU_POS(x) (x * 1024)
+#define RAU_POS_XY(x, y) {x * 1024, y * 1024}
+#define RAU_DRAW(x) (x / 1024)
+#define RAU_DRAW_XY(x, y) {x / 1024, y / 1024}
+
+#include "graphics/surface.h"
 
 namespace Raunes {
 
-class LogicManager;
+struct Point {
+	int _x, _y;
 
-class RaunesEngine : public Engine {
-public:
-	GraphicsManager _gfx;
-	SoundManager _snd;
-	LogicManager *_game;
+	Point() : _x(0), _y(0) {}
+	Point(int x, int y) : _x(x), _y(y) {}
+};
 
-	RaunesEngine(OSystem *syst, const ADGameDescription *desc);
-	~RaunesEngine();
+struct Player {
+	Graphics::Surface _walkPic[4][12];
+	int _numPics[4];
+	Graphics::Surface _specPic[8][6];
+	int _specNum, _specMode;
+	Point _pos, _oldPos, _step;
+	int _dir;
+};
 
-	Common::Error run() override;
-	bool hasFeature(EngineFeature f) const override;
+struct Sprite {
+	Point _curPos, _pos;
+	int _numPics[5];
+	Graphics::Surface _pics[5][25];
+	bool _draw;
 
-	bool delay(int ms);
+	void setNumPics(int n1 = 0, int n2 = 0, int n3 = 0, int n4 = 0, int n5 = 0) {
+		_numPics[0] = n1;
+		_numPics[1] = n2;
+		_numPics[2] = n3;
+		_numPics[3] = n4;
+		_numPics[4] = n5;
+	}
 };
 
 } // End of namespace Raunes

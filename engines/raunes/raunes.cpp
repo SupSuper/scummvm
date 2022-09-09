@@ -41,6 +41,8 @@ RaunesEngine::RaunesEngine(OSystem *syst, const ADGameDescription *desc)
 	: Engine(syst), _gfx(this), _snd(this), _game(nullptr) {
 	if (strcmp(desc->gameId, "raunes3") == 0) {
 		_game = new Logic_v3(this);
+	} else if (desc->language == Common::EN_ANY) {
+		_game = new Logic_v2en(this);
 	} else {
 		_game = new Logic_v2de(this);
 	}
@@ -51,20 +53,23 @@ RaunesEngine::~RaunesEngine() {
 }
 
 Common::Error RaunesEngine::run() {
-	if (!_gfx.load()) {
+	if (!_gfx.init()) {
 		return Common::kNoGameDataFoundError;
 	}
-	_gfx.init();
 
-	_game->logo();
-	_game->intro();
+	_game->load();
+	_game->start();
 
 	Common::Event evt;
 	while (!shouldQuit()) {
-		while (g_system->getEventManager()->pollEvent(evt));
+		while (g_system->getEventManager()->pollEvent(evt)) {
+		}
+		_game->run();
 		g_system->updateScreen();
 		g_system->delayMillis(10);
 	}
+
+	_game->end();
 
 	return Common::kNoError;
 }
@@ -75,11 +80,11 @@ bool RaunesEngine::hasFeature(EngineFeature f) const {
 		   (f == kSupportsSavingDuringRuntime);
 }
 
-void RaunesEngine::delay(int ms) {
+bool RaunesEngine::delay(int ms) {
 	int time = 0;
 	bool skip = false;
+	Common::Event evt;
 	while (time < ms && !skip) {
-		Common::Event evt;
 		while (g_system->getEventManager()->pollEvent(evt)) {
 			switch (evt.type) {
 			case Common::EVENT_QUIT:
@@ -96,6 +101,7 @@ void RaunesEngine::delay(int ms) {
 		g_system->delayMillis(10);
 		time += 10;
 	}
+	return skip;
 }
 
 } // End of namespace Raunes

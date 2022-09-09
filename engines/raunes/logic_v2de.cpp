@@ -28,6 +28,14 @@
 
 namespace Raunes {
 
+void Logic_v2de::start() {
+	logo();
+	if (!_vm->shouldQuit())
+		intro();
+	if (!_vm->shouldQuit())
+		setRoom(2);
+}
+
 void Logic_v2de::logo() {
 	_vm->_gfx.setPage(0);
 	_vm->_gfx.showPage(1);
@@ -35,11 +43,11 @@ void Logic_v2de::logo() {
 	_vm->_gfx.showPcx("LOGO.PCX");
 	_vm->_gfx.swapPage();
 	_vm->delay(15000);
-	_vm->_gfx.showPcx("INTRO1.PCX"); // TODO: Skip in English version
-	_vm->_gfx.swapPage();
+	if (_vm->shouldQuit()) return;
+	_vm->_gfx.showPcx("INTRO1.PCX");
 	_vm->delay(35000);
+	if (_vm->shouldQuit()) return;
 	_vm->_gfx.showPcx("INTRO2.PCX");
-	_vm->_gfx.swapPage();
 	_vm->delay(35000);
 }
 
@@ -50,8 +58,10 @@ void Logic_v2de::intro() {
 	_vm->_gfx.setPage(2);
 	_vm->_gfx.showPcx("INTRO.PCX");
 	_vm->_gfx.write(0, 0, "#b255#f031");
+
 	int y = 15;
-	while (!_vm->shouldQuit()) {
+	bool skip = _vm->shouldQuit();
+	while (!skip && y <= 640) {
 		_vm->_gfx.swapPage();
 		_vm->_gfx.blockMove(2, 0, 0, _vm->_gfx.getPage(), 0, 0, 200, 200);
 		_vm->_gfx.blockMove(2, 200, 0, _vm->_gfx.getPage(), 200, 0, 120, 200);
@@ -95,16 +105,23 @@ void Logic_v2de::intro() {
 		introWriteCenter(190, 660 - y, "Das System ist jedoch zerst\x94rt - es herrscht Anarchie.");
 		introWriteCenter(190, 690 - y, "Es gibt keine Hoffnung... oder?");
 
-		_vm->delay(100);
+		skip = _vm->delay(100);
 		y++;
 	}
 }
 
 void Logic_v2de::introWriteCenter(int x, int y, const Common::String &str) {
-	Common::String s = "#f000";
+	const Common::String s = "#f000";
 	if (y > 130 && y < 190) {
 		_vm->_gfx.writeCenter(x, y, s + str);
 	}
+}
+
+void Logic_v2de::setRoom(int room) {
+	_vm->_gfx.clearScreen();
+	_vm->_gfx.setPage(3);
+	_vm->_gfx.showPcx(Common::String::format("RAUM%d.PCX", room));
+	_vm->_gfx.updatePage2();
 }
 
 } // namespace Raunes

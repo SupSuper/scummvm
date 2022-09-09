@@ -23,6 +23,10 @@
 #ifndef RAUNES_LOGIC_H
 #define RAUNES_LOGIC_H
 
+#include "common/str.h"
+#include "graphics/surface.h"
+#include "raunes/struct.h"
+
 namespace Raunes {
 
 class RaunesEngine;
@@ -31,30 +35,72 @@ class LogicManager {
 protected:
 	RaunesEngine *_vm;
 
+	Graphics::Surface _itemPic[50];
+	Graphics::Surface _buttonPic[50];
+	Player _rau;
+	int _item[50];
+	Common::String _itemName[150];
+	Common::String _commandName[10];
+	Point _itemGo;
+	int _numItems;
+	int _room;
+
+	Graphics::Surface _moveMap, _deckMap, _clickMap;
+	int _numSprites;
+	Sprite _sprite[10];
+	bool _gameFlag[100];
+	int _numWay, _numWP;
+	Point _way[12], _wp[12];
+
 public:
 	LogicManager(RaunesEngine *vm) : _vm(vm) {}
 	virtual ~LogicManager() = default;
-	virtual void logo() = 0;
-	virtual void intro() = 0;
-	virtual void introWriteCenter(int x, int y, const Common::String &str) = 0;
+	virtual void load() = 0;
+	virtual void start() = 0;
+	virtual void run() = 0;
+	virtual void end() = 0;
 };
 
 // Udoiana Raunes - Special Edition (German)
 class Logic_v2de : public LogicManager {
+protected:
+	void logo();
+	void intro();
+	void introWriteCenter(int x, int y, const Common::String &str);
+	void setRoom(int room);
+
 public:
 	Logic_v2de(RaunesEngine *vm) : LogicManager(vm) {}
-	void logo() override;
-	void intro() override;
-	void introWriteCenter(int x, int y, const Common::String &str) override;
+	void load() override {}
+	void start() override;
+	void run() override {}
+	void end() override {}
+};
+
+// Udoiana Raunes - Special Edition (English)
+class Logic_v2en : public Logic_v2de {
+protected:
+	void logo();
+
+public:
+	Logic_v2en(RaunesEngine *vm) : Logic_v2de(vm) {}
 };
 
 // Udoiana Raunes in search for Indiana Jones 4
 class Logic_v3 : public LogicManager {
+protected:
+	void logo();
+	void intro();
+	void introWriteCenter(int x, int y, const Common::String &str);
+	void setRoom(int room);
+	void loadSprites();
+
 public:
 	Logic_v3(RaunesEngine *vm) : LogicManager(vm) {}
-	void logo() override;
-	void intro() override;
-	void introWriteCenter(int x, int y, const Common::String &str) override;
+	void load() override;
+	void start() override;
+	void run() override;
+	void end() override {}
 };
 
 } // End of namespace Raunes

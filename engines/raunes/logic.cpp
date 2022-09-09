@@ -20,33 +20,12 @@
  *
  */
 
-#ifndef RAUNES_RAUNES_H
-#define RAUNES_RAUNES_H
+#include "common/scummsys.h"
 
-#include "engines/engine.h"
-#include "engines/advancedDetector.h"
 #include "raunes/graphics.h"
-#include "raunes/sound.h"
+#include "raunes/logic.h"
+#include "raunes/raunes.h"
 
 namespace Raunes {
 
-class LogicManager;
-
-class RaunesEngine : public Engine {
-public:
-	GraphicsManager _gfx;
-	SoundManager _snd;
-	LogicManager *_game;
-
-	RaunesEngine(OSystem *syst, const ADGameDescription *desc);
-	~RaunesEngine();
-
-	Common::Error run() override;
-	bool hasFeature(EngineFeature f) const override;
-
-	bool delay(int ms);
-};
-
-} // End of namespace Raunes
-
-#endif
+} // namespace Raunes
