@@ -74,6 +74,7 @@ public:
 	virtual ~LogicManager() = default;
 	virtual void load() = 0;
 	virtual void start() = 0;
+	virtual void setRoom(int room) = 0;
 	virtual void run() = 0;
 	virtual void end() = 0;
 };
@@ -84,12 +85,12 @@ protected:
 	void logo();
 	void intro();
 	void introWriteCenter(int x, int y, const Common::String &str);
-	void setRoom(int room);
 
 public:
 	Logic_v2de(RaunesEngine *vm) : LogicManager(vm) {}
 	void load() override {}
 	void start() override;
+	void setRoom(int room) override;
 	void run() override {}
 	void end() override {}
 };
@@ -111,7 +112,6 @@ protected:
 	void logo();
 	void intro();
 	void introWriteCenter(int x, int y, const Common::String &str);
-	void setRoom(int room);
 	void loadSprites();
 	void updateLine();
 	void writeLine(const Common::String &str);
@@ -123,6 +123,7 @@ public:
 	Logic_v3(RaunesEngine *vm) : LogicManager(vm) {}
 	void load() override;
 	void start() override;
+	void setRoom(int room) override;
 	void run() override;
 	void end() override {}
 };

@@ -30,6 +30,7 @@
 #include "common/system.h"
 
 #include "raunes/raunes.h"
+#include "raunes/debugger.h"
 #include "raunes/graphics.h"
 #include "raunes/font.h"
 #include "raunes/logic.h"
@@ -57,12 +58,24 @@ Common::Error RaunesEngine::run() {
 		return Common::kNoGameDataFoundError;
 	}
 
+	setDebugger(new Debugger(this));
+
 	_game->load();
 	_game->start();
 
-	Common::Event evt;
+	Common::Event ev;
 	while (!shouldQuit()) {
-		while (g_system->getEventManager()->pollEvent(evt)) {
+		while (g_system->getEventManager()->pollEvent(ev)) {
+			switch (ev.type) {
+			case Common::EVENT_KEYDOWN:
+				// CTRL+D - open debugger
+				if (ev.kbd.hasFlags(Common::KBD_CTRL) && ev.kbd.keycode == Common::KEYCODE_d) {
+					getDebugger()->attach();
+				}
+				break;
+			default:
+				break;
+			}
 		}
 		_game->run();
 		g_system->updateScreen();
