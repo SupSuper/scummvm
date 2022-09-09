@@ -21,6 +21,7 @@
  */
 
 #include "common/scummsys.h"
+#include "graphics/cursorman.h"
 
 #include "raunes/graphics.h"
 #include "raunes/logic.h"
@@ -29,12 +30,74 @@
 
 namespace Raunes {
 
-void Logic_v3::load() {
+void Logic_v3::initVars() {
+	//_item = {0};
+	_numItems = 0;
+	_itemInv = 1;
+	_item[0] = 4;
+	_itemName[0] = "";
+	_itemName[30] = "Udoiana Raunes";
+	_itemName[100] = "";
+	_itemName[101] = "albatross beak scissors";
+	_itemName[102] = "albatross beak";
+	_itemName[103] = "nail";
+	_itemName[104] = "whip";
+	_itemName[105] = "nut";
+	_itemName[106] = "SchoolOrderStone";
+	_itemName[107] = "PDA";
+	_itemName[108] = "full battery";
+	_itemName[109] = "empty battery";
+	_itemName[110] = "strange pills";
+	_itemName[111] = "squirrel tooth";
+	_itemName[112] = "key";
+	_itemName[113] = "greencard";
+	_itemName[114] = "rubber duck";
+	_itemName[115] = "lanced rubber duck";
+	_itemName[116] = "promise ring";
+	_itemName[117] = "picture";
+	_itemName[118] = "strange book";
+	_itemName[119] = "money";
+	_itemName[120] = "Indy4 screenplay";
+	_itemName[121] = "Indy's heart (TM)";
+	_itemName[122] = "lightsaber";
+	_itemName[123] = "chewbacca fur";
+	_itemName[124] = "Indy hat";
+	_itemName[125] = "action scene";
+	_itemName[126] = "adventure scene";
+	_itemName[127] = "love scene";
+	_itemName[128] = "imcomplete screenplay";
+	_itemName[129] = "PDA with batteries";
+	_itemName[130] = "fish";
+	_itemName[131] = "drink";
+	_itemName[132] = "pizza";
+	_itemName[133] = "salami";
+	_itemName[134] = "pearl";
+	_itemName[135] = "frog eyes";
+	_itemName[136] = "albatross head";
+
+	_commandName[0] = "#f171walk to ";
+	_commandName[1] = "use ";
+	_commandName[2] = "pick up ";
+	_commandName[3] = "push ";
+	_commandName[4] = "talk to ";
+	_commandName[5] = "give ";
+	_commandName[6] = "detach ";
+	_commandName[7] = "look at ";
+	_commandName[8] = "open ";
+	//_gameFlag = {0};
+
+	_mouseMode = kMouseWalkTo;
+}
+
+void Logic_v3::initGfx() {
+	_vm->_gfx.loadGrf("MENUE.GRF", &_menu);
+	_vm->_gfx.loadGrf("CONVMEN.GRF", &_convMenu);
+	_vm->_gfx.loadGrf("LINE.GRF", &_menuLine);
 	for (int i = 0; i < 50; i++) {
 		_vm->_gfx.loadGrf(Common::String::format("ITEM%d.GRF", i), &_itemPic[i]);
 	}
 	for (int i = 0; i < 9; i++) {
-		_vm->_gfx.loadGrf(Common::String::format("BUT%d.GRF", i + 1), &_itemPic[i]);
+		_vm->_gfx.loadGrf(Common::String::format("BUT%d.GRF", i + 1), &_buttonPic[i]);
 	}
 	_vm->_gfx.setCursor("ITEM0A.GRF");
 
@@ -53,6 +116,11 @@ void Logic_v3::load() {
 			_vm->_gfx.loadGrf(Common::String::format("RAU11%d%d.GRF", i + 2, j + 1), &_rau._specPic[i][j]);
 		}
 	}
+}
+
+void Logic_v3::load() {
+	initVars();
+	initGfx();
 }
 
 void Logic_v3::start() {
@@ -175,6 +243,8 @@ void Logic_v3::setRoom(int room) {
 		break;
 	}
 	loadSprites();
+	updateMenu();
+	CursorMan.showMouse(true);
 }
 
 void Logic_v3::loadSprites() {
@@ -188,7 +258,79 @@ void Logic_v3::loadSprites() {
 	}
 }
 
+
+void Logic_v3::updateLine() {
+	Common::String s = _commandName[_mouseMode];
+	s += _itemName[0];
+	writeLine(s);
+}
+
+void Logic_v3::writeLine(const Common::String &str) {
+	if (str != _lastLine) {
+		_vm->_gfx.setPage(2);
+		_vm->_gfx.drawPic(0, 147, &_menuLine);
+		_vm->_gfx.writeCenter(160, 152, "#f171#b255" + str + "#b000");
+		_vm->_gfx.setPage();
+		_lastLine = str;
+	}
+}
+
+void Logic_v3::updateMenu() {
+	_vm->_gfx.setPage(2);
+	_vm->_gfx.drawPic(0, 147, &_menu, false);
+	for (int y = 0; y < 1; y++) {
+		for (int x = 0; x < 2; x++) {
+			int item = _itemInv + x + y * 3;
+			if (item <= _numItems) {
+				_vm->_gfx.drawPic(186 + x * 40, 159 + y * 20, &_itemPic[_item[item]]);
+			}
+		}
+	}
+	_vm->_gfx.setPage();
+	updateLine();
+}
+
+void Logic_v3::drawMenuButton() {
+	switch (_mouseMode) {
+	case kMouseUse:
+		_vm->_gfx.drawPic(5, 160, &_buttonPic[0]);
+		break;
+	case kMousePickUp:
+		_vm->_gfx.drawPic(5, 172, &_buttonPic[1]);
+		break;
+	case kMousePush:
+		_vm->_gfx.drawPic(5, 184, &_buttonPic[2]);
+		break;
+	case kMouseTalkTo:
+		_vm->_gfx.drawPic(53, 160, &_buttonPic[3]);
+		break;
+	case kMouseGive:
+		_vm->_gfx.drawPic(53, 172, &_buttonPic[4]);
+		break;
+	case kMouseDetach:
+		_vm->_gfx.drawPic(53, 184, &_buttonPic[5]);
+		break;
+	case kMouseWalkTo:
+		_vm->_gfx.drawPic(101, 160, &_buttonPic[6]);
+		break;
+	case kMouseLookAt:
+		_vm->_gfx.drawPic(101, 172, &_buttonPic[7]);
+		break;
+	case kMouseOpen:
+		_vm->_gfx.drawPic(101, 184, &_buttonPic[8]);
+		break;
+	}
+}
+
+void Logic_v3::drawPage() {
+	_vm->_gfx.blockMove(2, 0, 0, _vm->_gfx.getPage(), 0, 0, 200, 200);
+	_vm->_gfx.blockMove(2, 200, 0, _vm->_gfx.getPage(), 200, 0, 120, 200);
+	drawMenuButton();
+}
+
 void Logic_v3::run() {
+	_vm->_gfx.swapPage();
+	drawPage();
 }
 
 } // namespace Raunes

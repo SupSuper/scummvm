@@ -57,12 +57,15 @@ public:
 	bool init();
 
 	void setPage(int page);
+	void setPage() { setPage(_page); }
 	void showPage(int page);
 	void swapPage();
 	int getPage() const { return _page; }
 	void clearScreen();
 	void blockMove(int page1, int x1, int y1, int page2, int x2, int y2, int width, int height);
-	void drawBlock(int x, int y, int width, int height, int color);
+	void drawBlock(int x, int y, int width, int height, uint8 color);
+	bool putPix(int x, int y, uint8 color);
+	bool putPixLight(int x, int y, uint8 color);
 
 	bool loadPcx(const Common::String &filename, Graphics::Surface *dest);
 	bool loadGrf(const Common::String &filename, Graphics::Surface *dest);
@@ -71,6 +74,7 @@ public:
 	void writeCenter(int x, int y, const Common::String &str);
 	void setCursor(const Common::String &filename);
 	void updatePage2();
+	void drawPic(int x, int y, const Graphics::Surface *src, bool stencil = true);
 };
 
 } // End of namespace Raunes

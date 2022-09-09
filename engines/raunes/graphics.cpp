@@ -114,8 +114,26 @@ void GraphicsManager::blockMove(int page1, int x1, int y1, int page2, int x2, in
 	surface2->copyRectToSurface(*surface1, x2, y2, Common::Rect(x1, y1, x1 + width, y1 + height));
 }
 
-void GraphicsManager::drawBlock(int x, int y, int width, int height, int color) {
+void GraphicsManager::drawBlock(int x, int y, int width, int height, uint8 color) {
 	_drawPage->fillRect(Common::Rect(x, y, x + width, y + height), color);
+}
+
+bool GraphicsManager::putPix(int x, int y, uint8 color) {
+	if (color != kTransparent) {
+		_drawPage->setPixel(x, y, color);
+		return true;
+	}
+	return false;
+}
+
+bool GraphicsManager::putPixLight(int x, int y, uint8 color) {
+	if (color != 15 && color != kTransparent) {
+		uint c = (color % 16) / 2;
+		c += (color / 16) * 16;
+		_drawPage->setPixel(x, y, c);
+		return true;
+	}
+	return false;
 }
 
 bool GraphicsManager::loadPcx(const Common::String &filename, Graphics::Surface *dest) {
@@ -177,6 +195,22 @@ void GraphicsManager::setCursor(const Common::String &filename) {
 void GraphicsManager::updatePage2() {
 	blockMove(3, 0, 0, 2, 0, 0, 200, 147);
 	blockMove(3, 200, 0, 2, 200, 0, 120, 147);
+}
+
+void GraphicsManager::drawPic(int x, int y, const Graphics::Surface *src, bool stencil) {
+	for (int xi = 0; xi < src->w; xi++) {
+		for (int yi = 0; yi < src->h; yi++) {
+			int xn = x + xi;
+			int yn = y + yi;
+			if (xn >= 0 && xn < kScreenW && yn >= 0 && yn < kScreenH) {
+				if (stencil) {
+					putPix(xn, yn, src->getPixel(xi, yi));
+				} else {
+					_drawPage->setPixel(xn, yn, src->getPixel(xi, yi));
+				}
+			}
+		}
+	}
 }
 
 } // End of namespace Raunes

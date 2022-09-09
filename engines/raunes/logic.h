@@ -31,6 +31,18 @@ namespace Raunes {
 
 class RaunesEngine;
 
+enum MouseMode {
+	kMouseWalkTo,
+	kMouseUse,
+	kMousePickUp,
+	kMousePush,
+	kMouseTalkTo,
+	kMouseGive,
+	kMouseDetach,
+	kMouseLookAt,
+	kMouseOpen
+};
+
 class LogicManager {
 protected:
 	RaunesEngine *_vm;
@@ -40,11 +52,16 @@ protected:
 	Player _rau;
 	int _item[50];
 	Common::String _itemName[150];
-	Common::String _commandName[10];
+	Common::String _commandName[9];
 	Point _itemGo;
-	int _numItems;
-	int _room;
+	int _numItems, _itemInv;
+	Graphics::Surface _menu, _convMenu, _menuLine;
 
+	int _mouseBtn, _mouseX, _mouseY;
+	MouseMode _mouseMode;
+	Common::String _lastLine;
+
+	int _room;
 	Graphics::Surface _moveMap, _deckMap, _clickMap;
 	int _numSprites;
 	Sprite _sprite[10];
@@ -89,11 +106,18 @@ public:
 // Udoiana Raunes in search for Indiana Jones 4
 class Logic_v3 : public LogicManager {
 protected:
+	void initVars();
+	void initGfx();
 	void logo();
 	void intro();
 	void introWriteCenter(int x, int y, const Common::String &str);
 	void setRoom(int room);
 	void loadSprites();
+	void updateLine();
+	void writeLine(const Common::String &str);
+	void updateMenu();
+	void drawMenuButton();
+	void drawPage();
 
 public:
 	Logic_v3(RaunesEngine *vm) : LogicManager(vm) {}

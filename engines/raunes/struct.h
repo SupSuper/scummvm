@@ -44,6 +44,8 @@ struct Player {
 	int _numPics[4];
 	Graphics::Surface _specPic[8][6];
 	int _specNum, _specMode;
+	bool _moving, _anim, _freeMove, _allowMove;
+	int _shrink;
 	Point _pos, _oldPos, _step;
 	int _dir;
 };
