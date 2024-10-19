@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <cstring>
 #include <fstream>
+#include <sstream>
 
 namespace CreateProjectTool {
 
@@ -47,100 +48,38 @@ MSVCProvider::MSVCProvider(StringList &global_warnings, std::map<std::string, St
 	_arch_disabled_features[ARCH_ARM64] = arm64_disabled_features;
 }
 
-std::string MSVCProvider::getLibraryFromFeature(const char *feature, const BuildSetup &setup, bool isRelease) const {
-	static const MSVCLibrary s_libraries[] = {
-		// Libraries
-		{       "sdl", "SDL.lib",                   "SDLd.lib",        "winmm.lib imm32.lib version.lib setupapi.lib"    },
-		{      "sdl2", "SDL2.lib",                  "SDL2d.lib",       "winmm.lib imm32.lib version.lib setupapi.lib"    },
-		{      "zlib", "zlib.lib",                  "zlibd.lib",       nullptr                                           },
-		{       "mad", "mad.lib",                   nullptr,           nullptr                                           },
-		{   "fribidi", "fribidi.lib",               nullptr,           nullptr                                           },
-		{       "ogg", "ogg.lib",                   nullptr,           nullptr                                           },
-		{    "vorbis", "vorbis.lib vorbisfile.lib", nullptr,           nullptr                                           },
-		{    "tremor", "vorbisidec.lib",            nullptr,           nullptr                                           },
-		{      "flac", "FLAC.lib",                  nullptr,           nullptr                                           },
-		{       "png", "libpng16.lib",              "libpng16d.lib",   nullptr                                           },
-		{       "gif", "gif.lib",                   nullptr,           nullptr                                           },
-		{      "faad", "faad.lib",                  nullptr,           nullptr                                           },
-		{    "mikmod", "mikmod.lib",                nullptr,           nullptr                                           },
-		{   "openmpt", "openmpt.lib",               nullptr,           nullptr                                           },
-		{     "mpeg2", "mpeg2.lib",                 nullptr,           nullptr                                           },
-		{ "theoradec", "theora.lib",                nullptr,           nullptr                                           },
-		{       "vpx", "vpx.lib",                   nullptr,           nullptr                                           },
-		{ "freetype2", "freetype.lib",              "freetyped.lib",   nullptr                                           },
-		{      "jpeg", "jpeg.lib",                  nullptr,           nullptr                                           },
-		{"fluidsynth", "fluidsynth.lib",            nullptr,           nullptr                                           },
-		{ "fluidlite", "fluidlite.lib",             nullptr,           nullptr                                           },
-		{   "libcurl", "libcurl.lib",               "libcurl-d.lib",   "ws2_32.lib wldap32.lib crypt32.lib normaliz.lib" },
-		{    "sdlnet", "SDL_net.lib",               nullptr,           "iphlpapi.lib"                                    },
-		{   "sdl2net", "SDL2_net.lib",              "SDL2_netd.lib",   "iphlpapi.lib"                                    },
-		{   "discord", "discord-rpc.lib",           nullptr,           nullptr                                           },
-		{ "retrowave", "RetroWave.lib",             nullptr,           nullptr                                           },
-		{       "a52", "a52.lib",                   nullptr,           nullptr                                           },
-		{    "mpcdec", "libmpcdec.lib",             "libmpcdec_d.lib", nullptr                                           },
-		// Feature flags with library dependencies
-		{   "updates", "WinSparkle.lib",            nullptr,           nullptr                                           },
-		{       "tts", nullptr,                     nullptr,           "sapi.lib"                                        },
-		{    "opengl", nullptr,                     nullptr,           nullptr                                           },
-		{      "enet", nullptr,                     nullptr,           "winmm.lib ws2_32.lib"                            }
-	};
+std::string MSVCProvider::outputLibraryDependencies(const BuildSetup &setup, bool isRelease, MSVC_Architecture arch) const {
+	std::ostringstream libs;
 
-	// HACK for switching SDL_net to SDL2_net
-	const char *sdl2net = "sdl2net";
-	if (std::strcmp(feature, "sdlnet") == 0 && setup.useSDL2) {
-		feature = sdl2net;
+	// Vcpkg already adds the external libs
+	if (!setup.useVcpkg) {
+		std::string libsPath;
+		if (setup.libsDir.empty())
+			libsPath = "$(" LIBS_DEFINE ")";
+		else
+			libsPath = convertPathToWin(setup.libsDir);
+
+		std::string cfgPath = (isRelease ? "Release" : "Debug");
+
+		libs << libsPath << "\\lib\\" << getMSVCArchName(arch) << "\\" << cfgPath << "\\*.lib ";
 	}
-
-	const MSVCLibrary *library = nullptr;
-	for (unsigned int i = 0; i < sizeof(s_libraries) / sizeof(s_libraries[0]); i++) {
-		if (std::strcmp(feature, s_libraries[i].feature) == 0) {
-			library = &s_libraries[i];
-			break;
-		}
-	}
-
-	std::string libs;
-	if (library) {
-		// Dependencies come first
-		if (library->depends) {
-			libs += library->depends;
-			libs += " ";
-		}
-
-		// Vcpkg already adds the libs
-		if (!setup.useVcpkg) {
-			const char *basename = library->release;
-			// Debug name takes priority
-			if (!isRelease && library->debug) {
-				basename = library->debug;
-			}
-			if (basename) {
-				libs += basename;
-			}
-		}
-	}
-
-	return libs;
-}
-
-std::string MSVCProvider::outputLibraryDependencies(const BuildSetup &setup, bool isRelease) const {
-	std::string libs;
-
-	if (setup.useSDL2) {
-		libs += getLibraryFromFeature("sdl2", setup, isRelease);
-	} else {
-		libs += getLibraryFromFeature("sdl", setup, isRelease);
-	}
-	libs += " ";
+	// Add Windows dependencies
+	libs << "winmm.lib imm32.lib version.lib setupapi.lib ";
 	for (FeatureList::const_iterator i = setup.features.begin(); i != setup.features.end(); ++i) {
 		if (i->enable) {
-			std::string lib = getLibraryFromFeature(i->name, setup, isRelease);
-			if (!lib.empty())
-				libs += lib + " ";
+			if (std::strcmp(i->name, "tts") == 0) {
+				libs << "sapi.lib ";
+			} else if (std::strcmp(i->name, "enet") == 0) {
+				libs << "winmm.lib ws2_32.lib ";
+			} else if (std::strcmp(i->name, "sdlnet") == 0) {
+				libs << "iphlpapi.lib ";
+			} else if (std::strcmp(i->name, "libcurl") == 0) {
+				libs << "ws2_32.lib wldap32.lib crypt32.lib normaliz.lib ";
+			}
 		}
 	}
 
-	return libs;
+	return libs.str();
 }
 
 void MSVCProvider::createWorkspace(const BuildSetup &setup) {

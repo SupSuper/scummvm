@@ -302,7 +302,7 @@ void MSBuildProvider::outputProjectSettings(std::ofstream &project, const std::s
 
 	// Link configuration for main project
 	if (name == setup.projectName || setup.devTools || setup.tests) {
-		std::string libraries = outputLibraryDependencies(setup, isRelease);
+		std::string libraries = outputLibraryDependencies(setup, isRelease, arch);
 
 		// MSBuild uses ; for separators instead of spaces
 		for (std::string::iterator i = libraries.begin(); i != libraries.end(); ++i) {
