@@ -24,10 +24,10 @@
 
 #ifdef WIN32
 
-#include "backends/platform/sdl/win32/win32-window.h"
-
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
+#include "backends/platform/sdl/win32/win32-window.h"
 
 void SdlWindow_Win32::setupIcon() {
 	HMODULE handle = GetModuleHandle(nullptr);
@@ -51,6 +51,11 @@ void SdlWindow_Win32::setupIcon() {
 }
 
 HWND SdlWindow_Win32::getHwnd() {
+#if SDL_VERSION_ATLEAST(3, 0, 0)
+	if (_window) {
+		return (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(_window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
+	}
+#else
 	SDL_SysWMinfo wminfo;
 	if (getSDLWMInformation(&wminfo)) {
 #if SDL_VERSION_ATLEAST(2, 0, 0)
@@ -59,6 +64,7 @@ HWND SdlWindow_Win32::getHwnd() {
 		return wminfo.window;
 #endif
 	}
+#endif
 	return nullptr;
 }
 
