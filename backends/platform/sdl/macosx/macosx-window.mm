@@ -27,10 +27,15 @@
 #include <AppKit/NSWindow.h>
 
 float SdlWindow_MacOSX::getDpiScalingFactor() const {
-#if !SDL_VERSION_ATLEAST(3, 0, 0) && SDL_VERSION_ATLEAST(2, 0, 0) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
+#if SDL_VERSION_ATLEAST(2, 0, 0) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
+#if SDL_VERSION_ATLEAST(3, 0, 0)
+	if (_window) {
+		NSWindow *nswindow = (__bridge NSWindow *)SDL_GetPointerProperty(SDL_GetWindowProperties(_window), SDL_PROP_WINDOW_COCOA_WINDOW_POINTER, nullptr);
+#else
 	SDL_SysWMinfo wmInfo;
 	if (getSDLWMInformation(&wmInfo)) {
 		NSWindow *nswindow = wmInfo.info.cocoa.window;
+#endif
 		if ([nswindow respondsToSelector:@selector(backingScaleFactor)]) {
 			debug(4, "Reported DPI ratio: %g", [nswindow backingScaleFactor]);
 			return [nswindow backingScaleFactor];
